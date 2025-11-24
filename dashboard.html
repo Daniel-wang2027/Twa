@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="space">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation TWA | Dashboard</title>
+    
+    <!-- 1. CSS Links -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&family=Indie+Flower&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/core.css">
+
+    <!-- 2. Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        base: 'var(--bg)', surface: 'var(--surface)', border: 'var(--border)',
+                        text: 'var(--text)', muted: 'var(--muted)', primary: 'var(--primary)', accent: 'var(--accent)',
+                    },
+                    fontFamily: { sans: 'var(--font-main)' },
+                    animation: { 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-screen flex">
+
+    <!-- STUDENT LAYOUT -->
+    <div id="student-layout" class="flex w-full h-full hidden fade-in">
+        <aside class="w-64 bg-surface border-r border-border flex flex-col hidden md:flex z-20">
+            <div class="p-6 flex items-center gap-3">
+                <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold">S</div>
+                <span class="text-lg font-bold tracking-tight">Student HUD</span>
+            </div>
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <button onclick="switchStudentView('dashboard')" id="nav-s-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-primary bg-base border border-border"><i class="fa-solid fa-table-cells w-5"></i> Matrix</button>
+                <button onclick="switchStudentView('completed')" id="nav-s-completed" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base"><i class="fa-solid fa-check-double w-5"></i> History</button>
+                <button onclick="switchStudentView('profile')" id="nav-s-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base"><i class="fa-solid fa-graduation-cap w-5"></i> Classes</button>
+                <button onclick="switchStudentView('settings')" id="nav-s-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base"><i class="fa-solid fa-sliders w-5"></i> Settings</button>
+            </nav>
+            <div class="p-6 border-t border-border">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-base border border-border flex items-center justify-center text-primary font-bold" id="s-profileInitials"></div>
+                    <div class="text-sm overflow-hidden w-full">
+                        <p class="font-bold truncate" id="s-profileName"></p>
+                        <button onclick="doLogout()" class="text-xs text-red-500 hover:underline mt-1">Log Out</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col h-full relative" style="background-color: transparent;">
+            <header class="h-16 flex items-center justify-between px-6 border-b border-border bg-surface">
+                <div><h1 class="text-lg font-bold">The Week Ahead</h1><div class="text-xs text-muted" id="currentDate"></div></div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-3 bg-base border border-border px-3 py-1.5 rounded-lg">
+                        <div class="text-lg font-mono font-bold text-primary" id="timerDisplay">25:00</div>
+                        <div class="flex gap-1">
+                            <button onclick="toggleTimer()" class="w-6 h-6 rounded bg-surface hover:bg-border flex items-center justify-center text-xs text-text"><i class="fa-solid fa-play" id="timerIcon"></i></button>
+                            <button onclick="resetTimer()" class="w-6 h-6 rounded bg-surface hover:bg-border flex items-center justify-center text-xs text-text"><i class="fa-solid fa-rotate-left"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-base border border-border rounded-lg" id="streak-container">
+                        <i class="fa-solid fa-fire text-orange-500 animate-pulse-fast"></i>
+                        <span class="font-bold text-sm" id="streak-count">-- Streak</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-auto p-6 relative">
+                <!-- DASHBOARD -->
+                <div id="s-view-dashboard">
+                    <div class="grid grid-cols-4 gap-4 mb-6" id="stats-bar"></div>
+                    <div class="overflow-x-auto pb-20">
+                        <table class="w-full border-collapse min-w-[1000px]">
+                            <thead><tr id="matrix-header-row"></tr></thead>
+                            <tbody id="matrix-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- SETTINGS -->
+                <div id="s-view-settings" class="hidden max-w-4xl mx-auto">
+                    <h2 class="text-3xl font-bold mb-6">Settings</h2>
+                    <div class="bg-surface p-8 rounded-3xl border border-border mb-8">
+                        <h3 class="font-bold text-xl mb-6">Aesthetic Theme</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="theme-selector"></div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-surface p-6 rounded-2xl border border-border">
+                            <h3 class="font-bold text-lg mb-2">Procrastination Buffer</h3>
+                            <div class="flex items-center gap-4"><input type="number" id="setting-buffer" value="60" class="p-3 rounded-lg w-32" placeholder="Minutes"><span class="text-muted text-sm">minutes earlier.</span></div>
+                            <button onclick="saveSettings()" class="mt-2 text-primary text-sm hover:underline">Apply</button>
+                        </div>
+                        <div class="bg-surface p-6 rounded-2xl border border-border">
+                            <h3 class="font-bold text-lg mb-2">Focus Timer</h3>
+                            <div class="grid grid-cols-2 gap-4"><div><label class="text-xs font-bold text-muted uppercase">Work</label><input type="number" id="setting-work" value="25" class="w-full mt-1 p-3 rounded-lg"></div><div><label class="text-xs font-bold text-muted uppercase">Break</label><input type="number" id="setting-break" value="5" class="w-full mt-1 p-3 rounded-lg"></div></div>
+                            <button onclick="saveSettings()" class="mt-4 bg-primary text-white px-4 py-2 rounded-lg font-bold w-full">Save Config</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COMPLETED -->
+                <div id="s-view-completed" class="hidden"><h2 class="text-2xl font-bold mb-6">Task Archive</h2><div id="list-completed" class="grid grid-cols-1 gap-3 opacity-75"></div></div>
+                
+                <!-- PROFILE -->
+                <div id="s-view-profile" class="hidden"><h2 class="text-2xl font-bold mb-6">My Classes</h2><div id="profile-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>
+            </div>
+            
+            <!-- ADD BUTTON -->
+            <button onclick="openStudentModal()" class="absolute bottom-8 right-8 bg-primary hover:opacity-90 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition-transform hover:scale-110 z-40"><i class="fa-solid fa-plus"></i></button>
+        </main>
+    </div>
+
+    <!-- TEACHER LAYOUT (Simplified for now) -->
+    <div id="teacher-layout" class="flex w-full h-full hidden fade-in" style="background: transparent;">
+        <aside class="w-72 bg-surface border-r border-border flex flex-col hidden md:flex">
+            <div class="p-8 flex items-center gap-4"><div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold">T</div><span class="text-lg font-bold tracking-tight">Faculty Hub</span></div>
+            <nav class="flex-1 px-6 mt-4 overflow-y-auto"><div class="px-2 py-2 text-xs font-bold text-muted uppercase tracking-wider mb-2">My Classes</div><div id="teacher-class-list" class="space-y-2"></div></nav>
+            <div class="p-6 border-t border-border"><button onclick="switchTeacherView('settings')" id="nav-t-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-muted hover:text-text hover:bg-base transition-colors mb-4"><i class="fa-solid fa-gear w-5"></i> Settings</button><div class="flex items-center gap-3 px-2 py-2"><div class="w-10 h-10 rounded-full bg-base border border-border flex items-center justify-center text-primary font-bold" id="t-profileInitials"></div><div class="w-full overflow-hidden"><p class="font-bold text-sm truncate" id="t-profileName"></p><button onclick="doLogout()" class="text-xs text-red-500 hover:underline">Log Out</button></div></div></div>
+        </aside>
+        <main class="flex-1 flex flex-col h-full overflow-y-auto p-10 relative">
+            <div id="t-view-class"><header class="flex justify-between items-center mb-10 border-b border-border pb-6"><div><h1 class="text-4xl font-extrabold" id="t-active-class-title">Select a Class</h1></div><div class="flex items-center gap-4"><button onclick="openClassSettings()" class="bg-surface border border-border text-text hover:bg-base px-4 py-2 rounded-lg shadow-sm font-medium flex items-center gap-2 transition-all"><i class="fa-solid fa-gear"></i> Manage Class</button></div></header><div class="grid grid-cols-1 lg:grid-cols-3 gap-10"><div class="bg-surface rounded-3xl border border-border shadow-xl p-8 lg:col-span-1 h-fit"><h2 class="text-lg font-bold mb-6 flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary"><i class="fa-solid fa-plus text-xs"></i></span>Assign Work</h2><div class="space-y-5"><div class="bg-base p-3 rounded-xl border border-border text-xs text-muted">Creating for: <strong id="t-form-class-name" class="text-primary ml-1">--</strong></div><input type="text" id="t-title" class="w-full mt-2 rounded-xl p-3.5 placeholder-muted" placeholder="Title"><div class="grid grid-cols-2 gap-4"><select id="t-type" class="w-full mt-2 rounded-xl p-3.5"><option value="HOMEWORK">Homework</option><option value="TEST">Test/Exam</option><option value="PROJECT">Project</option></select><input type="number" id="t-est-time" class="w-full mt-2 rounded-xl p-3.5 placeholder-muted" placeholder="Min"></div><input type="datetime-local" id="t-due-date" class="w-full mt-2 rounded-xl p-3.5 text-sm"><button onclick="teacherPostAssignment()" class="w-full bg-primary hover:opacity-90 text-white font-bold py-4 rounded-xl shadow-lg mt-2 transition-all">Post</button></div></div><div class="lg:col-span-2"><div class="flex justify-between items-center mb-6"><h2 class="text-lg font-bold">Class Feed</h2><button onclick="renderTeacherFeed()" class="text-sm text-primary font-medium hover:underline">Refresh</button></div><div id="teacher-feed" class="space-y-4"></div></div></div></div>
+            <div id="t-view-settings" class="hidden max-w-4xl mx-auto w-full"><h2 class="text-3xl font-bold mb-8">Faculty Settings</h2><div class="bg-surface p-8 rounded-3xl border border-border"><h3 class="font-bold text-lg mb-6">Visual Theme</h3><div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="t-theme-selector"></div></div></div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Add Task -->
+    <div id="addModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm"><div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl"><h2 class="text-2xl font-bold mb-6">New Personal Task</h2><div class="space-y-4"><input type="text" id="m-title" placeholder="Task Title" class="w-full p-4 rounded-xl placeholder-muted"><div class="grid grid-cols-2 gap-4"><input type="number" id="m-est" placeholder="Min" class="w-full p-4 rounded-xl placeholder-muted"><input type="datetime-local" id="m-due" class="w-full p-4 rounded-xl"></div></div><div class="flex justify-end gap-3 mt-6"><button onclick="document.getElementById('addModal').classList.add('hidden')" class="px-6 py-2 text-muted font-bold">Cancel</button><button onclick="addTask()" class="px-6 py-2 bg-primary text-white rounded-xl font-bold">Create</button></div></div></div>
+    <!-- Class Settings -->
+    <div id="classSettingsModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm"><div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl"><h2 class="text-2xl font-bold mb-2">Class Settings</h2><p class="text-muted mb-6">Editing: <span id="modal-class-name" class="text-primary font-bold"></span></p><div class="space-y-4"><div id="rename-container"><label class="text-xs font-bold text-muted uppercase">Class Name</label><input type="text" id="class-rename" class="w-full mt-1 p-3 rounded-lg"></div><div><label class="text-xs font-bold text-muted uppercase">Color Preference</label><div class="flex items-center gap-3 mt-1 bg-base p-3 rounded-lg border border-border"><input type="color" id="class-color-picker" class="w-10 h-10 rounded cursor-pointer border-none bg-transparent"><span class="text-xs text-muted">Updates dashboard instantly.</span></div></div></div><div class="flex justify-end gap-3 mt-8"><button onclick="document.getElementById('classSettingsModal').classList.add('hidden')" class="px-6 py-2 text-muted font-bold">Cancel</button><button onclick="saveClassSettings()" class="px-6 py-2 bg-primary text-white rounded-xl font-bold">Save Changes</button></div></div></div>
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm"><div class="bg-surface p-8 rounded-3xl w-full max-w-lg border border-border shadow-2xl relative"><button onclick="closeDetailModal()" class="absolute top-4 right-4 text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button><input type="text" id="d-title" class="w-full bg-transparent text-2xl font-bold mb-2 outline-none border-b border-transparent focus:border-border" placeholder="Task Name"><div class="flex items-center gap-4 text-sm text-muted mb-6"><span id="d-course-badge" class="px-2 py-1 rounded bg-base border border-border text-xs font-bold uppercase">Course</span><input type="datetime-local" id="d-due" class="bg-transparent border-none p-0 text-muted"></div><div class="mb-6"><label class="text-xs font-bold text-muted uppercase tracking-wider mb-2 block">Notes</label><textarea id="d-desc" class="w-full bg-base rounded-xl p-3 text-sm min-h-[80px] border border-border resize-none" placeholder="Add details, links, or notes here..."></textarea></div><div class="mb-6"><div class="flex justify-between items-center mb-2"><label class="text-xs font-bold text-muted uppercase tracking-wider">Sub-tasks</label><span id="d-checklist-progress" class="text-xs text-primary font-bold">0/0</span></div><div id="d-checklist-container" class="space-y-2 mb-3 max-h-32 overflow-y-auto"></div><div class="flex gap-2"><input type="text" id="d-new-subtask" placeholder="Add step..." class="flex-1 bg-base rounded-lg px-3 py-2 text-sm border border-border" onkeypress="handleSubtaskEnter(event)"><button onclick="addSubtask()" class="bg-surface border border-border hover:bg-base w-10 rounded-lg flex items-center justify-center"><i class="fa-solid fa-plus text-primary"></i></button></div></div><div class="flex justify-between mt-8 pt-6 border-t border-border"><button onclick="deleteTask()" class="text-red-500 hover:text-red-400 text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-trash"></i> Delete</button><button onclick="saveTaskDetails()" class="bg-primary hover:opacity-90 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-transform active:scale-95">Save Changes</button></div></div></div>
+
+    <!-- 3. SCRIPTS (LOAD ORDER IS CRITICAL) -->
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/themes.js"></script>
+    
+    <!-- Split Student Files -->
+    <script src="js/student-matrix.js"></script>
+    <script src="js/student-tasks.js"></script>
+    <script src="js/student-core.js"></script>
+    
+    <script src="js/teachers.js"></script>
+    
+    <!-- Init -->
+    <script src="js/dashboard-init.js"></script>
+</body>
+</html>

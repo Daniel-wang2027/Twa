@@ -1,0 +1,10 @@
+# .gitignore
+node_modules/
+.upm/
+.replit
+replit.nix
+.cache/
+.config/
+*~
+*.log
+.DS_Store

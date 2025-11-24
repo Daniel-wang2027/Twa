@@ -1,0 +1,217 @@
+/* =========================================
+   STUDENT LOGIC (Consolidated)
+   ========================================= */
+
+let activeTaskId = null; // For editing modal
+
+function initStudent() {
+    // The user data is already loaded by dashboard-init.js before this is called
+    document.getElementById('student-layout').classList.remove('hidden');
+
+    document.getElementById('s-profileInitials').innerText = currentUser.name.slice(0,2).toUpperCase();
+    document.getElementById('s-profileName').innerText = currentUser.name;
+    document.getElementById('streak-count').innerText = streak + " Day Streak";
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
+
+    renderThemeButtons('theme-selector');
+    renderMatrix(); 
+    renderStats();
+}
+
+function switchStudentView(view) {
+    playSound('click');
+    ['dashboard', 'completed', 'profile', 'settings'].forEach(v => {
+        document.getElementById(`s-view-${v}`).classList.add('hidden');
+        document.getElementById(`nav-s-${v}`).className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base";
+    });
+    document.getElementById(`s-view-${view}`).classList.remove('hidden');
+    document.getElementById(`nav-s-${view}`).className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-primary bg-base border border-border";
+
+    if(view === 'dashboard') renderMatrix();
+    if(view === 'completed') renderCompleted();
+    if(view === 'profile') renderProfile();
+}
+
+function renderMatrix() {
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const headerRow = document.getElementById('matrix-header-row');
+    const body = document.getElementById('matrix-body');
+
+    headerRow.innerHTML = `<th class="p-4 text-left text-muted font-bold w-32 bg-surface border-b border-border sticky left-0 z-10 shadow-lg">Day</th>`;
+    classes.forEach(c => { 
+        const color = classPreferences[c] || '#888'; 
+        headerRow.innerHTML += `<th class="p-4 text-left font-bold border-b border-border min-w-[180px]" style="color:${color}">${c}</th>`; 
+    });
+
+    body.innerHTML = '';
+    days.forEach((day, dayIndex) => {
+        let rowHTML = `<tr class="border-b border-border hover:bg-surface/30 transition-colors"><td class="p-4 bg-surface border-r border-border font-bold sticky left-0 z-10">${day}</td>`;
+        classes.forEach(cls => {
+            const cellTasks = globalTasks.filter(t => !t.completed && t.course === cls && (new Date(t.due).getDay() === dayIndex + 1)); 
+            rowHTML += `<td class="p-2 align-top matrix-cell">`;
+            cellTasks.forEach(t => rowHTML += createMatrixCard(t));
+            rowHTML += `</td>`;
+        });
+        rowHTML += `</tr>`;
+        body.innerHTML += rowHTML;
+    });
+}
+
+function createMatrixCard(t) {
+    const color = classPreferences[t.course] || '#888';
+    const displayDate = new Date(new Date(t.due).getTime() - (settings.buffer * 60000));
+    const timeStr = displayDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const icon = t.type === 'TEST' ? 'fa-triangle-exclamation' : 'fa-book';
+
+    let progressHtml = '';
+    if(t.checklist && t.checklist.length > 0) {
+        const done = t.checklist.filter(i=>i.done).length;
+        const total = t.checklist.length;
+        progressHtml = `<div class="mt-2 h-1 w-full bg-base rounded-full overflow-hidden"><div class="h-full bg-primary" style="width:${(done/total)*100}%"></div></div>`;
+    }
+
+    return `
+    <div onclick="openTaskDetails(${t.id})" class="bg-surface border border-border rounded-lg mb-2 shadow-sm overflow-hidden hover:shadow-md hover:scale-[1.02] transition-all group cursor-pointer relative">
+        <div class="h-1 w-full" style="background:${color}"></div>
+        <div class="p-3">
+            <div class="flex justify-between items-start mb-1">
+                <i class="fa-solid ${icon} text-muted text-xs"></i>
+                <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="text-muted hover:text-accent w-6 h-6 flex items-center justify-center rounded hover:bg-base transition-colors"><i class="fa-regular fa-square"></i></button>
+            </div>
+            <div class="font-bold text-sm leading-tight mb-1">${t.title}</div>
+            <div class="flex justify-between items-center text-xs text-muted"><span><i class="fa-regular fa-clock"></i> ${timeStr}</span><span class="group-hover:text-primary"><i class="fa-solid fa-stopwatch"></i> ${t.est}m</span></div>
+            ${progressHtml}
+        </div>
+    </div>`;
+}
+
+function toggleComplete(id) { 
+    const t = globalTasks.find(x => x.id === id); 
+    if(t) { 
+        t.completed = !t.completed; 
+        if(t.completed) { streak++; document.getElementById('streak-count').innerText = streak + " Day Streak"; playSound('complete'); }
+        saveData();
+        renderMatrix(); renderStats(); 
+    } 
+}
+
+function openStudentModal() { document.getElementById('addModal').classList.remove('hidden'); }
+
+function addTask() {
+    const title = document.getElementById('m-title').value; 
+    const due = document.getElementById('m-due').value;
+    if(!title || !due) return alert("Info required");
+    globalTasks.push({id:Date.now(), title, course:"Personal", due: new Date(due).toISOString(), type:"TASK", est:15, completed:false, checklist: []});
+    saveData();
+    document.getElementById('addModal').classList.add('hidden'); renderMatrix();
+    playSound('success');
+}
+
+function renderStats() {
+    const bar = document.getElementById('stats-bar');
+    bar.innerHTML = '';
+    let counts = {};
+    classes.forEach(c => counts[c] = 0);
+    globalTasks.filter(t=>t.completed).forEach(t => counts[t.course] = (counts[t.course]||0)+1);
+    classes.slice(0,4).forEach(c => { bar.innerHTML += `<div class="bg-surface p-3 rounded-xl border border-border"><div class="text-xs text-muted truncate">${c}</div><div class="text-xl font-bold" style="color:${classPreferences[c]}">${counts[c]} Done</div></div>`; });
+}
+
+function renderCompleted() {
+    const list = document.getElementById('list-completed');
+    list.innerHTML = '';
+    globalTasks.filter(t => t.completed).sort((a,b) => new Date(b.due) - new Date(a.due)).forEach(t => { list.innerHTML += `<div class="flex items-center gap-4 bg-surface p-4 rounded-xl border border-border opacity-60"><i class="fa-solid fa-check-circle text-accent text-xl"></i><div><div class="font-bold line-through">${t.title}</div><div class="text-xs text-muted">${t.course}</div></div></div>`; });
+}
+
+function renderProfile() {
+    const list = document.getElementById('profile-list');
+    list.innerHTML = '';
+    classes.forEach(c => { list.innerHTML += `<div class="bg-surface p-6 rounded-xl border border-border flex justify-between items-center shadow-md"><div class="flex items-center gap-4"><div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg" style="background:${classPreferences[c]}">${c.substring(0,1)}</div><div><span class="font-bold text-lg block">${c}</span><span class="text-xs text-muted">Student Enrolled</span></div></div><button onclick="openStudentClassSettings('${c}')" class="bg-base hover:bg-border text-text px-4 py-2 rounded-lg text-sm font-medium transition-colors">Customize</button></div>`; });
+}
+
+function openStudentClassSettings(className) {
+    document.getElementById('classSettingsModal').classList.remove('hidden');
+    document.getElementById('modal-class-name').innerText = className;
+    document.getElementById('class-color-picker').value = classPreferences[className] || '#000000';
+    document.getElementById('rename-container').classList.add('hidden');
+    currentTeacherClass = className; 
+}
+
+/* --- EDIT MODAL --- */
+function openTaskDetails(id) {
+    playSound('click');
+    activeTaskId = id;
+    const t = globalTasks.find(x => x.id === id);
+    if(!t) return;
+    document.getElementById('d-title').value = t.title;
+    document.getElementById('d-course-badge').innerText = t.course;
+    document.getElementById('d-course-badge').style.borderColor = classPreferences[t.course];
+    document.getElementById('d-course-badge').style.color = classPreferences[t.course];
+    const localDate = new Date(t.due);
+    localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+    document.getElementById('d-due').value = localDate.toISOString().slice(0,16);
+    document.getElementById('d-desc').value = t.desc || "";
+    renderChecklist(t);
+    document.getElementById('detailModal').classList.remove('hidden');
+}
+
+function saveTaskDetails() {
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    if(t) {
+        t.title = document.getElementById('d-title').value;
+        t.desc = document.getElementById('d-desc').value;
+        t.due = new Date(document.getElementById('d-due').value).toISOString();
+        saveData();
+        playSound('success');
+        closeDetailModal();
+        renderMatrix();
+    }
+}
+
+function deleteTask() {
+    if(confirm("Delete this task?")) {
+        globalTasks = globalTasks.filter(t => t.id !== activeTaskId);
+        saveData();
+        closeDetailModal();
+        renderMatrix();
+    }
+}
+
+function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); activeTaskId = null; }
+
+function renderChecklist(task) {
+    const container = document.getElementById('d-checklist-container');
+    const progress = document.getElementById('d-checklist-progress');
+    container.innerHTML = '';
+    if(!task.checklist) task.checklist = [];
+    task.checklist.forEach((item, index) => {
+        container.innerHTML += `<div class="flex items-center gap-3 bg-base p-2 rounded-lg border border-border group"><button onclick="toggleSubtask(${index})" class="text-${item.done ? 'primary' : 'muted'} hover:text-primary"><i class="fa-${item.done ? 'solid fa-square-check' : 'regular fa-square'}"></i></button><span class="${item.done ? 'line-through text-muted' : 'text-text'} text-sm flex-1">${item.text}</span><button onclick="deleteSubtask(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:bg-surface w-6 h-6 rounded flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button></div>`;
+    });
+    const done = task.checklist.filter(i => i.done).length;
+    progress.innerText = `${done}/${task.checklist.length}`;
+}
+
+function handleSubtaskEnter(e) { if(e.key === 'Enter') addSubtask(); }
+
+function addSubtask() {
+    const input = document.getElementById('d-new-subtask');
+    const text = input.value.trim();
+    if(!text || !activeTaskId) return;
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    t.checklist.push({ text: text, done: false });
+    input.value = '';
+    playSound('click');
+    renderChecklist(t);
+}
+
+function toggleSubtask(index) {
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    t.checklist[index].done = !t.checklist[index].done;
+    if(t.checklist[index].done) playSound('click');
+    renderChecklist(t);
+}
+
+function deleteSubtask(index) {
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    t.checklist.splice(index, 1);
+    renderChecklist(t);
+}

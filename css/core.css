@@ -1,0 +1,27 @@
+/* --- GENERAL STYLES --- */
+body { font-family: var(--font-main); background-color: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; height: 100vh; overflow: hidden; }
+.bg-surface { background-color: var(--surface); backdrop-filter: blur(var(--glass-blur)); }
+
+/* THEME SPECIFIC OVERRIDES */
+[data-theme="oled"] .bg-surface { border: 1px solid #333; }
+[data-theme="graph"] .bg-surface { border: 2px solid #000; box-shadow: 4px 4px 0px #000; }
+[data-theme="terminal"] .bg-surface { border: 1px solid var(--border); }
+
+/* Cyberpunk Glow */
+[data-theme="cyberpunk"] .bg-surface { 
+    border: 1px solid #333; 
+    box-shadow: 0 0 10px rgba(240, 0, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8); 
+}
+[data-theme="cyberpunk"] .text-primary { text-shadow: 0 0 5px #f000ff; }
+
+/* Vaporwave Gradient Cards */
+[data-theme="vaporwave"] .bg-surface {
+    background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(236,72,153,0.15));
+    border: 1px solid rgba(236,72,153,0.5);
+    backdrop-filter: blur(4px);
+}
+
+input, select { background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+.fade-in { animation: fadeIn 0.3s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.matrix-cell { min-height: 120px; }
