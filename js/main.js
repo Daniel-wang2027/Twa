@@ -121,3 +121,13 @@ function bypassLogin() {
 // INITIALIZATION
 document.documentElement.setAttribute('data-theme', 'space');
 setRole('student');
+
+const savedTheme = localStorage.getItem('twa_device_theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+} else {
+    document.documentElement.setAttribute('data-theme', 'space'); // Default
+}
+
+// 2. Init Role
+setRole('student');

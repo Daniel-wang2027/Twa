@@ -2,36 +2,48 @@
    STUDENT TASKS (Add, Edit, Complete)
    ========================================= */
 
-let activeTaskId = null; // Global variable to track what we are editing
+let activeTaskId = null; 
 
-// --- 1. CREATE & COMPLETE ---
+// --- 1. CREATE TASKS ---
 
 function openStudentModal() { 
-    document.getElementById('addModal').classList.remove('hidden'); 
+    const modal = document.getElementById('addModal');
+    const select = document.getElementById('m-course');
+
+    // Populate the dropdown with the student's actual classes
+    if(select) {
+        select.innerHTML = '';
+        classes.forEach(c => {
+            // Check if this class is "Personal" to select it by default, or just first one
+            const isSelected = c === 'Personal' ? 'selected' : '';
+            select.innerHTML += `<option value="${c}" ${isSelected}>${c}</option>`;
+        });
+    }
+
+    // Reset inputs
+    document.getElementById('m-title').value = '';
+    document.getElementById('m-est').value = '';
+    document.getElementById('m-due').value = '';
+
+    modal.classList.remove('hidden'); 
 }
 
 function addTask() {
+    const course = document.getElementById('m-course').value; // Get selected class
     const title = document.getElementById('m-title').value; 
-    let due = document.getElementById('m-due').value;
+    const due = document.getElementById('m-due').value;
+    const est = document.getElementById('m-est').value || 15;
 
-    if(!title) return alert("Task title is required");
+    if(!title || !due) return alert("Title and Due Date are required.");
 
-    // Fix: If no date picked, default to NOW + 1 Hour
-    if(!due) {
-        const now = new Date();
-        now.setHours(now.getHours() + 1);
-        due = now.toISOString();
-    } else {
-        due = new Date(due).toISOString();
-    }
-
+    // Create the task linked to the specific course
     globalTasks.push({
         id: Date.now(), 
-        title, 
-        course: "Personal", 
-        due: due, 
-        type: "TASK", 
-        est: 15, 
+        title: title, 
+        course: course, // Uses the dropdown value
+        due: new Date(due).toISOString(), 
+        type: "TASK", // Student created tasks are generic "TASK" type
+        est: parseInt(est), 
         completed: false, 
         checklist: []
     });
@@ -39,13 +51,12 @@ function addTask() {
     saveData(); 
     document.getElementById('addModal').classList.add('hidden'); 
 
-    // Clear inputs
-    document.getElementById('m-title').value = "";
-    document.getElementById('m-due').value = "";
-
-    renderMatrix();
+    // Refresh views
+    if(typeof renderMatrix === 'function') renderMatrix();
     playSound('success');
 }
+
+// --- 2. TOGGLE COMPLETE ---
 
 function toggleComplete(id) { 
     const t = globalTasks.find(x => x.id === id); 
@@ -53,17 +64,24 @@ function toggleComplete(id) {
         t.completed = !t.completed; 
         if(t.completed) { 
             streak++; 
-            document.getElementById('streak-count').innerText = streak + " Day Streak"; 
+            if(document.getElementById('streak-count')) {
+                document.getElementById('streak-count').innerText = streak + " Day Streak"; 
+            }
             playSound('complete');
+
+            // Game Logic Hook (if game exists)
+            if(typeof credits !== 'undefined') {
+                credits += 100;
+                saveData();
+            }
         }
         saveData();
-        renderMatrix(); 
-        // If renderStats exists (in core), run it
+        if(typeof renderMatrix === 'function') renderMatrix(); 
         if(typeof renderStats === 'function') renderStats();
     } 
 }
 
-// --- 2. EDITING & MODALS ---
+// --- 3. EDITING & MODALS ---
 
 function openTaskDetails(id) {
     playSound('click');
@@ -73,11 +91,15 @@ function openTaskDetails(id) {
 
     // Populate UI
     document.getElementById('d-title').value = t.title;
-    document.getElementById('d-course-badge').innerText = t.course;
-    document.getElementById('d-course-badge').style.borderColor = classPreferences[t.course];
-    document.getElementById('d-course-badge').style.color = classPreferences[t.course];
 
-    // Fix timezone offset for datetime-local input
+    // Badge Styling
+    const badge = document.getElementById('d-course-badge');
+    badge.innerText = t.course;
+    const color = classPreferences[t.course] || '#888';
+    badge.style.borderColor = color;
+    badge.style.color = color;
+
+    // Date Fix
     const localDate = new Date(t.due);
     localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
     document.getElementById('d-due').value = localDate.toISOString().slice(0,16);
@@ -98,7 +120,7 @@ function saveTaskDetails() {
         saveData();
         playSound('success');
         closeDetailModal();
-        renderMatrix();
+        if(typeof renderMatrix === 'function') renderMatrix();
     }
 }
 
@@ -107,7 +129,7 @@ function deleteTask() {
         globalTasks = globalTasks.filter(t => t.id !== activeTaskId);
         saveData();
         closeDetailModal();
-        renderMatrix();
+        if(typeof renderMatrix === 'function') renderMatrix();
     }
 }
 
@@ -116,11 +138,13 @@ function closeDetailModal() {
     activeTaskId = null;
 }
 
-// --- 3. SUB-TASKS / CHECKLISTS ---
+// --- 4. SUB-TASKS / CHECKLISTS ---
 
 function renderChecklist(task) {
     const container = document.getElementById('d-checklist-container');
     const progress = document.getElementById('d-checklist-progress');
+    if(!container) return;
+
     container.innerHTML = '';
 
     if(!task.checklist) task.checklist = [];
@@ -168,24 +192,16 @@ function deleteSubtask(index) {
     renderChecklist(t);
 }
 
+// BUMP TASK (Move to tomorrow)
 function bumpTask(id) {
     const t = globalTasks.find(x => x.id === id);
     if(t) {
         const currentDue = new Date(t.due);
-        // Add 24 hours (1 day)
         currentDue.setDate(currentDue.getDate() + 1);
         t.due = currentDue.toISOString();
 
         saveData();
-        renderMatrix();
-
-        // Show feedback (requires utils.js update, or falls back to alert)
-        if(typeof showToast === 'function') {
-            showToast("Task moved to tomorrow", "info");
-        } else {
-            console.log("Task moved");
-        }
-
-        playSound('click');
+        if(typeof renderMatrix === 'function') renderMatrix();
+        if(typeof showToast === 'function') showToast("Task moved to tomorrow", "info");
     }
 }

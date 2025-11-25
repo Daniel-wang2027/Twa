@@ -39,11 +39,18 @@ const themesList = [
     { id: 'paperback', name: 'Paperback', bg: '#fdf6e3', accent: '#cb4b16' },
 ];
 
+// THEME APPLICATION
 function setTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     settings.theme = theme;
-        saveData()
+
+    // 1. Save to Global Browser Storage (For Login Screen)
+    localStorage.setItem('twa_device_theme', theme);
+
+    // 2. Save to User Account (For Sync)
+    if(currentUser && typeof saveData === 'function') saveData();
 }
+
 
 function renderThemeButtons(containerId) {
     const container = document.getElementById(containerId);

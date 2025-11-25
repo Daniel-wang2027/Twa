@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Operation TWA | Login</title>
     
-    <!-- CSS Dependencies -->
+    <!-- CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&family=Indie+Flower&display=swap" rel="stylesheet">
     
-    <!-- Local Styles -->
+    <!-- INSTANT THEME LOADER (Fixes Theme Issue) -->
+    <script>
+        const saved = localStorage.getItem('twa_device_theme');
+        if(saved) document.documentElement.setAttribute('data-theme', saved);
+    </script>
+
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/core.css">
 
@@ -17,18 +22,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: { 
-                extend: { 
-                    colors: { base: 'var(--bg)', surface: 'var(--surface)', border: 'var(--border)', text: 'var(--text)', muted: 'var(--muted)', primary: 'var(--primary)', accent: 'var(--accent)' }, 
-                    fontFamily: { sans: 'var(--font-main)' } 
-                } 
-            } 
+            theme: { extend: { colors: { base: 'var(--bg)', surface: 'var(--surface)', border: 'var(--border)', text: 'var(--text)', muted: 'var(--muted)', primary: 'var(--primary)', accent: 'var(--accent)' }, fontFamily: { sans: 'var(--font-main)' } } }
         }
     </script>
 </head>
 <body class="h-screen flex items-center justify-center">
 
-    <!-- LOGIN CARD -->
     <div class="w-full max-w-md p-8 bg-surface rounded-3xl border border-border shadow-2xl relative fade-in">
         <div class="text-center mb-8">
             <div class="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white font-bold text-3xl mx-auto mb-4 shadow-lg shadow-primary/30">T</div>
@@ -42,9 +41,8 @@
             <button type="button" onclick="setRole('teacher')" id="btn-role-teacher" class="flex-1 py-3 text-sm font-bold rounded-lg transition-all border border-transparent">Teacher</button>
         </div>
 
-        <!-- AUTH FORM -->
+        <!-- Auth Form -->
         <form onsubmit="handleAuth(event)" class="space-y-4">
-            <!-- Name (Hidden on Login) -->
             <div id="field-name-container" class="hidden">
                 <input type="text" id="loginName" placeholder="Full Name" class="w-full rounded-xl p-4 outline-none focus:border-primary placeholder-muted">
             </div>
@@ -52,7 +50,6 @@
             <input type="email" id="loginEmail" placeholder="Email Address" class="w-full rounded-xl p-4 outline-none focus:border-primary placeholder-muted" required>
             <input type="password" id="loginPassword" placeholder="Password" class="w-full rounded-xl p-4 outline-none focus:border-primary placeholder-muted" required>
             
-            <!-- Error Message -->
             <div id="login-error" class="text-red-500 text-sm text-center font-bold hidden bg-red-500/10 p-2 rounded-lg border border-red-500/20"></div>
 
             <button type="submit" id="btn-auth-submit" class="w-full bg-primary hover:opacity-90 text-white font-bold py-4 rounded-xl shadow-lg transition-all mt-2 transform active:scale-95">
@@ -60,14 +57,12 @@
             </button>
         </form>
 
-        <!-- Toggle Link -->
         <div class="text-center mt-6">
             <button type="button" onclick="toggleAuthMode()" class="text-sm text-muted hover:text-primary transition-colors underline">
                 <span id="auth-toggle-text">Need an account? Sign Up</span>
             </button>
         </div>
 
-        <!-- DEVELOPER BYPASS BUTTON -->
         <div class="mt-8 pt-6 border-t border-border">
             <button type="button" onclick="bypassLogin()" class="w-full py-3 rounded-xl border border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/10 text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2">
                 <i class="fa-solid fa-terminal"></i> Developer Bypass
@@ -75,7 +70,6 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="js/data.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/main.js"></script>

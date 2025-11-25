@@ -65,3 +65,21 @@ let globalTasks = [
         checklist: [] 
     }
 ];
+
+let teacherTasks = [
+    { id: 101, text: "Email Principal about Field Trip", done: false },
+    { id: 102, text: "Grade Calculus Quizzes", done: true }
+];
+
+const studentRoster = [
+    { id: 's1', name: "Alice Walker", lastActive: "2023-10-27T08:30:00", grade: 92 },
+    { id: 's2', name: "Marcus Johnson", lastActive: "2023-10-26T14:00:00", grade: 88 },
+    { id: 's3', name: "Elena Rodriguez", lastActive: "2023-10-20T09:00:00", grade: 74 }, // Red Flag
+    { id: 's4', name: "David Kim", lastActive: "2023-10-27T09:15:00", grade: 95 },
+    { id: 's5', name: "Sarah Jenkins", lastActive: "2023-10-25T11:20:00", grade: 81 }
+];
+
+let classBulletins = {
+    "AP Calculus": { msg: "⚠️ Midterm moved to Friday due to assembly.", active: true },
+    "AP Chemistry": { msg: "Bring lab goggles tomorrow!", active: true }
+};
