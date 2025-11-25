@@ -87,6 +87,41 @@
                 
                 <!-- SETTINGS -->
                 <div id="s-view-settings" class="hidden max-w-4xl mx-auto">
+                    <!-- 1. ACCESSIBILITY CARD -->
+                    <div class="bg-surface p-6 rounded-2xl border border-border">
+                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-universal-access text-primary"></i> Accessibility (IEP)
+                        </h3>
+                        <div class="flex items-center justify-between bg-base p-3 rounded-xl border border-border">
+                            <div>
+                                <span class="font-bold block">Dyslexia-Friendly Font</span>
+                                <span class="text-xs text-muted">Use OpenDyslexic font & spacing</span>
+                            </div>
+                            <input type="checkbox" id="setting-dyslexia" class="w-6 h-6 accent-primary cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- 2. BACKPACK PROTOCOL CARD -->
+                    <div class="bg-surface p-6 rounded-2xl border border-border">
+                        <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
+                        </h3>
+                        <p class="text-xs text-muted mb-4">Items to check before leaving school/home.</p>
+
+                        <!-- List of Items -->
+                        <div id="backpack-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto pr-2"></div>
+
+                        <!-- Add New Item -->
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="new-backpack-item" placeholder="Item (e.g. Gym Clothes)" class="flex-1 p-3 rounded-lg border border-border text-sm">
+                            <button onclick="addBackpackItem()" class="bg-surface border border-border hover:bg-base w-12 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <!-- Action Button -->
+                        <button onclick="pushBackpackTasks()" class="w-full bg-accent/20 hover:bg-accent/30 text-accent border border-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-list-check"></i> Add Checklist to Today
+                        </button>
+                    </div>
                     <h2 class="text-3xl font-bold mb-6">Settings</h2>
                     <div class="bg-surface p-8 rounded-3xl border border-border mb-8">
                         <h3 class="font-bold text-xl mb-6">Aesthetic Theme</h3>
@@ -111,6 +146,35 @@
                 
                 <!-- PROFILE -->
                 <div id="s-view-profile" class="hidden"><h2 class="text-2xl font-bold mb-6">My Classes</h2><div id="profile-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div></div>
+                <!-- NEW: CLASS DETAIL VIEW -->
+                <div id="s-view-class-detail" class="hidden h-full flex flex-col">
+                    <!-- Header -->
+                    <div class="flex items-center gap-4 mb-6 pb-4 border-b border-border">
+                        <button onclick="closeClassDetail()" class="w-10 h-10 rounded-full bg-surface border border-border hover:bg-base flex items-center justify-center transition-colors">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-3xl font-bold" id="cd-title">Class Name</h2>
+                            <p class="text-muted text-sm" id="cd-stats">-- Completed • -- Pending</p>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-y-auto">
+
+                        <!-- Left: Active Work -->
+                        <div>
+                            <h3 class="text-xs font-bold text-muted uppercase tracking-wider mb-3">Due Soon</h3>
+                            <div id="cd-active-list" class="space-y-2"></div>
+                        </div>
+
+                        <!-- Right: Completed History -->
+                        <div>
+                            <h3 class="text-xs font-bold text-muted uppercase tracking-wider mb-3">History</h3>
+                            <div id="cd-history-list" class="space-y-2 opacity-75"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- ADD BUTTON -->
@@ -153,5 +217,6 @@
     
     <!-- Init -->
     <script src="js/dashboard-init.js"></script>
+    <div id="toast-container"></div>
 </body>
 </html>

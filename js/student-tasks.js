@@ -12,15 +12,24 @@ function openStudentModal() {
 
 function addTask() {
     const title = document.getElementById('m-title').value; 
-    const due = document.getElementById('m-due').value;
+    let due = document.getElementById('m-due').value;
 
-    if(!title || !due) return alert("Info required");
+    if(!title) return alert("Task title is required");
+
+    // Fix: If no date picked, default to NOW + 1 Hour
+    if(!due) {
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        due = now.toISOString();
+    } else {
+        due = new Date(due).toISOString();
+    }
 
     globalTasks.push({
         id: Date.now(), 
         title, 
         course: "Personal", 
-        due: new Date(due).toISOString(), 
+        due: due, 
         type: "TASK", 
         est: 15, 
         completed: false, 
@@ -29,6 +38,11 @@ function addTask() {
 
     saveData(); 
     document.getElementById('addModal').classList.add('hidden'); 
+
+    // Clear inputs
+    document.getElementById('m-title').value = "";
+    document.getElementById('m-due').value = "";
+
     renderMatrix();
     playSound('success');
 }
@@ -152,4 +166,26 @@ function deleteSubtask(index) {
     const t = globalTasks.find(x => x.id === activeTaskId);
     t.checklist.splice(index, 1);
     renderChecklist(t);
+}
+
+function bumpTask(id) {
+    const t = globalTasks.find(x => x.id === id);
+    if(t) {
+        const currentDue = new Date(t.due);
+        // Add 24 hours (1 day)
+        currentDue.setDate(currentDue.getDate() + 1);
+        t.due = currentDue.toISOString();
+
+        saveData();
+        renderMatrix();
+
+        // Show feedback (requires utils.js update, or falls back to alert)
+        if(typeof showToast === 'function') {
+            showToast("Task moved to tomorrow", "info");
+        } else {
+            console.log("Task moved");
+        }
+
+        playSound('click');
+    }
 }

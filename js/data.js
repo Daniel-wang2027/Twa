@@ -9,7 +9,14 @@ const USERS_KEY = "operation_twa_users";
 // 2. Global Variables (Must be declared here!)
 let userRole = 'student';
 let currentUser = { name: "Guest", email: "" }; 
-let settings = { buffer: 0, workTime: 25, breakTime: 5, theme: 'space' }; 
+let settings = { 
+    buffer: 0, 
+    workTime: 25, 
+    breakTime: 5, 
+    theme: 'space',
+    dyslexia: false, 
+    backpack: ["Charge iPad", "Pencil Case", "Homework Folder"] 
+};
 let streak = 0;
 
 // 3. Class Data

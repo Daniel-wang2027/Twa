@@ -1,27 +1,55 @@
-/* --- GENERAL STYLES --- */
-body { font-family: var(--font-main); background-color: var(--bg); color: var(--text); transition: background 0.3s, color 0.3s; height: 100vh; overflow: hidden; }
-.bg-surface { background-color: var(--surface); backdrop-filter: blur(var(--glass-blur)); }
+        /* --- ACCESSIBILITY FONTS (MUST BE AT TOP) --- */
+        @import url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css');
 
-/* THEME SPECIFIC OVERRIDES */
-[data-theme="oled"] .bg-surface { border: 1px solid #333; }
-[data-theme="graph"] .bg-surface { border: 2px solid #000; box-shadow: 4px 4px 0px #000; }
-[data-theme="terminal"] .bg-surface { border: 1px solid var(--border); }
+        /* Override everything when this class is on body */
+        body.dyslexia-mode, 
+        body.dyslexia-mode * {
+            font-family: 'OpenDyslexic', sans-serif !important;
+            line-height: 1.6 !important;
+            letter-spacing: 0.05em !important;
+        }
 
-/* Cyberpunk Glow */
-[data-theme="cyberpunk"] .bg-surface { 
-    border: 1px solid #333; 
-    box-shadow: 0 0 10px rgba(240, 0, 255, 0.2), inset 0 0 20px rgba(0,0,0,0.8); 
-}
-[data-theme="cyberpunk"] .text-primary { text-shadow: 0 0 5px #f000ff; }
+        /* --- GENERAL STYLES --- */
+        body { 
+            font-family: var(--font-main); 
+            background-color: var(--bg); 
+            color: var(--text); 
+            transition: background 0.3s, color 0.3s; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
 
-/* Vaporwave Gradient Cards */
-[data-theme="vaporwave"] .bg-surface {
-    background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(236,72,153,0.15));
-    border: 1px solid rgba(236,72,153,0.5);
-    backdrop-filter: blur(4px);
-}
+        .bg-surface { 
+            background-color: var(--surface); 
+            backdrop-filter: blur(var(--glass-blur)); 
+        }
 
-input, select { background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
-.fade-in { animation: fadeIn 0.3s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.matrix-cell { min-height: 120px; }
+        /* --- SCROLLBARS --- */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        /* --- TOASTS --- */
+        #toast-container {
+            position: fixed; bottom: 20px; right: 20px; z-index: 100;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+        }
+        .toast {
+            background: var(--surface); border: 1px solid var(--border); color: var(--text);
+            padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 12px;
+            animation: slideIn 0.3s ease-out forwards; backdrop-filter: blur(10px); pointer-events: auto; min-width: 250px;
+        }
+        .toast.success { border-left: 4px solid #10b981; }
+        .toast.error { border-left: 4px solid #ef4444; }
+        .toast.info { border-left: 4px solid #3b82f6; }
+
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+
+        /* --- UTILS --- */
+        input, select, textarea { background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .matrix-cell { min-height: 120px; }
