@@ -1,68 +1,93 @@
 <div id="teacher-layout" class="flex-1 flex w-full h-full fade-in" style="background: transparent;">
-    <aside class="w-72 bg-surface border-r border-border flex flex-col hidden md:flex pt-8 transition-colors duration-300">
-        <div class="px-8 flex items-center gap-4 mb-6"><div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold">T</div><span class="text-lg font-bold tracking-tight">Faculty Hub</span></div>
-        <div class="px-6 mb-6"><div class="text-xs font-bold text-muted uppercase tracking-wider mb-2">My Classes</div><div id="teacher-class-list" class="space-y-2"></div></div>
-        <div class="flex-1 px-6 overflow-y-auto border-t border-border pt-4"><div class="flex justify-between items-center mb-2"><div class="text-xs font-bold text-muted uppercase tracking-wider">Admin Tasks</div><button onclick="addTeacherTask()" class="text-primary hover:text-white"><i class="fa-solid fa-plus"></i></button></div><div id="teacher-personal-list" class="space-y-2"></div></div>
-        <div class="p-6 border-t border-border"><button onclick="switchTeacherView('settings')" id="nav-t-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-muted hover:text-text hover:bg-base transition-colors mb-4"><i class="fa-solid fa-gear w-5"></i> Settings</button><div class="flex items-center gap-3 px-2 py-2"><div class="w-10 h-10 rounded-full bg-base border border-border flex items-center justify-center text-primary font-bold" id="t-profileInitials"></div><div class="w-full overflow-hidden"><p class="font-bold text-sm truncate" id="t-profileName"></p><button onclick="doLogout()" class="text-xs text-red-500 hover:underline">Log Out</button></div></div></div>
-    </aside>
-    <main class="flex-1 flex flex-col h-full overflow-y-auto p-10 relative pt-12">
-        <div id="t-view-class">
-            <header class="flex justify-between items-center mb-8 border-b border-border pb-6">
-                <div>
-                    <h1 class="text-4xl font-extrabold" id="t-active-class-title">Select a Class</h1>
-                    <div id="t-bulletin-container" class="mt-2 hidden">
-                        <span class="bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded text-xs font-bold border border-yellow-500/50"><i class="fa-solid fa-thumbtack mr-1"></i> BULLETIN</span>
-                        <span id="t-bulletin-text" class="text-sm ml-2 text-muted italic"></span>
-                        <button onclick="clearBulletin()" class="ml-2 text-xs text-red-500 hover:underline">(Clear)</button>
-                    </div>
+    
+    <!-- SIDEBAR: Manual Glass (Matches Planner) -->
+    <aside class="w-72 bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col hidden md:flex pt-8 transition-colors duration-300 z-20 text-white">
+        <div class="px-8 flex items-center gap-4 mb-6">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">T</div>
+            <span class="text-lg font-bold tracking-tight text-white">Faculty Hub</span>
+        </div>
+        
+        <!-- NAV -->
+        <div class="px-6 mb-6">
+            <div class="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">My Classes</div>
+            <div id="teacher-class-list" class="space-y-1"></div>
+        </div>
+
+        <!-- ROSTER -->
+        <div class="flex-1 px-4 overflow-y-auto border-t border-white/10 pt-4 custom-scrollbar">
+            <div class="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 px-2">Student Status</div>
+            <div id="student-roster-sidebar" class="space-y-2"></div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="p-6 border-t border-white/10 bg-black/20">
+            <button onclick="switchTeacherView('settings')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 mb-4 transition-colors">
+                <i class="fa-solid fa-gear"></i> Settings
+            </button>
+            <div class="flex items-center gap-3 px-2">
+                <div class="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-blue-400 font-bold" id="t-profileInitials">T</div>
+                <div class="w-full overflow-hidden text-white">
+                    <p class="font-bold text-sm truncate" id="t-profileName">Teacher</p>
+                    <button onclick="doLogout()" class="text-xs text-red-400 hover:underline">Log Out</button>
                 </div>
-                <!-- RESTORED BUTTONS -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden relative">
+        
+        <!-- PLANNER VIEW -->
+        <div id="t-view-planner" class="flex flex-col h-full">
+            <header class="h-20 flex items-center justify-between px-8 border-b border-white/10 bg-black/20 backdrop-blur-md z-10 shrink-0 text-white">
+                <div>
+                    <h1 class="text-2xl font-extrabold flex items-center gap-3">
+                        <span id="t-active-class-title">Loading...</span>
+                        <span class="text-sm font-normal text-white/70 bg-white/5 px-3 py-1 rounded-full border border-white/10" id="t-current-week-label">--</span>
+                    </h1>
+                </div>
+                
                 <div class="flex gap-2">
-                    <button onclick="setBulletin()" class="bg-surface border border-border hover:bg-base px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors">
-                        <i class="fa-solid fa-note-sticky text-yellow-500 mr-2"></i> Sticky Note
+                    <button onclick="setBulletin()" class="bg-black/40 border border-white/10 hover:bg-white/10 px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors text-yellow-400">
+                        <i class="fa-solid fa-thumbtack mr-2"></i> Bulletin
                     </button>
-                    <button onclick="bulkShiftDates()" class="bg-surface border border-border hover:bg-base px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors">
-                        <i class="fa-regular fa-calendar-plus text-primary mr-2"></i> Snow Day Shift
+                    <button onclick="bulkShiftDates()" class="bg-black/40 border border-white/10 hover:bg-white/10 px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors text-blue-400">
+                        <i class="fa-regular fa-snowflake mr-2"></i> Snow Day
+                    </button>
+                    <button onclick="renderTeacherPlanner()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors">
+                        <i class="fa-solid fa-rotate mr-2"></i> Refresh
                     </button>
                 </div>
             </header>
+
+            <div id="t-bulletin-container" class="hidden bg-yellow-500/20 border-b border-yellow-500/30 px-8 py-2 flex justify-between items-center shrink-0 backdrop-blur-sm">
+                <span class="text-sm font-bold text-yellow-400"><i class="fa-solid fa-note-sticky mr-2"></i> Bulletin: <span id="t-bulletin-text" class="italic font-normal text-white/90">--</span></span>
+                <button onclick="clearBulletin()" class="text-xs font-bold text-red-400 hover:underline">Clear</button>
+            </div>
+
+            <div class="flex-1 overflow-x-auto overflow-y-auto p-6">
+                <div class="grid grid-cols-7 gap-4 min-w-[1600px] h-full" id="teacher-planner-grid"></div>
+            </div>
+        </div>
+
+        <!-- SETTINGS VIEW (UPDATED TO MATCH STUDENT) -->
+        <!-- We use 'bg-surface' here so it matches the Student theme exactly -->
+        <div id="t-view-settings" class="hidden h-full p-10 overflow-y-auto text-text custom-scrollbar">
             
-            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                <div class="xl:col-span-1 space-y-8">
-                    <div class="bg-surface rounded-3xl border border-border shadow-xl p-8">
-                        <h2 class="text-lg font-bold mb-6 flex items-center gap-3"><span class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary"><i class="fa-solid fa-plus text-xs"></i></span> Assign Work</h2>
-                        <div class="space-y-4">
-                            <input type="text" id="t-title" class="w-full rounded-xl p-3.5 placeholder-muted bg-base border border-border" placeholder="Assignment Title">
-                            <div class="grid grid-cols-2 gap-4">
-                                <select id="t-type" class="w-full rounded-xl p-3.5 bg-base border border-border"><option value="HOMEWORK">Homework</option><option value="TEST">Test/Exam</option><option value="PROJECT">Project</option></select>
-                                <select id="t-tag" class="w-full rounded-xl p-3.5 text-sm bg-base border border-border"><option value="">No Tag</option><option value="major">Major</option></select>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <input type="number" id="t-est-time" class="w-full rounded-xl p-3.5 placeholder-muted bg-base border border-border" placeholder="Mins">
-                                <input type="datetime-local" id="t-due-date" class="w-full rounded-xl p-3.5 text-sm bg-base border border-border">
-                            </div>
-                            <button onclick="teacherPostAssignment()" class="w-full bg-primary hover:opacity-90 text-white font-bold py-4 rounded-xl shadow-lg mt-2 transition-all">Post to Stream</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="xl:col-span-2 space-y-8">
-                    <div class="bg-surface rounded-2xl border border-border p-6">
-                        <h3 class="font-bold text-sm text-muted uppercase tracking-wider mb-4">Student Engagement (24h)</h3>
-                        <div id="student-roster-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between items-center mb-4"><h2 class="text-lg font-bold">Active Assignments</h2><button onclick="renderTeacherFeed()" class="text-sm text-primary hover:underline">Refresh</button></div>
-                        <div id="teacher-feed" class="space-y-3"></div>
-                    </div>
-                </div>
+            <button onclick="switchTeacherView('planner')" class="mb-6 flex items-center gap-2 text-muted hover:text-text font-bold transition-colors">
+                <i class="fa-solid fa-arrow-left"></i> Back to Planner
+            </button>
+            
+            <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
+            
+            <!-- COPIED FROM STUDENT LAYOUT -->
+            <div class="bg-surface p-8 rounded-3xl border border-border mb-8 shadow-sm">
+                <h3 class="font-bold text-xl mb-6">Visual Theme</h3>
+                <!-- ID is 't-theme-selector' for teacher logic -->
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="t-theme-selector"></div>
             </div>
+
         </div>
-        <div id="t-view-settings" class="hidden max-w-4xl mx-auto w-full">
-            <h2 class="text-3xl font-bold mb-8">Faculty Settings</h2>
-            <div class="bg-surface p-8 rounded-3xl border border-border">
-                <h3 class="font-bold text-lg mb-6">Visual Theme</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="t-theme-selector"></div>
-            </div>
-        </div>
+
     </main>
 </div>

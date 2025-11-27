@@ -84,3 +84,70 @@
         </div>
     </div>
 </div>
+
+<!-- TEACHER ADD MODAL -->
+<div id="teacherAddModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+    <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
+        <h2 class="text-2xl font-bold mb-6">Assign Work</h2>
+        <div class="space-y-4">
+            <input type="text" id="tm-title" placeholder="Assignment Title" class="w-full p-4 rounded-xl placeholder-muted bg-base border border-border outline-none focus:border-primary">
+
+            <div class="grid grid-cols-2 gap-4">
+                <select id="tm-type" class="w-full p-4 rounded-xl bg-base border border-border">
+                    <option value="HOMEWORK">Homework</option>
+                    <option value="TEST">Test/Exam</option>
+                    <option value="PROJECT">Project</option>
+                </select>
+                <input type="number" id="tm-est" placeholder="30 min" class="w-full p-4 rounded-xl bg-base border border-border">
+            </div>
+
+            <input type="datetime-local" id="tm-due" class="w-full p-4 rounded-xl bg-base border border-border text-sm">
+        </div>
+        <div class="flex justify-end gap-3 mt-8">
+            <button onclick="document.getElementById('teacherAddModal').classList.add('hidden')" class="px-6 py-3 text-muted font-bold hover:text-text">Cancel</button>
+            <button onclick="submitTeacherTask()" class="px-8 py-3 bg-primary hover:opacity-90 text-white rounded-xl font-bold shadow-lg">Create</button>
+        </div>
+    </div>
+</div>
+<div id="bulletinModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+    <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
+        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-thumbtack text-yellow-500"></i> Sticky Note
+        </h2>
+        <p class="text-muted text-sm mb-6">This message will appear at the top of the student dashboard.</p>
+
+        <textarea id="bm-text" class="w-full bg-base p-4 rounded-xl border border-border focus:border-primary outline-none min-h-[120px] resize-none" placeholder="e.g. Remember to bring your textbooks tomorrow!"></textarea>
+
+        <div class="flex justify-between mt-6">
+            <button onclick="clearBulletinAction()" class="text-red-500 font-bold text-sm hover:underline px-2">Clear Active Note</button>
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('bulletinModal').classList.add('hidden')" class="px-4 py-2 text-muted font-bold hover:text-text">Cancel</button>
+                <button onclick="saveBulletinAction()" class="px-6 py-2 bg-primary hover:opacity-90 text-white rounded-xl font-bold shadow-lg">Post</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- TEACHER: SNOW DAY MODAL -->
+<div id="snowDayModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+    <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
+        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+            <i class="fa-regular fa-snowflake text-blue-500"></i> Snow Day Protocol
+        </h2>
+        <p class="text-muted text-sm mb-6">Shift all active assignment due dates forward.</p>
+
+        <div class="bg-base p-4 rounded-xl border border-border mb-6">
+            <label class="text-xs font-bold text-muted uppercase">Days to Shift</label>
+            <div class="flex items-center gap-4 mt-2">
+                <button onclick="adjustSnowDay(-1)" class="w-10 h-10 rounded-lg bg-surface border border-border hover:bg-border flex items-center justify-center"><i class="fa-solid fa-minus"></i></button>
+                <input type="number" id="sd-days" value="1" class="w-20 text-center bg-transparent font-bold text-xl outline-none" readonly>
+                <button onclick="adjustSnowDay(1)" class="w-10 h-10 rounded-lg bg-surface border border-border hover:bg-border flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <button onclick="document.getElementById('snowDayModal').classList.add('hidden')" class="px-4 py-2 text-muted font-bold hover:text-text">Cancel</button>
+            <button onclick="confirmSnowDayAction()" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg">Confirm Shift</button>
+        </div>
+    </div>
+</div>
