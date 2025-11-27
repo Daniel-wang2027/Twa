@@ -5,7 +5,7 @@
             <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-primary/30">S</div>
             <span class="text-lg font-bold tracking-tight">Student HUD</span>
         </div>
-
+        
         <nav class="flex-1 px-4 space-y-2 mt-4">
             <button onclick="switchStudentView('dashboard')" id="nav-s-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm">
                 <i class="fa-solid fa-table-cells w-5"></i> Matrix
@@ -34,24 +34,25 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full relative" style="background-color: transparent;">
-
+        
         <!-- TOP HEADER -->
         <header class="h-16 flex items-center justify-between px-6 border-b border-border bg-surface/50 backdrop-blur-sm z-30">
             <div>
                 <h1 class="text-lg font-bold tracking-tight">The Week Ahead</h1>
                 <div class="text-xs text-muted font-medium" id="currentDate"></div>
             </div>
-
+            
             <div class="flex items-center gap-4">
-                <!-- Timer Control -->
-                <div class="flex items-center gap-3 bg-base border border-border px-3 py-1.5 rounded-xl shadow-sm">
-                    <div class="text-lg font-mono font-bold text-primary w-14 text-center" id="timerDisplay">25:00</div>
+                <!-- Timer Control (Updated with Click-to-Switch) -->
+                <div id="timer-container" class="flex items-center gap-3 bg-base border border-border px-3 py-1.5 rounded-xl shadow-sm hover:border-primary transition-colors">
+                    <!-- Clicking this text switches modes -->
+                    <div onclick="switchTimerMode()" class="text-lg font-mono font-bold text-primary w-14 text-center cursor-pointer select-none" id="timerDisplay" title="Click to switch Work/Break">25:00</div>
                     <div class="flex gap-1">
                         <button onclick="toggleTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors"><i class="fa-solid fa-play" id="timerIcon"></i></button>
                         <button onclick="resetTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors"><i class="fa-solid fa-rotate-left"></i></button>
                     </div>
                 </div>
-
+                
                 <!-- Streak Badge -->
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-base border border-border rounded-xl shadow-sm" id="streak-container">
                     <i class="fa-solid fa-fire text-orange-500 animate-pulse-fast"></i>
@@ -66,11 +67,15 @@
             <!-- 1. VIEW: DASHBOARD (Matrix) -->
             <div id="s-view-dashboard" class="fade-in">
                 <div id="student-bulletin-area" class="mb-6 space-y-2 hidden"></div>
-
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="stats-bar"></div>
-
-                <!-- The Matrix Table -->
+                <!-- WELCOME BANNER -->
+                <div id="welcome-banner" class="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-8 rounded-3xl mb-8 flex flex-col md:flex-row items-start md:items-center justify-between shadow-sm relative overflow-hidden">
+                    <div class="z-10">
+                        <h1 class="text-3xl font-extrabold text-primary mb-2">Welcome, <span id="banner-student-name">Student</span>! 👋</h1>
+                        <p class="text-lg text-muted" id="banner-message">Loading schedule...</p>
+                    </div>
+                    <!-- Decorative Icon -->
+                    <i class="fa-solid fa-calendar-day text-9xl absolute -right-4 -bottom-8 text-primary/5 z-0 transform rotate-12"></i>
+                </div>
                 <div class="overflow-x-auto pb-24 rounded-2xl border border-border shadow-sm bg-surface">
                     <table class="w-full border-collapse min-w-[1000px]">
                         <thead><tr id="matrix-header-row"></tr></thead>
@@ -83,27 +88,20 @@
             <div id="s-view-settings" class="hidden max-w-5xl mx-auto pb-20 fade-in">
                 <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
 
-                <!-- Theme Selector -->
                 <div class="bg-surface p-8 rounded-3xl border border-border mb-8 shadow-sm">
                     <h3 class="font-bold text-xl mb-6">Visual Theme</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="theme-selector"></div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-                    <!-- Left Column: Config -->
                     <div class="space-y-8">
-
                         <!-- Accessibility -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                             <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-universal-access text-primary"></i> Accessibility
                             </h3>
                             <div class="flex items-center justify-between bg-base p-4 rounded-xl border border-border">
-                                <div>
-                                    <span class="font-bold block text-sm">Dyslexia-Friendly Font</span>
-                                    <span class="text-xs text-muted">OpenDyslexic typeface</span>
-                                </div>
+                                <div><span class="font-bold block text-sm">Dyslexia-Friendly Font</span></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="setting-dyslexia" class="sr-only peer" onchange="saveGeneralSettings()">
                                     <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:bg-primary transition-colors"></div>
@@ -117,28 +115,24 @@
                                 <i class="fa-solid fa-calendar-check text-green-500"></i> Matrix Calibration
                             </h3>
                             <p class="text-xs text-muted mb-4">Trick your brain by shifting due times.</p>
-
                             <div class="mb-4">
                                 <label class="text-xs font-bold text-muted uppercase">Procrastination Buffer (Minutes)</label>
                                 <div class="flex gap-2 mt-1">
                                     <input type="number" id="setting-buffer" value="0" class="flex-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono">
                                     <button onclick="saveBufferSettings()" class="bg-surface border border-border hover:bg-base px-4 rounded-xl font-bold text-sm">Save</button>
                                 </div>
-                                <p class="text-[10px] text-muted mt-2">Example: If due at 3:00 PM and buffer is 60m, Matrix shows 2:00 PM.</p>
                             </div>
                         </div>
 
-                        <!-- Backpack Protocol -->
+                        <!-- BACKPACK PROTOCOL -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                             <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
                                 <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
                             </h3>
                             <p class="text-xs text-muted mb-4">Daily checklist generation.</p>
 
-                            <!-- List -->
                             <div id="backpack-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
 
-                            <!-- Add Input -->
                             <div class="flex gap-2 mb-4">
                                 <input type="text" id="new-backpack-item" placeholder="Add Item (e.g. Charger)" class="flex-1 p-3 rounded-xl border border-border text-sm bg-base focus:border-primary outline-none">
                                 <button onclick="addBackpackItem()" class="bg-primary text-white w-12 rounded-xl hover:opacity-90 transition-transform active:scale-95"><i class="fa-solid fa-plus"></i></button>
@@ -150,13 +144,12 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Timer -->
                     <div class="space-y-8">
+                        <!-- TIMER SETTINGS -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm h-fit">
                             <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-stopwatch text-orange-500"></i> Timer Settings
                             </h3>
-
                             <div class="grid grid-cols-2 gap-4 mb-6">
                                 <div>
                                     <label class="text-xs font-bold text-muted uppercase">Focus (Min)</label>
@@ -167,11 +160,9 @@
                                     <input type="number" id="setting-break" value="5" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono text-center text-lg">
                                 </div>
                             </div>
-
                             <button onclick="saveTimerSettings()" class="w-full bg-primary hover:opacity-90 text-white py-4 rounded-xl font-bold transition-all shadow-md flex justify-center items-center gap-2">
                                 <i class="fa-solid fa-check"></i> Update Timer
                             </button>
-                            <p class="text-[10px] text-center text-muted mt-3">Note: Updating this will reset the current timer.</p>
                         </div>
                     </div>
                 </div>
@@ -189,12 +180,10 @@
                 <div id="profile-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20"></div>
             </div>
 
-            <!-- 5. VIEW: CLASS DETAIL (DRILL DOWN) -->
+            <!-- 5. VIEW: CLASS DETAIL -->
             <div id="s-view-class-detail" class="hidden h-full flex flex-col fade-in">
                 <div class="flex items-center gap-4 mb-6">
-                    <button onclick="closeClassDetail()" class="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-base transition-colors shadow-sm">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </button>
+                    <button onclick="closeClassDetail()" class="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-base transition-colors shadow-sm"><i class="fa-solid fa-arrow-left"></i></button>
                     <div>
                         <h2 class="text-2xl font-bold flex items-center gap-3">
                             <span id="detail-class-name">--</span>
@@ -203,24 +192,16 @@
                         <p class="text-xs text-muted">Course Assignment History</p>
                     </div>
                     <div class="flex-1"></div>
-                    <button onclick="openCurrentClassSettings()" class="text-xs font-bold border border-border px-3 py-2 rounded-lg hover:bg-surface flex items-center gap-2 transition-colors">
-                        <i class="fa-solid fa-paint-roller text-primary"></i> Customize
-                    </button>
+                    <button onclick="openCurrentClassSettings()" class="text-xs font-bold border border-border px-3 py-2 rounded-lg hover:bg-surface flex items-center gap-2 transition-colors"><i class="fa-solid fa-paint-roller text-primary"></i> Customize</button>
                 </div>
-
                 <div class="bg-surface rounded-2xl border border-border flex-1 overflow-hidden flex flex-col shadow-sm">
-                    <div class="p-4 border-b border-border bg-base/50 flex justify-between text-xs font-bold text-muted uppercase">
-                        <span>Assignment</span>
-                        <span>Status</span>
-                    </div>
+                    <div class="p-4 border-b border-border bg-base/50 flex justify-between text-xs font-bold text-muted uppercase"><span>Assignment</span><span>Status</span></div>
                     <div id="class-detail-list" class="overflow-y-auto p-2 space-y-1 custom-scrollbar"></div>
                 </div>
             </div>
         </div>
 
-        <!-- FAB: ADD TASK BUTTON -->
-        <button onclick="openStudentModal()" class="absolute bottom-8 right-8 bg-primary hover:opacity-90 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition-transform hover:scale-110 z-40 active:scale-95">
-            <i class="fa-solid fa-plus"></i>
-        </button>
+        <!-- ADD BUTTON -->
+        <button onclick="openStudentModal()" class="absolute bottom-8 right-8 bg-primary hover:opacity-90 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition-transform hover:scale-110 z-40 active:scale-95"><i class="fa-solid fa-plus"></i></button>
     </main>
 </div>

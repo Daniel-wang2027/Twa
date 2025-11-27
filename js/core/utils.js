@@ -1,4 +1,6 @@
-/* --- UTILITIES & TIMER --- */
+/* =========================================
+   UTILITIES & TIMER (Fixed Break Logic)
+   ========================================= */
 
 const sounds = {
     complete: new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'),
@@ -29,11 +31,17 @@ function showToast(message, type = 'info') {
 }
 
 /* --- TIMER LOGIC --- */
-let timer = { interval: null, timeLeft: 25*60, isRunning: false };
+let timer = { 
+    interval: null, 
+    timeLeft: 25*60, 
+    isRunning: false,
+    mode: 'work' // 'work' or 'break'
+};
 
 function toggleTimer() {
     playSound('click');
     const icon = document.getElementById('timerIcon');
+
     if(timer.isRunning) { 
         clearInterval(timer.interval); 
         timer.isRunning = false; 
@@ -41,36 +49,71 @@ function toggleTimer() {
     } else { 
         timer.isRunning = true; 
         if(icon) icon.className = "fa-solid fa-pause"; 
+
         timer.interval = setInterval(() => { 
             if(timer.timeLeft > 0) { 
                 timer.timeLeft--; 
                 updateTimerUI(); 
             } else { 
-                playSound('success');
-                showToast("Focus Session Complete!", "success");
-                resetTimer(); 
+                timerComplete();
             } 
         }, 1000); 
     }
 }
 
+function timerComplete() {
+    clearInterval(timer.interval);
+    timer.isRunning = false;
+    playSound('success');
+
+    if(timer.mode === 'work') {
+        showToast("Focus complete! Time for a break?", "success");
+        // Auto-switch to break, but don't start
+        switchTimerMode('break');
+    } else {
+        showToast("Break over! Back to work.", "info");
+        switchTimerMode('work');
+    }
+
+    const icon = document.getElementById('timerIcon');
+    if(icon) icon.className = "fa-solid fa-play";
+}
+
+function switchTimerMode(forceMode = null) {
+    // Toggle or force
+    if (forceMode) timer.mode = forceMode;
+    else timer.mode = timer.mode === 'work' ? 'break' : 'work';
+
+    resetTimer();
+}
+
 function resetTimer() { 
     clearInterval(timer.interval); 
     timer.isRunning = false; 
-
-    // READ FROM SETTINGS HERE
-    const workMinutes = (typeof settings !== 'undefined' && settings.workTime) ? settings.workTime : 25;
-
-    timer.timeLeft = workMinutes * 60; 
-
     const icon = document.getElementById('timerIcon');
     if(icon) icon.className = "fa-solid fa-play"; 
-    updateTimerUI(); 
+
+    // Get Settings
+    const workMins = (typeof settings !== 'undefined' && settings.workTime) ? settings.workTime : 25;
+    const breakMins = (typeof settings !== 'undefined' && settings.breakTime) ? settings.breakTime : 5;
+
+    // Set Time
+    timer.timeLeft = (timer.mode === 'work' ? workMins : breakMins) * 60;
+
+    updateTimerUI();
 }
 
 function updateTimerUI() { 
     const m = Math.floor(timer.timeLeft / 60).toString().padStart(2,'0'); 
     const s = (timer.timeLeft % 60).toString().padStart(2,'0'); 
+
     const display = document.getElementById('timerDisplay');
-    if(display) display.innerText = `${m}:${s}`; 
+    const container = document.getElementById('timer-container'); // Need to add ID to HTML
+
+    if(display) {
+        display.innerText = `${m}:${s}`;
+        // Color coding
+        if(timer.mode === 'work') display.className = "text-lg font-mono font-bold text-primary w-14 text-center cursor-pointer";
+        else display.className = "text-lg font-mono font-bold text-green-500 w-14 text-center cursor-pointer";
+    }
 }

@@ -1,5 +1,5 @@
 /* =========================================
-   TEACHER DASHBOARD LOGIC
+   TEACHER DASHBOARD LOGIC (Fixed Bulletin/Sticky Note)
    ========================================= */
 
 function initTeacherUI() {
@@ -20,12 +20,15 @@ function initTeacherUI() {
 
     // 3. Render Initial State
     renderTeacherNav(); 
-    teacherSwitchClass(classes[0] !== "Personal" ? classes[0] : classes[1]); // Default to first real class
+
+    // Pick first academic class
+    const firstClass = classes.find(c => c !== 'Personal') || classes[0];
+    teacherSwitchClass(firstClass); 
 
     // Render Admin Tasks (Personal To-Do)
     renderTeacherTasks();
 
-    // Theme buttons (if on settings screen)
+    // Theme buttons
     if(typeof renderThemeButtons === 'function') renderThemeButtons('t-theme-selector');
 }
 
@@ -56,14 +59,29 @@ function teacherSwitchClass(cls) {
     document.getElementById('t-view-class').classList.remove('hidden');
     document.getElementById('t-view-settings').classList.add('hidden');
 
-    // 2. Update Header
+    // 2. Update Header Title
     const titleEl = document.getElementById('t-active-class-title');
     if (titleEl) titleEl.innerText = cls;
 
     // 3. Refresh Nav Highlight
     renderTeacherNav();
 
-    // 4. Load Data
+    // --- 4. CHECK FOR ACTIVE BULLETIN (STICKY NOTE) ---
+    const bulletinContainer = document.getElementById('t-bulletin-container');
+    const bulletinText = document.getElementById('t-bulletin-text');
+
+    if (bulletinContainer && bulletinText) {
+        // Check if global bulletin object has entry for this class
+        if (typeof classBulletins !== 'undefined' && classBulletins[cls] && classBulletins[cls].active) {
+            bulletinContainer.classList.remove('hidden');
+            bulletinText.innerText = classBulletins[cls].msg;
+        } else {
+            bulletinContainer.classList.add('hidden');
+            bulletinText.innerText = "";
+        }
+    }
+
+    // 5. Load Feed & Roster
     renderTeacherFeed();
     renderRoster(); 
 }
@@ -86,7 +104,6 @@ function teacherPostAssignment() {
 
     if (!titleInput.value || !dueInput.value) return alert("Missing Title or Due Date");
 
-    // Add to Global Tasks
     globalTasks.push({ 
         id: Date.now(), 
         title: titleInput.value, 
@@ -101,10 +118,7 @@ function teacherPostAssignment() {
     });
 
     saveData();
-
-    // Reset Form
     titleInput.value = ''; 
-
     renderTeacherFeed(); 
     showToast("Assignment Posted!", "success");
 }
@@ -146,6 +160,56 @@ function deleteTaskFromFeed(id) {
     }
 }
 
+/* --- BULLETIN / STICKY NOTE LOGIC --- */
+
+function setBulletin() {
+    const msg = prompt("Enter bulletin message for " + currentTeacherClass + ":");
+    if(msg) {
+        if(typeof classBulletins === 'undefined') classBulletins = {};
+
+        classBulletins[currentTeacherClass] = { msg: msg, active: true };
+        saveData();
+
+        // Refresh UI to show the banner
+        teacherSwitchClass(currentTeacherClass);
+        showToast("Bulletin Posted", "success");
+    }
+}
+
+function clearBulletin() {
+    if(typeof classBulletins !== 'undefined' && classBulletins[currentTeacherClass]) {
+        // Deactivate it
+        classBulletins[currentTeacherClass].active = false;
+        saveData();
+
+        // Refresh UI to hide the banner
+        teacherSwitchClass(currentTeacherClass);
+        showToast("Bulletin Cleared", "info");
+    }
+}
+
+function bulkShiftDates() {
+    const daysStr = prompt("SNOW DAY PROTOCOL:\nShift all active due dates by how many days?", "1");
+    if(!daysStr) return;
+
+    const days = parseInt(daysStr);
+    if(isNaN(days)) return alert("Invalid number");
+
+    let count = 0;
+    globalTasks.forEach(t => {
+        if(!t.completed && t.course === currentTeacherClass) {
+            const currentDue = new Date(t.due);
+            currentDue.setDate(currentDue.getDate() + days);
+            t.due = currentDue.toISOString();
+            count++;
+        }
+    });
+
+    saveData();
+    renderTeacherFeed();
+    showToast(`Shifted ${count} assignments by ${days} day(s).`, "success");
+}
+
 /* --- ROSTER & OBSERVER MODE --- */
 
 function renderRoster() {
@@ -153,9 +217,7 @@ function renderRoster() {
     if (!list) return;
     list.innerHTML = '';
 
-    // Mock Roster Data (defined in state.js)
     studentRoster.forEach(s => {
-        // Mock Engagement Logic (Time since last active)
         const lastActive = new Date(s.lastActive);
         const now = new Date();
         const diffHours = (now - lastActive) / 36e5;
@@ -183,51 +245,58 @@ function renderRoster() {
     });
 }
 
-function enterObserverMode(studentName) {
+async function enterObserverMode(studentName) {
     const banner = document.getElementById('observer-banner');
-    if (banner) {
-        // 1. Show the Warning Banner
+    let studentLayout = document.getElementById('student-layout');
+
+    // 1. If Student HTML is missing, fetch it now
+    if (!studentLayout) {
+        try {
+            if(typeof showToast === 'function') showToast("Loading Student Simulation...", "info");
+            const response = await fetch('layouts/student.html');
+            if (!response.ok) throw new Error("Layout missing");
+            const html = await response.text();
+            document.getElementById('app-container').insertAdjacentHTML('beforeend', html);
+            studentLayout = document.getElementById('student-layout');
+        } catch (e) {
+            console.error(e);
+            return alert("Error: Could not load student simulation interface.");
+        }
+    }
+
+    if (banner && studentLayout) {
         banner.classList.remove('hidden');
         document.getElementById('observer-name').innerText = studentName;
-
-        // 2. Switch Layouts
         document.getElementById('teacher-layout').classList.add('hidden');
-        document.getElementById('student-layout').classList.remove('hidden');
+        studentLayout.classList.remove('hidden');
 
-        // 3. Initialize Student View with Mock Name
-        // We override the visual name temporarily
         const profileName = document.getElementById('s-profileName');
         const profileInit = document.getElementById('s-profileInitials');
-
         if(profileName) profileName.innerText = studentName;
         if(profileInit) profileInit.innerText = studentName.slice(0,2).toUpperCase();
 
-        // 4. Run Student Init Logic (re-using student/render.js)
         if(typeof initStudentUI === 'function') {
-            renderMatrix(); 
-            renderStats();
+            initStudentUI();
+            if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
+            if(typeof showToast === 'function') showToast(`Viewing as ${studentName}`, "success");
         }
-
-        showToast(`Viewing as ${studentName}`, "info");
     }
 }
 
 function exitObserverMode() {
     const banner = document.getElementById('observer-banner');
     if (banner) banner.classList.add('hidden');
-
-    // 1. Switch Layouts Back
     document.getElementById('student-layout').classList.add('hidden');
     document.getElementById('teacher-layout').classList.remove('hidden');
 
-    // 2. Restore Teacher Name
+    // Restore Name
     const nameEl = document.getElementById('t-profileName');
     if (nameEl) nameEl.innerText = currentUser.name;
 
     showToast("Returned to Faculty Hub", "success");
 }
 
-/* --- ADMIN TASKS (Personal To-Do) --- */
+/* --- ADMIN TASKS --- */
 
 function renderTeacherTasks() {
     const list = document.getElementById('teacher-personal-list');

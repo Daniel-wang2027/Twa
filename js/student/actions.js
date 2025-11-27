@@ -1,11 +1,39 @@
 /* =========================================
-   STUDENT ACTIONS (Fixed Settings & Backpack)
+   STUDENT ACTIONS (Consolidated)
    ========================================= */
 
 let activeTaskId = null;
 let viewClassTarget = null; 
 
-/* --- SETTINGS: TIMER (Specific) --- */
+/* --- NAVIGATION & DETAILS --- */
+
+function openClassDetail(className) {
+    viewClassTarget = className;
+    const titleEl = document.getElementById('detail-class-name');
+    const dotEl = document.getElementById('detail-class-dot');
+
+    if(titleEl) titleEl.innerText = className;
+    if(dotEl) {
+        const color = classPreferences[className] || '#888';
+        dotEl.style.backgroundColor = color;
+        dotEl.style.boxShadow = `0 0 10px ${color}`;
+    }
+
+    switchStudentView('class-detail');
+    if(typeof renderClassDetailList === 'function') renderClassDetailList(className);
+}
+
+function closeClassDetail() {
+    viewClassTarget = null;
+    switchStudentView('profile');
+}
+
+function openCurrentClassSettings() {
+    if(viewClassTarget) openStudentClassSettings(viewClassTarget);
+}
+
+/* --- SETTINGS: TIMER & BUFFER --- */
+
 function saveTimerSettings() {
     const workEl = document.getElementById('setting-work');
     const breakEl = document.getElementById('setting-break');
@@ -13,32 +41,24 @@ function saveTimerSettings() {
     if(workEl) settings.workTime = parseInt(workEl.value) || 25;
     if(breakEl) settings.breakTime = parseInt(breakEl.value) || 5;
 
-    saveData(); // Save to storage
-
-    // Force the timer util to update immediately
-    if(typeof resetTimer === 'function') {
-        resetTimer(); 
-    }
+    saveData(); 
+    if(typeof resetTimer === 'function') resetTimer();
 
     playSound('success');
     if(typeof showToast === 'function') showToast("Timer Updated", "success");
 }
 
-/* --- SETTINGS: BUFFER (Specific) --- */
 function saveBufferSettings() {
     const bufferEl = document.getElementById('setting-buffer');
     if(bufferEl) settings.buffer = parseInt(bufferEl.value) || 0;
 
     saveData();
-
-    // Re-render Matrix to show shifted times
     if(typeof renderMatrix === 'function') renderMatrix();
 
     playSound('click');
     if(typeof showToast === 'function') showToast("Matrix Buffer Updated", "success");
 }
 
-/* --- SETTINGS: GENERAL (Dyslexia) --- */
 function saveGeneralSettings() {
     const dysEl = document.getElementById('setting-dyslexia');
     if(dysEl) {
@@ -49,6 +69,7 @@ function saveGeneralSettings() {
 }
 
 /* --- BACKPACK PROTOCOL --- */
+
 function addBackpackItem() {
     const input = document.getElementById('new-backpack-item');
     if(!input) return;
@@ -57,11 +78,8 @@ function addBackpackItem() {
     if (val) {
         if(!settings.backpack) settings.backpack = [];
         settings.backpack.push(val);
-
-        input.value = ''; // Clear input
+        input.value = ''; 
         saveData();
-
-        // Re-render list immediately
         if(typeof renderBackpackList === 'function') renderBackpackList();
     }
 }
@@ -80,12 +98,10 @@ function pushBackpackTasks() {
         return;
     }
 
-    // Create Checklist Data
-    const checkItems = settings.backpack.map(item => ({ text: item, done: false }));
-
-    // Set Due Date to End of Today
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 0, 0);
+
+    const checkItems = settings.backpack.map(item => ({ text: item, done: false }));
 
     globalTasks.push({
         id: Date.now(), 
@@ -99,38 +115,12 @@ function pushBackpackTasks() {
     });
 
     saveData();
-
     if(typeof renderMatrix === 'function') renderMatrix();
     if(typeof showToast === 'function') showToast("Checklist added to Matrix", "success");
-
-    // Switch back to dashboard so they can see it
     switchStudentView('dashboard');
 }
 
-/* --- NAVIGATION & TASKS (Standard Logic) --- */
-
-function openClassDetail(className) {
-    viewClassTarget = className;
-    const titleEl = document.getElementById('detail-class-name');
-    const dotEl = document.getElementById('detail-class-dot');
-    if(titleEl) titleEl.innerText = className;
-    if(dotEl) {
-        const color = classPreferences[className] || '#888';
-        dotEl.style.backgroundColor = color;
-        dotEl.style.boxShadow = `0 0 10px ${color}`;
-    }
-    switchStudentView('class-detail');
-    if(typeof renderClassDetailList === 'function') renderClassDetailList(className);
-}
-
-function closeClassDetail() {
-    viewClassTarget = null;
-    switchStudentView('profile');
-}
-
-function openCurrentClassSettings() {
-    if(viewClassTarget) openStudentClassSettings(viewClassTarget);
-}
+/* --- MODAL: CLASS SETTINGS --- */
 
 function openStudentClassSettings(className) {
     const modal = document.getElementById('classSettingsModal');
@@ -158,6 +148,8 @@ function saveClassSettings() {
         playSound('success');
     }
 }
+
+/* --- MODAL: ADD TASK --- */
 
 function openStudentModal() {
     const modal = document.getElementById('addModal');
@@ -189,24 +181,34 @@ function addTask() {
     saveData();
     document.getElementById('addModal').classList.add('hidden');
     if(typeof renderMatrix === 'function') renderMatrix();
+    if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
     playSound('success');
 }
+
+/* --- MODAL: EDIT TASK / CHECKLISTS --- */
 
 function openTaskDetails(id) {
     activeTaskId = id;
     const t = globalTasks.find(x => x.id === id);
     if(!t) return;
+
     document.getElementById('d-title').value = t.title;
     document.getElementById('d-desc').value = t.desc || "";
+
+    // Fix Date Format for Input
     const localDate = new Date(t.due);
     localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
     document.getElementById('d-due').value = localDate.toISOString().slice(0,16);
-    const container = document.getElementById('d-checklist-container');
-    if(container) {
-        container.innerHTML = '';
-        if(t.checklist) t.checklist.forEach(i => container.innerHTML += `<div class="p-2 border border-border rounded mb-1 text-sm bg-base">${i.text}</div>`);
-    }
+
+    // Initial Checklist Render
+    renderChecklist(t);
+
     document.getElementById('detailModal').classList.remove('hidden');
+}
+
+function closeDetailModal() {
+    document.getElementById('detailModal').classList.add('hidden');
+    activeTaskId = null;
 }
 
 function saveTaskDetails() {
@@ -215,10 +217,14 @@ function saveTaskDetails() {
         t.title = document.getElementById('d-title').value;
         t.desc = document.getElementById('d-desc').value;
         t.due = new Date(document.getElementById('d-due').value).toISOString();
+
         saveData();
+
         if(typeof renderMatrix === 'function') renderMatrix();
+        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
         if(viewClassTarget && typeof renderClassDetailList === 'function') renderClassDetailList(viewClassTarget);
-        document.getElementById('detailModal').classList.add('hidden');
+
+        closeDetailModal();
         playSound('success');
     }
 }
@@ -228,10 +234,80 @@ function deleteTask() {
         globalTasks = globalTasks.filter(t => t.id !== activeTaskId);
         saveData();
         if(typeof renderMatrix === 'function') renderMatrix();
+        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
         if(viewClassTarget && typeof renderClassDetailList === 'function') renderClassDetailList(viewClassTarget);
-        document.getElementById('detailModal').classList.add('hidden');
+        closeDetailModal();
     }
 }
+
+/* --- CHECKLIST SUB-FUNCTIONS --- */
+
+function renderChecklist(task) {
+    const container = document.getElementById('d-checklist-container');
+    const progress = document.getElementById('d-checklist-progress');
+
+    if(!container) return;
+
+    container.innerHTML = '';
+
+    if(!task.checklist) task.checklist = [];
+
+    // Update Progress Text
+    const done = task.checklist.filter(i => i.done).length;
+    if(progress) progress.innerText = `${done}/${task.checklist.length}`;
+
+    // Render Items
+    task.checklist.forEach((item, index) => {
+        // Safe onclick handlers using global functions
+        container.innerHTML += `
+        <div class="flex items-center gap-3 bg-base p-3 rounded-lg border border-border group transition-colors hover:border-primary/50">
+            <button onclick="toggleSubtask(${index})" class="text-xl ${item.done ? 'text-primary' : 'text-muted'} hover:text-primary transition-colors">
+                <i class="fa-${item.done ? 'solid fa-square-check' : 'regular fa-square'}"></i>
+            </button>
+            <span class="${item.done ? 'line-through text-muted' : 'text-text'} text-sm flex-1 break-words">${item.text}</span>
+            <button onclick="deleteSubtask(${index})" class="opacity-0 group-hover:opacity-100 text-red-500 hover:bg-surface w-8 h-8 rounded flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>`;
+    });
+}
+
+function addSubtask() {
+    const input = document.getElementById('d-new-subtask');
+    if(!input || !activeTaskId) return;
+
+    const text = input.value.trim();
+    if(!text) return;
+
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    if(t) {
+        if(!t.checklist) t.checklist = [];
+        t.checklist.push({ text: text, done: false });
+        input.value = '';
+        saveData();
+        renderChecklist(t);
+    }
+}
+
+function toggleSubtask(index) {
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    if(t && t.checklist[index]) {
+        t.checklist[index].done = !t.checklist[index].done;
+        saveData();
+        renderChecklist(t);
+    }
+}
+
+function deleteSubtask(index) {
+    const t = globalTasks.find(x => x.id === activeTaskId);
+    if(t && t.checklist[index]) {
+        t.checklist.splice(index, 1);
+        saveData();
+        renderChecklist(t);
+    }
+}
+
+/* --- MAIN TASK COMPLETION --- */
 
 function toggleComplete(id) {
     const t = globalTasks.find(x => x.id === id);
@@ -244,7 +320,7 @@ function toggleComplete(id) {
         }
         saveData();
         if(typeof renderMatrix === 'function') renderMatrix();
-        if(typeof renderStats === 'function') renderStats();
+        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
         if(viewClassTarget && typeof renderClassDetailList === 'function') renderClassDetailList(viewClassTarget);
     }
 }

@@ -1,5 +1,5 @@
 <div id="teacher-layout" class="flex-1 flex w-full h-full fade-in" style="background: transparent;">
-    <aside class="w-72 bg-surface border-r border-border flex flex-col hidden md:flex pt-8">
+    <aside class="w-72 bg-surface border-r border-border flex flex-col hidden md:flex pt-8 transition-colors duration-300">
         <div class="px-8 flex items-center gap-4 mb-6"><div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold">T</div><span class="text-lg font-bold tracking-tight">Faculty Hub</span></div>
         <div class="px-6 mb-6"><div class="text-xs font-bold text-muted uppercase tracking-wider mb-2">My Classes</div><div id="teacher-class-list" class="space-y-2"></div></div>
         <div class="flex-1 px-6 overflow-y-auto border-t border-border pt-4"><div class="flex justify-between items-center mb-2"><div class="text-xs font-bold text-muted uppercase tracking-wider">Admin Tasks</div><button onclick="addTeacherTask()" class="text-primary hover:text-white"><i class="fa-solid fa-plus"></i></button></div><div id="teacher-personal-list" class="space-y-2"></div></div>
@@ -8,8 +8,25 @@
     <main class="flex-1 flex flex-col h-full overflow-y-auto p-10 relative pt-12">
         <div id="t-view-class">
             <header class="flex justify-between items-center mb-8 border-b border-border pb-6">
-                <div><h1 class="text-4xl font-extrabold" id="t-active-class-title">Select a Class</h1></div>
+                <div>
+                    <h1 class="text-4xl font-extrabold" id="t-active-class-title">Select a Class</h1>
+                    <div id="t-bulletin-container" class="mt-2 hidden">
+                        <span class="bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded text-xs font-bold border border-yellow-500/50"><i class="fa-solid fa-thumbtack mr-1"></i> BULLETIN</span>
+                        <span id="t-bulletin-text" class="text-sm ml-2 text-muted italic"></span>
+                        <button onclick="clearBulletin()" class="ml-2 text-xs text-red-500 hover:underline">(Clear)</button>
+                    </div>
+                </div>
+                <!-- RESTORED BUTTONS -->
+                <div class="flex gap-2">
+                    <button onclick="setBulletin()" class="bg-surface border border-border hover:bg-base px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors">
+                        <i class="fa-solid fa-note-sticky text-yellow-500 mr-2"></i> Sticky Note
+                    </button>
+                    <button onclick="bulkShiftDates()" class="bg-surface border border-border hover:bg-base px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors">
+                        <i class="fa-regular fa-calendar-plus text-primary mr-2"></i> Snow Day Shift
+                    </button>
+                </div>
             </header>
+            
             <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 <div class="xl:col-span-1 space-y-8">
                     <div class="bg-surface rounded-3xl border border-border shadow-xl p-8">

@@ -48,18 +48,36 @@
 <div id="detailModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-lg border border-border shadow-2xl relative">
         <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button>
+
         <input type="text" id="d-title" class="w-full bg-transparent text-2xl font-bold mb-2 outline-none border-b border-transparent focus:border-border" placeholder="Task Name">
+
         <div class="flex items-center gap-4 text-sm text-muted mb-6">
             <input type="datetime-local" id="d-due" class="bg-transparent border-none p-0 text-muted">
         </div>
+
         <div class="mb-6">
             <label class="text-xs font-bold text-muted uppercase tracking-wider mb-2 block">Notes</label>
             <textarea id="d-desc" class="w-full bg-base rounded-xl p-3 text-sm min-h-[80px] border border-border resize-none" placeholder="Notes..."></textarea>
         </div>
+
         <div class="mb-6">
-             <label class="text-xs font-bold text-muted uppercase tracking-wider mb-2 block">Checklist</label>
-             <div id="d-checklist-container" class="space-y-1"></div>
+             <div class="flex justify-between items-center mb-2">
+                 <label class="text-xs font-bold text-muted uppercase tracking-wider block">Checklist</label>
+                 <span id="d-checklist-progress" class="text-xs font-bold text-primary">0/0</span>
+             </div>
+
+             <!-- THE LIST -->
+             <div id="d-checklist-container" class="space-y-1 mb-3 max-h-32 overflow-y-auto custom-scrollbar"></div>
+
+             <!-- THE INPUT FIELD (Was missing) -->
+             <div class="flex gap-2">
+                 <input type="text" id="d-new-subtask" placeholder="Add step..." class="flex-1 bg-base rounded-lg px-3 py-2 text-sm border border-border outline-none focus:border-primary">
+                 <button onclick="addSubtask()" class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 w-10 rounded-lg flex items-center justify-center transition-colors">
+                     <i class="fa-solid fa-plus"></i>
+                 </button>
+             </div>
         </div>
+
         <div class="flex justify-between mt-8 pt-6 border-t border-border">
             <button onclick="deleteTask()" class="text-red-500 hover:text-red-400 text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-trash"></i> Delete</button>
             <button onclick="saveTaskDetails()" class="bg-primary hover:opacity-90 text-white px-8 py-3 rounded-xl font-bold shadow-lg">Save Changes</button>
