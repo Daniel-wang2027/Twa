@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="space">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- THEME RESTORE -->
+    <!-- INSTANT THEME LOADER -->
     <script>
         const saved = localStorage.getItem('twa_device_theme');
         if(saved) document.documentElement.setAttribute('data-theme', saved);
@@ -27,7 +27,7 @@
         }
     </script>
 </head>
-<body class="h-screen flex items-center justify-center bg-base text-text transition-colors duration-300">
+<body class="h-screen flex items-center justify-center text-text transition-colors duration-300">
 
     <div class="w-full max-w-md p-8 bg-surface rounded-3xl border border-border shadow-2xl relative fade-in">
         <div class="text-center mb-8">
@@ -36,10 +36,11 @@
             <p class="text-muted mt-2">Executive Functioning HUD</p>
         </div>
 
-        <!-- Role Selector -->
-        <div class="flex bg-base p-2 rounded-xl mb-6 border border-border">
+        <!-- Role Selector (Now with Admin) -->
+        <div class="flex bg-base p-2 rounded-xl mb-6 border border-border gap-2">
             <button type="button" onclick="setRole('student')" id="btn-role-student" class="flex-1 py-3 text-sm font-bold rounded-lg transition-all border border-transparent">Student</button>
             <button type="button" onclick="setRole('teacher')" id="btn-role-teacher" class="flex-1 py-3 text-sm font-bold rounded-lg transition-all border border-transparent">Teacher</button>
+            <button type="button" onclick="setRole('admin')" id="btn-role-admin" class="w-16 py-3 text-xs font-bold rounded-lg transition-all border border-transparent hover:bg-surface text-muted">Admin</button>
         </div>
 
         <!-- Auth Form -->
@@ -71,7 +72,6 @@
         </div>
     </div>
 
-    <!-- SCRIPT LINK (MAKE SURE FOLDER EXISTS) -->
     <script src="js/core/auth.js"></script>
 </body>
 </html>

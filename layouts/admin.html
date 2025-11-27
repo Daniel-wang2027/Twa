@@ -1,0 +1,85 @@
+<div id="admin-layout" class="flex w-full h-full fade-in text-text">
+
+    <!-- ADMIN SIDEBAR -->
+    <aside class="w-64 bg-surface border-r border-border flex flex-col z-20">
+        <div class="p-6 flex items-center gap-3">
+            <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">A</div>
+            <span class="text-lg font-bold tracking-tight">SysAdmin</span>
+        </div>
+        <div class="px-6 mb-6">
+            <div class="text-xs font-bold text-muted uppercase tracking-wider mb-2">Management</div>
+            <button onclick="renderUserList()" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary border border-primary/20">
+                <i class="fa-solid fa-users"></i> User Directory
+            </button>
+        </div>
+        <div class="p-6 mt-auto border-t border-border">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold">AD</div>
+                <div>
+                    <p class="font-bold text-sm">Administrator</p>
+                    <button onclick="doLogout()" class="text-xs text-red-500 hover:underline">Log Out</button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-base relative">
+        <header class="h-20 flex items-center justify-between px-8 border-b border-border bg-surface">
+            <h1 class="text-2xl font-bold">User Database</h1>
+            <button onclick="openCreateUserModal()" class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:opacity-90">
+                <i class="fa-solid fa-user-plus mr-2"></i> Create User
+            </button>
+        </header>
+
+        <div class="flex-1 overflow-auto p-8">
+            <!-- USER TABLE -->
+            <div class="bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-base border-b border-border text-xs uppercase text-muted">
+                        <tr>
+                            <th class="p-4">Name</th>
+                            <th class="p-4">Role</th>
+                            <th class="p-4">Email</th>
+                            <th class="p-4">Enrolled Classes</th>
+                            <th class="p-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-user-list"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ENROLLMENT MODAL -->
+    <div id="enrollmentModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-surface p-8 rounded-3xl w-full max-w-2xl border border-border shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">Manage Enrollment</h2>
+                    <p class="text-muted text-sm">Editing: <span id="em-username" class="text-primary font-bold">--</span></p>
+                </div>
+                <button onclick="closeEnrollmentModal()" class="text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
+                <!-- AVAILABLE COURSES -->
+                <div class="flex flex-col h-full">
+                    <label class="text-xs font-bold text-muted uppercase mb-2">Course Catalog</label>
+                    <input type="text" id="em-search" onkeyup="filterCourseCatalog()" placeholder="Search ID or Name..." class="w-full p-2 mb-2 rounded-lg bg-base border border-border text-sm outline-none focus:border-primary">
+                    <div id="em-catalog-list" class="flex-1 overflow-y-auto bg-base border border-border rounded-xl p-2 space-y-1 custom-scrollbar"></div>
+                </div>
+
+                <!-- ASSIGNED COURSES -->
+                <div class="flex flex-col h-full">
+                    <label class="text-xs font-bold text-muted uppercase mb-2">Currently Assigned</label>
+                    <div id="em-assigned-list" class="flex-1 overflow-y-auto bg-base border border-border rounded-xl p-2 space-y-1 custom-scrollbar"></div>
+                </div>
+            </div>
+
+            <div class="mt-6 pt-6 border-t border-border flex justify-end">
+                <button onclick="closeEnrollmentModal()" class="px-6 py-2 bg-primary text-white rounded-xl font-bold">Done</button>
+            </div>
+        </div>
+    </div>
+</div>

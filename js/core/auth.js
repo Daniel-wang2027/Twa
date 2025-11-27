@@ -1,48 +1,46 @@
 /* =========================================
-   AUTHENTICATION (Login/Signup Logic)
+   AUTHENTICATION (Fixed for 3 Roles)
    ========================================= */
-console.log("Auth script loaded.");
 
 const USERS_KEY = "operation_twa_users";
-let isRegistering = false;
-let selectedRole = 'student';
+let isRegistering = false; 
+let selectedRole = 'student'; // Default
 
 // 1. Role Selection UI
-function setRole(role) {
-    console.log("Switching role to:", role);
+function setRole(role) { 
     selectedRole = role;
 
-    const activeClass = "border-primary bg-primary/10 text-primary shadow-sm";
-    const inactiveClass = "border-transparent text-muted hover:text-text hover:bg-surface";
+    // UI Styling
+    const activeClass = "bg-primary text-white border-primary shadow-lg transform scale-105";
+    const inactiveClass = "text-muted hover:text-text hover:bg-surface border-transparent";
 
-    const btnStudent = document.getElementById('btn-role-student');
-    const btnTeacher = document.getElementById('btn-role-teacher');
-
-    if (btnStudent && btnTeacher) {
-        if (role === 'student') {
-            btnStudent.className = `flex-1 py-3 text-sm font-bold rounded-lg transition-all border ${activeClass}`;
-            btnTeacher.className = `flex-1 py-3 text-sm font-bold rounded-lg transition-all border ${inactiveClass}`;
-        } else {
-            btnStudent.className = `flex-1 py-3 text-sm font-bold rounded-lg transition-all border ${inactiveClass}`;
-            btnTeacher.className = `flex-1 py-3 text-sm font-bold rounded-lg transition-all border ${activeClass}`;
+    // Reset all
+    ['student', 'teacher', 'admin'].forEach(r => {
+        const btn = document.getElementById(`btn-role-${r}`);
+        if(btn) {
+            btn.className = `flex-1 py-3 text-xs font-bold rounded-lg transition-all border ${inactiveClass}`;
         }
+    });
+
+    // Highlight selected
+    const activeBtn = document.getElementById(`btn-role-${role}`);
+    if(activeBtn) {
+        activeBtn.className = `flex-1 py-3 text-xs font-bold rounded-lg transition-all border ${activeClass}`;
     }
 }
 
 // 2. Toggle Login vs Signup
 function toggleAuthMode() {
-    console.log("Toggling auth mode");
     isRegistering = !isRegistering;
-
     const nameField = document.getElementById('field-name-container');
     const submitBtn = document.getElementById('btn-auth-submit');
     const toggleText = document.getElementById('auth-toggle-text');
     const errorMsg = document.getElementById('login-error');
 
-    if (errorMsg) errorMsg.classList.add('hidden');
-    document.getElementById('loginPassword').value = '';
+    if(errorMsg) errorMsg.classList.add('hidden');
+    document.getElementById('loginPassword').value = ''; 
 
-    if (isRegistering) {
+    if(isRegistering) {
         nameField.classList.remove('hidden');
         submitBtn.innerText = "Create Account";
         toggleText.innerText = "Already have an account? Log In";
@@ -55,16 +53,10 @@ function toggleAuthMode() {
 
 // 3. Handle Form Submit
 function handleAuth(e) {
-    if (e) e.preventDefault();
-    console.log("Submitting form...");
+    if(e) e.preventDefault();
 
-    const emailInput = document.getElementById('loginEmail');
-    const passInput = document.getElementById('loginPassword');
-
-    if (!emailInput || !passInput) return;
-
-    const email = emailInput.value.toLowerCase().trim();
-    const password = passInput.value;
+    const email = document.getElementById('loginEmail').value.toLowerCase().trim();
+    const password = document.getElementById('loginPassword').value;
 
     const usersRaw = localStorage.getItem(USERS_KEY);
     let users = usersRaw ? JSON.parse(usersRaw) : [];
@@ -72,61 +64,58 @@ function handleAuth(e) {
     if (isRegistering) {
         // REGISTER
         const name = document.getElementById('loginName').value.trim();
-        if (!name) return showError("Please enter your full name.");
+        if(!name) return showError("Name required.");
+        if(users.find(u => u.email === email)) return showError("Email taken.");
 
-        if (users.find(u => u.email === email)) {
-            return showError("Email already registered.");
-        }
-
-        const newUser = { email, password, name, role: selectedRole };
+        const newUser = { email, password, name, role: selectedRole, classes: [] };
         users.push(newUser);
         localStorage.setItem(USERS_KEY, JSON.stringify(users));
-
         completeLogin(newUser);
 
     } else {
         // LOGIN
         const user = users.find(u => u.email === email);
-        if (!user) return showError("Account not found.");
-        if (user.password !== password) return showError("Incorrect password.");
+        if (!user) return showError("User not found.");
+        if (user.password !== password) return showError("Wrong password.");
 
-        // Update role preference
-        user.role = selectedRole;
+        // IMPORTANT: If logging in as Admin, force role check
+        // If standard login, respect the DB role, unless it's a generic login
+        if (user.role !== selectedRole) {
+            // Optional: You can auto-update the user's role here if you want
+            // or just warn them. For now, let's trust the database role.
+            console.log(`User is ${user.role}, but clicked ${selectedRole}. Using DB role.`);
+        }
+
         completeLogin(user);
     }
 }
 
 function completeLogin(user) {
-    console.log("Login successful:", user.name);
     localStorage.setItem("twa_current_user", JSON.stringify(user));
     window.location.href = "dashboard.html";
 }
 
 function showError(msg) {
     const el = document.getElementById('login-error');
-    if (el) {
+    if(el) {
         el.innerText = msg;
         el.classList.remove('hidden');
-        el.classList.add('animate-pulse');
-        setTimeout(() => el.classList.remove('animate-pulse'), 500);
     }
 }
 
+// Dev Bypass
 function bypassLogin() {
-    console.log("Bypassing...");
+    // Check which button is active to decide bypass role
     completeLogin({
         name: "Dev User",
-        email: "dev@twa.edu",
+        email: "dev@twa.edu", 
         password: "dev",
-        role: selectedRole
+        role: selectedRole,
+        classes: [] 
     });
 }
 
 // Init
 document.addEventListener("DOMContentLoaded", () => {
-    // Force a default theme if none exists so buttons are visible
-    if (!document.documentElement.hasAttribute('data-theme')) {
-        document.documentElement.setAttribute('data-theme', 'space');
-    }
     setRole('student');
 });

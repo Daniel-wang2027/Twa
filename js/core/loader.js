@@ -10,13 +10,42 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // 2. Hydrate State
-    if(typeof currentUser !== 'undefined') {
+    // 2. Hydrate State & Load Dynamic Classes
+    if (typeof currentUser !== 'undefined') {
         currentUser = JSON.parse(storedUser);
         userRole = currentUser.role || 'student';
 
-        // Load Data from LocalStorage
-        if(typeof loadData === 'function') loadData(); 
+        // --- DYNAMIC CLASS LOADING ---
+        // If the user has assigned classes (from Admin), load them.
+        if (currentUser.classes && currentUser.classes.length > 0) {
+            classes = []; // Clear hardcoded defaults
+
+            currentUser.classes.forEach(id => {
+                // Look up details in catalog.js
+                if (typeof getCourseDetails === 'function') {
+                    const course = getCourseDetails(id);
+                    if (course) {
+                        classes.push(course.name);
+
+                        // Assign a color if one doesn't exist
+                        if (!classPreferences[course.name]) {
+                            const colors = ["#ef4444", "#f97316", "#f59e0b", "#84cc16", "#10b981", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899", "#f43f5e"];
+                            classPreferences[course.name] = colors[Math.floor(Math.random() * colors.length)];
+                        }
+                    }
+                } else {
+                    // Fallback if catalog isn't loaded
+                    classes.push(id); 
+                }
+            });
+
+            // Ensure "Personal" is always available
+            if (!classes.includes("Personal")) classes.push("Personal");
+        } 
+        // -----------------------------
+
+        // Load Task Data
+        if (typeof loadData === 'function') loadData();
     }
 
     console.log(`Loading Dashboard for: ${userRole}`);
@@ -25,18 +54,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadLayout(userRole);
     await loadModals();
 
-    // 4. Start the Logic
-    if (userRole === 'student') {
-        if(typeof initStudentUI === 'function') initStudentUI();
-    } else {
-        if(typeof initTeacherUI === 'function') initTeacherUI();
+    // 4. Start the Logic based on Role
+    try {
+        if (userRole === 'student') {
+            if(typeof initStudentUI === 'function') initStudentUI();
+        } else if (userRole === 'teacher') {
+            if(typeof initTeacherUI === 'function') initTeacherUI();
+        } else if (userRole === 'admin') {
+            if(typeof initAdminUI === 'function') initAdminUI();
+        }
+    } catch (e) {
+        console.error("Initialization Error:", e);
     }
 });
 
 async function loadLayout(role) {
     const container = document.getElementById('app-container');
-    // Ensure these paths match your folder structure exactly
-    const fileName = role === 'student' ? 'layouts/student.html' : 'layouts/teacher.html';
+
+    // Select File based on Role
+    let fileName = 'layouts/student.html';
+    if (role === 'teacher') fileName = 'layouts/teacher.html';
+    if (role === 'admin') fileName = 'layouts/admin.html';
 
     try {
         const response = await fetch(fileName);
@@ -45,7 +83,7 @@ async function loadLayout(role) {
         container.innerHTML = html;
     } catch (err) {
         console.error(err);
-        container.innerHTML = `<div class="p-10 text-red-500">Error loading layout: ${err.message}</div>`;
+        container.innerHTML = `<div class="p-10 text-red-500 font-bold">Error loading interface: ${err.message}</div>`;
     }
 }
 
@@ -61,14 +99,8 @@ async function loadModals() {
     }
 }
 
-// --- RESTORED LOGOUT FUNCTION ---
 function doLogout() {
-    // Attempt to save before leaving
-    if(typeof saveData === 'function') saveData();
-
-    // Clear Session
+    if (typeof saveData === 'function') saveData();
     localStorage.removeItem("twa_current_user");
-
-    // Redirect
     window.location.href = "index.html";
 }

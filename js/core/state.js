@@ -29,20 +29,10 @@ let settings = {
 
 // 4. CLASS CONFIGURATION
 let classes = [
-    "AP Calculus", 
-    "AP Chemistry", 
-    "History", 
-    "Literature", 
-    "Physics 101", 
     "Personal"
 ];
 
 let classPreferences = { 
-    "AP Chemistry": "#10b981", // Emerald
-    "AP Calculus": "#f43f5e",  // Rose
-    "History": "#f59e0b",      // Amber
-    "Literature": "#8b5cf6",   // Violet
-    "Physics 101": "#3b82f6",  // Blue
     "Personal": "#94a3b8"      // Slate
 };
 
