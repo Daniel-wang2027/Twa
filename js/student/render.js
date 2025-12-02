@@ -95,10 +95,22 @@ function renderMatrix() {
         const dateStr = rowDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
         const isToday = i === 0;
 
+        // Create ISO Date Key for lookup (YYYY-MM-DD)
+        const dateKey = rowDate.toISOString().split('T')[0];
+
         let rowHTML = `
         <tr class="${isToday ? "bg-primary/5" : "hover:bg-surface/30"} border-b border-border transition-colors">
-            <td class="p-4 bg-surface border-r border-border sticky left-0 z-10 ${isToday ? "text-primary font-extrabold" : "font-bold text-muted"}">
-                ${isToday ? "Today" : dayName} <span class="text-xs opacity-70 block font-normal">${dateStr}</span>
+            <!-- CLICKABLE DATE CELL -->
+            <td onclick="openDayDetail('${dateKey}')" class="p-4 bg-surface border-r border-border sticky left-0 z-10 cursor-pointer group hover:bg-base transition-colors relative">
+                <div class="${isToday ? "text-primary font-extrabold" : "font-bold text-muted"} group-hover:text-text">
+                    ${isToday ? "Today" : dayName} 
+                    <span class="text-xs opacity-70 block font-normal">${dateStr}</span>
+                </div>
+
+                <!-- Tiny hint icon that appears on hover -->
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-xs text-primary">
+                    <i class="fa-solid fa-expand"></i>
+                </div>
             </td>`;
 
         classes.forEach(cls => {

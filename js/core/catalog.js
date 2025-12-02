@@ -3,6 +3,7 @@
    ========================================= */
 
 const CATALOG_KEY = "operation_twa_catalog_v1";
+const INSTANCE_KEY = "operation_twa_instances_v1"; 
 
 // THE FULL COURSE LIST
 const DEFAULT_CATALOG = [
@@ -254,48 +255,71 @@ const DEFAULT_CATALOG = [
 ];
 
 /* =========================================
-   LOGIC (Persistence & Helpers)
+   LOGIC
    ========================================= */
 
-// 1. GET FULL CATALOG (Loads from LocalStorage or Defaults)
+// 1. GET CATALOG
 function getCatalog() {
     const raw = localStorage.getItem(CATALOG_KEY);
     if(raw) return JSON.parse(raw);
-
-    // Initial Save
     localStorage.setItem(CATALOG_KEY, JSON.stringify(DEFAULT_CATALOG));
     return DEFAULT_CATALOG;
 }
 
 // 2. GET COURSE DETAILS
-// Handles "1103" and "1103-1" (Instances)
 function getCourseDetails(fullId) {
     if(!fullId) return null;
-    const baseId = fullId.split('-')[0]; // Strip suffix
+    const baseId = fullId.split('-')[0];
     const catalog = getCatalog();
-
-    // Find exact match
     let course = catalog.find(c => c.id === baseId);
-
-    // Fallback if not found
-    if(!course) return { id: baseId, name: "Unknown Course (" + baseId + ")", dept: "N/A" };
-
+    if(!course) return { id: baseId, name: "Unknown (" + baseId + ")", dept: "N/A" };
     return course;
 }
 
-// 3. ADD NEW COURSE (For Admin)
+// 3. CATALOG CRUD
 function addNewCourseToCatalog(id, name, dept) {
     const catalog = getCatalog();
-    if(catalog.find(c => c.id === id)) return false; // Duplicate check
-
+    if(catalog.find(c => c.id === id)) return false;
     catalog.push({ id, name, dept });
     localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
     return true;
 }
 
-// 4. REMOVE COURSE (For Admin)
 function removeCourseFromCatalog(id) {
     let catalog = getCatalog();
     catalog = catalog.filter(c => c.id !== id);
     localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
+}
+
+/* --- NEW: INSTANCE MANAGEMENT --- */
+
+// Get all sections for a specific course (e.g. "1103" -> ["1", "2", "Honors"])
+function getCourseInstances(courseId) {
+    const raw = localStorage.getItem(INSTANCE_KEY);
+    const db = raw ? JSON.parse(raw) : {};
+    return db[courseId] || []; // Returns array of section IDs
+}
+
+// Add a section (e.g. course "1103", section "1")
+function addInstanceToCourse(courseId, sectionId) {
+    const raw = localStorage.getItem(INSTANCE_KEY);
+    const db = raw ? JSON.parse(raw) : {};
+
+    if(!db[courseId]) db[courseId] = [];
+    if(db[courseId].includes(sectionId)) return false; // Duplicate
+
+    db[courseId].push(sectionId);
+    localStorage.setItem(INSTANCE_KEY, JSON.stringify(db));
+    return true;
+}
+
+// Remove a section
+function removeInstanceFromCourse(courseId, sectionId) {
+    const raw = localStorage.getItem(INSTANCE_KEY);
+    const db = raw ? JSON.parse(raw) : {};
+
+    if(db[courseId]) {
+        db[courseId] = db[courseId].filter(s => s !== sectionId);
+        localStorage.setItem(INSTANCE_KEY, JSON.stringify(db));
+    }
 }

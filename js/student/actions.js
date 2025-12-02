@@ -324,3 +324,62 @@ function toggleComplete(id) {
         if(viewClassTarget && typeof renderClassDetailList === 'function') renderClassDetailList(viewClassTarget);
     }
 }
+/* --- DAY DETAIL / TOPIC VIEW --- */
+
+function openDayDetail(dateKey) {
+    const modal = document.getElementById('dayDetailModal');
+    const title = document.getElementById('dd-date-title');
+    const container = document.getElementById('dd-content');
+
+    if(!modal || !container) return;
+
+    // Format Date for Title
+    const dateObj = new Date(dateKey + "T00:00:00"); // Force local time
+    title.innerText = dateObj.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+
+    container.innerHTML = '';
+
+    // Loop through user's classes
+    classes.forEach(cls => {
+        if(cls === 'Personal') return; // Skip Personal
+
+        const color = classPreferences[cls] || '#888';
+
+        // 1. Get Topic (Safety check: classTopics might be undefined)
+        let topic = "No topic posted.";
+        if (typeof classTopics !== 'undefined' && classTopics[cls] && classTopics[cls][dateKey]) {
+            topic = classTopics[cls][dateKey];
+        }
+
+        // 2. Get Tasks due that day
+        const tasks = globalTasks.filter(t => {
+            if(t.course !== cls) return false;
+            const tDate = t.due.split('T')[0];
+            return tDate === dateKey && !t.completed;
+        });
+
+        // 3. Build Card HTML
+        let taskHtml = '';
+        if(tasks.length > 0) {
+            taskHtml = `<div class="mt-2 pt-2 border-t border-border/50 flex flex-wrap gap-2">
+                ${tasks.map(t => `<span class="text-[10px] font-bold bg-base border border-border px-2 py-1 rounded text-text"><i class="fa-solid fa-circle-exclamation text-primary mr-1"></i> ${t.title}</span>`).join('')}
+            </div>`;
+        }
+
+        const topicStyle = topic !== "No topic posted." ? "text-text font-medium" : "text-muted italic";
+
+        container.innerHTML += `
+        <div class="bg-surface border border-border p-4 rounded-xl flex gap-4 relative overflow-hidden">
+            <div class="w-1 absolute left-0 top-0 bottom-0" style="background:${color}"></div>
+            <div class="flex-1">
+                <h3 class="text-sm font-bold uppercase tracking-wider mb-1" style="color:${color}">${cls}</h3>
+                <div class="text-sm ${topicStyle}">
+                    <i class="fa-solid fa-person-chalkboard mr-2 opacity-50"></i> ${topic}
+                </div>
+                ${taskHtml}
+            </div>
+        </div>`;
+    });
+
+    modal.classList.remove('hidden');
+}
