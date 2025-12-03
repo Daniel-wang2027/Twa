@@ -383,3 +383,36 @@ function openDayDetail(dateKey) {
 
     modal.classList.remove('hidden');
 }
+/* --- SECURITY --- */
+
+function changePassword() {
+    const oldP = document.getElementById('sec-old-pass').value;
+    const newP = document.getElementById('sec-new-pass').value;
+
+    if(!oldP || !newP) return alert("Please fill in both password fields.");
+
+    // 1. Verify Old Password
+    if(oldP !== currentUser.password) return alert("Incorrect current password.");
+
+    // 2. Update Session
+    currentUser.password = newP;
+    localStorage.setItem("twa_current_user", JSON.stringify(currentUser));
+
+    // 3. Update Database (So it works on next login)
+    const usersRaw = localStorage.getItem("operation_twa_users");
+    if(usersRaw) {
+        const users = JSON.parse(usersRaw);
+        const idx = users.findIndex(u => u.email === currentUser.email);
+        if(idx > -1) {
+            users[idx].password = newP;
+            localStorage.setItem("operation_twa_users", JSON.stringify(users));
+        }
+    }
+
+    // 4. Reset UI
+    document.getElementById('sec-old-pass').value = '';
+    document.getElementById('sec-new-pass').value = '';
+    
+    if(typeof showToast === 'function') showToast("Password Changed Successfully", "success");
+    else alert("Password Changed");
+} 

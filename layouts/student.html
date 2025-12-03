@@ -164,6 +164,26 @@
                                 <i class="fa-solid fa-check"></i> Update Timer
                             </button>
                         </div>
+                            <!-- NEW: SECURITY CARD -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-lock text-red-500"></i> Account Security
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase">Current Password</label>
+                                        <input type="password" id="sec-old-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-red-500 outline-none transition-colors">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase">New Password</label>
+                                        <input type="password" id="sec-new-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-green-500 outline-none transition-colors">
+                                    </div>
+                                    <button onclick="changePassword()" class="w-full bg-base border border-border hover:bg-red-500 hover:text-white hover:border-red-500 text-muted font-bold py-3 rounded-xl transition-all shadow-sm">
+                                        Change Password
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

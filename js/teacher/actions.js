@@ -229,3 +229,34 @@ function exitObserverMode() {
 
     showToast("Returned to Faculty Hub", "success");
 }
+/* --- SECURITY --- */
+
+function teacherChangePassword() {
+    const oldP = document.getElementById('t-sec-old').value;
+    const newP = document.getElementById('t-sec-new').value;
+
+    if(!oldP || !newP) return alert("Please fill in both fields.");
+
+    if(oldP !== currentUser.password) return alert("Incorrect current password.");
+
+    // Update Session
+    currentUser.password = newP;
+    localStorage.setItem("twa_current_user", JSON.stringify(currentUser));
+
+    // Update DB
+    const usersRaw = localStorage.getItem("operation_twa_users");
+    if(usersRaw) {
+        const users = JSON.parse(usersRaw);
+        const idx = users.findIndex(u => u.email === currentUser.email);
+        if(idx > -1) {
+            users[idx].password = newP;
+            localStorage.setItem("operation_twa_users", JSON.stringify(users));
+        }
+    }
+
+    document.getElementById('t-sec-old').value = '';
+    document.getElementById('t-sec-new').value = '';
+
+    if(typeof showToast === 'function') showToast("Password Updated", "success");
+    else alert("Password Updated");
+}

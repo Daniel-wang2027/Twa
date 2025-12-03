@@ -71,7 +71,6 @@
         </div>
 
         <!-- SETTINGS VIEW (UPDATED TO MATCH STUDENT) -->
-        <!-- We use 'bg-surface' here so it matches the Student theme exactly -->
         <div id="t-view-settings" class="hidden h-full p-10 overflow-y-auto text-text custom-scrollbar">
             
             <button onclick="switchTeacherView('planner')" class="mb-6 flex items-center gap-2 text-muted hover:text-text font-bold transition-colors">
@@ -86,7 +85,27 @@
                 <!-- ID is 't-theme-selector' for teacher logic -->
                 <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="t-theme-selector"></div>
             </div>
+                    <div class="bg-surface p-6 rounded-3xl border border-border shadow-sm h-fit">
+                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-blue-500"></i> Security
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs font-bold text-muted uppercase">Current Password</label>
+                                <input type="password" id="t-sec-old" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-muted uppercase">New Password</label>
+                                <input type="password" id="t-sec-new" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-blue-500 outline-none">
+                            </div>
+                            <button onclick="teacherChangePassword()" class="w-full bg-blue-500/10 text-blue-500 border border-blue-500/20 hover:bg-blue-500 hover:text-white font-bold py-3 rounded-xl transition-all">
+                                Update Credentials
+                            </button>
+                        </div>
+                    </div>
 
+                </div>
+            </div>
         </div>
 
     </main>
