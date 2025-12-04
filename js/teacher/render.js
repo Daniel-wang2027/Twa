@@ -86,6 +86,7 @@ function renderRosterSidebar() {
 function renderTeacherPlanner() {
     const grid = document.getElementById('teacher-planner-grid');
     const weekLabel = document.getElementById('t-current-week-label');
+    const titleEl = document.getElementById('t-active-class-title');
 
     if(!grid) {
         setTimeout(renderTeacherPlanner, 100);
@@ -94,16 +95,38 @@ function renderTeacherPlanner() {
 
     grid.innerHTML = '';
 
+    // Update Header with Navigation Buttons
+    // We inject the arrows directly into the title area for easy access
+    if(titleEl && !document.getElementById('planner-nav-controls')) {
+        const navHtml = `
+            <div id="planner-nav-controls" class="inline-flex items-center ml-4 bg-base rounded-lg border border-border overflow-hidden">
+                <button onclick="changePlannerWeek(-1)" class="px-3 py-1 hover:bg-white/10 border-r border-border text-xs"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="changePlannerWeek(0)" class="px-3 py-1 hover:bg-white/10 border-r border-border text-xs font-bold">Today</button>
+                <button onclick="changePlannerWeek(1)" class="px-3 py-1 hover:bg-white/10 text-xs"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>`;
+        // Only append if not already there to prevent duplicates
+        if(!titleEl.innerHTML.includes('planner-nav-controls')) {
+            titleEl.innerHTML += navHtml;
+        }
+    }
+
+    // Init topics
     if(typeof classTopics === 'undefined') classTopics = {};
     if(!classTopics[currentTeacherClass]) classTopics[currentTeacherClass] = {};
 
+    // 1. Calculate Date based on OFFSET
     const curr = new Date(); 
-    const first = curr.getDate() - curr.getDay() + 1; 
+    // Shift by the offset (weeks * 7 days)
+    curr.setDate(curr.getDate() + (currentPlannerOffset * 7));
+
+    const first = curr.getDate() - curr.getDay() + 1; // Monday
     const weekStart = new Date(curr.setDate(first));
-    const weekEnd = new Date(curr.setDate(first + 6));
 
-    if(weekLabel) weekLabel.innerText = `${weekStart.toLocaleDateString(undefined, {month:'numeric', day:'numeric'})} - ${weekEnd.toLocaleDateString(undefined, {month:'numeric', day:'numeric'})}`;
+    // Header Label logic
+    const weekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() + 6));
+    if(weekLabel) weekLabel.innerText = `${weekStart.toLocaleDateString(undefined, {month:'short', day:'numeric'})} - ${weekEnd.toLocaleDateString(undefined, {month:'short', day:'numeric'})}`;
 
+    // Loop 7 days
     for (let i = 0; i < 7; i++) {
         const loopDate = new Date(weekStart);
         loopDate.setDate(weekStart.getDate() + i);
@@ -111,7 +134,29 @@ function renderTeacherPlanner() {
         const dateKey = loopDate.toISOString().split('T')[0];
         const dayName = loopDate.toLocaleDateString('en-US', { weekday: 'short' });
         const shortDate = loopDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+
         const topic = classTopics[currentTeacherClass][dateKey] || "";
+
+        // --- CYCLE DAY LOGIC ---
+        const cycleNum = getCycleDay(loopDate); // From actions.js
+        let cycleBadge = '';
+        if (cycleNum) {
+            // Color code the cycle days for visual flair
+            const cycleColors = [
+                'border-red-500 text-red-500', 
+                'border-orange-500 text-orange-500',
+                'border-yellow-500 text-yellow-500',
+                'border-green-500 text-green-500',
+                'border-blue-500 text-blue-500',
+                'border-indigo-500 text-indigo-500',
+                'border-purple-500 text-purple-500'
+            ];
+            const cColor = cycleColors[cycleNum - 1] || 'border-gray-500 text-gray-500';
+            cycleBadge = `<div class="mt-1 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded border ${cColor} bg-base inline-block">Day ${cycleNum}</div>`;
+        } else {
+            // Weekend / Off Day
+            cycleBadge = `<div class="mt-1 text-[10px] font-bold text-muted/30 uppercase tracking-wider">--</div>`;
+        }
 
         const dayTasks = globalTasks.filter(t => {
             if(t.course !== currentTeacherClass) return false;
@@ -124,8 +169,6 @@ function renderTeacherPlanner() {
         const isToday = new Date().toDateString() === loopDate.toDateString();
         const isWeekend = i > 4;
 
-        // NUCLEAR OPTION: HARDCODED GLASS COLORS
-        // We do NOT use var(--surface) here. We use bg-black/xx
         let bgClass = isToday ? "bg-blue-900/40" : (isWeekend ? "bg-black/60" : "bg-black/30");
         let borderClass = isToday ? "border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]" : "border-white/10";
         let headerClass = isToday ? "bg-blue-600 text-white" : "bg-white/5 border-b border-white/5 text-white/90";
@@ -133,13 +176,13 @@ function renderTeacherPlanner() {
         grid.innerHTML += `
         <div class="flex flex-col h-full ${bgClass} backdrop-blur-md rounded-2xl border ${borderClass} overflow-hidden min-w-[200px] transition-all duration-300">
 
-            <div class="p-3 ${headerClass} text-center">
-                <div class="text-sm font-bold uppercase tracking-widest">${dayName}</div>
-                <div class="text-xs opacity-80">${shortDate}</div>
+            <div class="p-3 ${headerClass} text-center flex flex-col items-center">
+                <div class="text-sm font-bold uppercase tracking-widest">${dayName} <span class="opacity-50 text-xs ml-1">${shortDate}</span></div>
+                ${cycleBadge}
             </div>
 
             <div class="p-3 border-b border-white/5">
-                <input type="text" value="${topic}" onblur="saveTopic('${dateKey}', this.value)" placeholder="Lesson Topic..." 
+                <input type="text" value="${topic}" onblur="saveTopic('${dateKey}', this.value)" placeholder="Topic..." 
                 class="w-full bg-black/20 border border-white/10 rounded-lg px-2 py-1 text-sm font-medium focus:border-blue-500 outline-none text-center placeholder-white/20 text-white/90 transition-colors">
             </div>
 

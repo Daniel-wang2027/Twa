@@ -52,3 +52,7 @@ let studentRoster = [
     { id: 's4', name: "David Kim", lastActive: getRecent(0.2) },
     { id: 's5', name: "Sarah Jenkins", lastActive: getRecent(5) }
 ];
+let currentPlannerOffset = 0; 
+
+
+const CYCLE_START_DATE = new Date("2024-11-28T00:00:00");

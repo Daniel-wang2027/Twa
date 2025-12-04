@@ -23,29 +23,46 @@ function initStudentUI() {
 }
 
 function switchStudentView(view) {
-    playSound('click');
+    if(typeof playSound === 'function') playSound('click');
 
+    // 1. Hide ALL views
     ['dashboard', 'completed', 'profile', 'settings', 'class-detail'].forEach(v => {
         const el = document.getElementById(`s-view-${v}`);
         const btn = document.getElementById(`nav-s-${v}`);
 
-        if(el) el.classList.add('hidden');
-        if(btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base";
+        if (el) el.classList.add('hidden');
+        if (btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent";
     });
 
+    // 2. Show TARGET view
     const targetEl = document.getElementById(`s-view-${view}`);
     const targetBtn = document.getElementById(`nav-s-${view}`);
 
-    if(targetEl) targetEl.classList.remove('hidden');
-    if(targetBtn) targetBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border";
+    if (targetEl) {
+        targetEl.classList.remove('hidden');
 
-    if(view === 'dashboard') {
-        renderMatrix();
-        renderWelcomeBanner();
-        renderStudentBulletins();
+        // --- FIX: FORCE SCROLL TO TOP ---
+        // Finds the main scrollable container and resets it
+        const scroller = document.querySelector('.custom-scrollbar') || document.querySelector('.overflow-auto');
+        if(scroller) scroller.scrollTop = 0;
     }
-    if(view === 'completed') renderCompleted();
-    if(view === 'profile') renderProfile();
+
+    if (targetBtn) {
+        targetBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm";
+    }
+
+    // 3. Render Data
+    if (view === 'dashboard') {
+        if(typeof renderMatrix === 'function') renderMatrix();
+        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
+        if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
+    }
+    if (view === 'completed') {
+        if(typeof renderCompleted === 'function') renderCompleted();
+    }
+    if (view === 'profile') {
+        if(typeof renderProfile === 'function') renderProfile();
+    }
 }
 
 /* --- WELCOME BANNER --- */
@@ -74,6 +91,7 @@ function renderWelcomeBanner() {
 }
 
 /* --- MATRIX (UPDATED WITH BUFFER MATH) --- */
+/* --- MATRIX (Fixed: Cycle Badge is now visible) --- */
 function renderMatrix() {
     const body = document.getElementById('matrix-body');
     const headerRow = document.getElementById('matrix-header-row');
@@ -95,19 +113,39 @@ function renderMatrix() {
         const dateStr = rowDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
         const isToday = i === 0;
 
-        // Create ISO Date Key for lookup (YYYY-MM-DD)
+        // 1. Calculate Cycle Day
+        const cycleNum = getCycleDay(rowDate); // From utils.js
+        let cycleBadge = '';
+
+        if (cycleNum) {
+            const colors = [
+                'text-red-500 bg-red-500/10 border-red-500/20', 
+                'text-orange-500 bg-orange-500/10 border-orange-500/20',
+                'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+                'text-green-500 bg-green-500/10 border-green-500/20',
+                'text-blue-500 bg-blue-500/10 border-blue-500/20',
+                'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
+                'text-purple-500 bg-purple-500/10 border-purple-500/20'
+            ];
+            const style = colors[cycleNum - 1] || 'text-muted';
+            // Create the HTML for the badge
+            cycleBadge = `<span class="mt-1 block text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded border w-fit ${style}">Day ${cycleNum}</span>`;
+        }
+
         const dateKey = rowDate.toISOString().split('T')[0];
 
         let rowHTML = `
         <tr class="${isToday ? "bg-primary/5" : "hover:bg-surface/30"} border-b border-border transition-colors">
-            <!-- CLICKABLE DATE CELL -->
-            <td onclick="openDayDetail('${dateKey}')" class="p-4 bg-surface border-r border-border sticky left-0 z-10 cursor-pointer group hover:bg-base transition-colors relative">
+
+            <td onclick="openDayDetail('${dateKey}')" class="p-4 bg-surface border-r border-border sticky left-0 z-10 cursor-pointer group hover:bg-base transition-colors relative align-top">
                 <div class="${isToday ? "text-primary font-extrabold" : "font-bold text-muted"} group-hover:text-text">
                     ${isToday ? "Today" : dayName} 
                     <span class="text-xs opacity-70 block font-normal">${dateStr}</span>
                 </div>
 
-                <!-- Tiny hint icon that appears on hover -->
+                <!-- 2. INSERT BADGE HERE (This was missing!) -->
+                ${cycleBadge}
+
                 <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-xs text-primary">
                     <i class="fa-solid fa-expand"></i>
                 </div>

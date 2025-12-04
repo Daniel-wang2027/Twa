@@ -3,7 +3,52 @@
    ========================================= */
 
 let selectedDateForModal = null; 
+function changePlannerWeek(amount) {
+    // 0 = Reset to today, -1 = Back, 1 = Forward
+    if (amount === 0) currentPlannerOffset = 0;
+    else currentPlannerOffset += amount;
 
+    renderTeacherPlanner();
+}
+
+/* --- CYCLE DAY CALCULATOR --- */
+// Calculates the 7-day rotating cycle (Mon-Fri only)
+function getCycleDay(targetDate) {
+    // 1. If it's a weekend, it has no cycle day
+    const dayOfWeek = targetDate.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return null;
+
+    // 2. Calculate weekdays between Start Date and Target Date
+    // (This ignores holidays for now, strictly counts Mon-Fri)
+    const start = new Date(CYCLE_START_DATE);
+    const end = new Date(targetDate);
+
+    // Normalize to midnight to avoid time bugs
+    start.setHours(0,0,0,0);
+    end.setHours(0,0,0,0);
+
+    let count = 0;
+    const cur = new Date(start);
+
+    // If target is before start, return null
+    if (end < start) return null;
+
+    while (cur <= end) {
+        const d = cur.getDay();
+        if (d !== 0 && d !== 6) { // If not Sun (0) or Sat (6)
+            count++;
+        }
+        cur.setDate(cur.getDate() + 1);
+    }
+
+    // 3. Math: (Count - 1) % 7 + 1
+    // Example: 1st day -> (0 % 7) + 1 = Day 1
+    // Example: 6th day -> (5 % 7) + 1 = Day 6
+    // Example: 8th day -> (7 % 7) + 1 = Day 1 (Loop)
+
+    const cycle = ((count - 1) % 7) + 1;
+    return cycle;
+}
 /* --- NAVIGATION --- */
 function teacherSwitchClass(cls) {
     currentTeacherClass = cls;

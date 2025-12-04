@@ -1,11 +1,11 @@
 <div id="student-layout" class="flex w-full h-full fade-in">
+    
     <!-- SIDEBAR -->
     <aside class="w-64 bg-surface border-r border-border flex flex-col hidden md:flex z-20 transition-colors duration-300">
         <div class="p-6 flex items-center gap-3">
             <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-primary/30">S</div>
             <span class="text-lg font-bold tracking-tight">Student HUD</span>
         </div>
-        
         <nav class="flex-1 px-4 space-y-2 mt-4">
             <button onclick="switchStudentView('dashboard')" id="nav-s-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm">
                 <i class="fa-solid fa-table-cells w-5"></i> Matrix
@@ -20,7 +20,6 @@
                 <i class="fa-solid fa-sliders w-5"></i> Settings
             </button>
         </nav>
-
         <div class="p-6 border-t border-border">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-base border border-border flex items-center justify-center text-primary font-bold shadow-sm" id="s-profileInitials"></div>
@@ -35,25 +34,22 @@
     <!-- MAIN CONTENT -->
     <main class="flex-1 flex flex-col h-full relative" style="background-color: transparent;">
         
-        <!-- TOP HEADER -->
+        <!-- HEADER -->
         <header class="h-16 flex items-center justify-between px-6 border-b border-border bg-surface/50 backdrop-blur-sm z-30">
             <div>
                 <h1 class="text-lg font-bold tracking-tight">The Week Ahead</h1>
                 <div class="text-xs text-muted font-medium" id="currentDate"></div>
             </div>
-            
             <div class="flex items-center gap-4">
-                <!-- Timer Control (Updated with Click-to-Switch) -->
+                <!-- Timer -->
                 <div id="timer-container" class="flex items-center gap-3 bg-base border border-border px-3 py-1.5 rounded-xl shadow-sm hover:border-primary transition-colors">
-                    <!-- Clicking this text switches modes -->
                     <div onclick="switchTimerMode()" class="text-lg font-mono font-bold text-primary w-14 text-center cursor-pointer select-none" id="timerDisplay" title="Click to switch Work/Break">25:00</div>
                     <div class="flex gap-1">
                         <button onclick="toggleTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors"><i class="fa-solid fa-play" id="timerIcon"></i></button>
                         <button onclick="resetTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors"><i class="fa-solid fa-rotate-left"></i></button>
                     </div>
                 </div>
-                
-                <!-- Streak Badge -->
+                <!-- Streak -->
                 <div class="flex items-center gap-2 px-3 py-1.5 bg-base border border-border rounded-xl shadow-sm" id="streak-container">
                     <i class="fa-solid fa-fire text-orange-500 animate-pulse-fast"></i>
                     <span class="font-bold text-sm whitespace-nowrap" id="streak-count">-- Streak</span>
@@ -61,45 +57,45 @@
             </div>
         </header>
 
-        <!-- CONTENT SCROLL AREA -->
+        <!-- SCROLLABLE AREA -->
         <div class="flex-1 overflow-auto p-6 relative custom-scrollbar">
 
-            <!-- 1. VIEW: DASHBOARD (Matrix) -->
+            <!-- 1. DASHBOARD VIEW -->
             <div id="s-view-dashboard" class="fade-in">
-                <div id="student-bulletin-area" class="mb-6 space-y-2 hidden"></div>
-                <!-- WELCOME BANNER -->
                 <div id="welcome-banner" class="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-8 rounded-3xl mb-8 flex flex-col md:flex-row items-start md:items-center justify-between shadow-sm relative overflow-hidden">
                     <div class="z-10">
                         <h1 class="text-3xl font-extrabold text-primary mb-2">Welcome, <span id="banner-student-name">Student</span>! 👋</h1>
                         <p class="text-lg text-muted" id="banner-message">Loading schedule...</p>
                     </div>
-                    <!-- Decorative Icon -->
                     <i class="fa-solid fa-calendar-day text-9xl absolute -right-4 -bottom-8 text-primary/5 z-0 transform rotate-12"></i>
                 </div>
+
+                <div id="student-bulletin-area" class="mb-6 space-y-2 hidden"></div>
+                
                 <div class="overflow-x-auto pb-24 rounded-2xl border border-border shadow-sm bg-surface">
                     <table class="w-full border-collapse min-w-[1000px]">
                         <thead><tr id="matrix-header-row"></tr></thead>
                         <tbody id="matrix-body"></tbody>
                     </table>
                 </div>
-            </div>
+            </div> 
 
-            <!-- 2. VIEW: SETTINGS -->
+            <!-- 2. SETTINGS VIEW -->
             <div id="s-view-settings" class="hidden max-w-5xl mx-auto pb-20 fade-in">
                 <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
-
+                
+                <!-- Theme Selector -->
                 <div class="bg-surface p-8 rounded-3xl border border-border mb-8 shadow-sm">
                     <h3 class="font-bold text-xl mb-6">Visual Theme</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="theme-selector"></div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <!-- LEFT COLUMN -->
                     <div class="space-y-8">
-                        <!-- Accessibility -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                                <i class="fa-solid fa-universal-access text-primary"></i> Accessibility
-                            </h3>
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-universal-access text-primary"></i> Accessibility</h3>
                             <div class="flex items-center justify-between bg-base p-4 rounded-xl border border-border">
                                 <div><span class="font-bold block text-sm">Dyslexia-Friendly Font</span></div>
                                 <label class="relative inline-flex items-center cursor-pointer">
@@ -108,12 +104,8 @@
                                 </label>
                             </div>
                         </div>
-
-                        <!-- Matrix Buffer -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-                            <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                                <i class="fa-solid fa-calendar-check text-green-500"></i> Matrix Calibration
-                            </h3>
+                            <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><i class="fa-solid fa-calendar-check text-green-500"></i> Matrix Calibration</h3>
                             <p class="text-xs text-muted mb-4">Trick your brain by shifting due times.</p>
                             <div class="mb-4">
                                 <label class="text-xs font-bold text-muted uppercase">Procrastination Buffer (Minutes)</label>
@@ -123,28 +115,20 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- BACKPACK PROTOCOL -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-                            <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                                <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
-                            </h3>
-                            <p class="text-xs text-muted mb-4">Daily checklist generation.</p>
-
+                            <h3 class="font-bold text-lg mb-2 flex items-center gap-2"><i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol</h3>
                             <div id="backpack-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
-
                             <div class="flex gap-2 mb-4">
                                 <input type="text" id="new-backpack-item" placeholder="Add Item (e.g. Charger)" class="flex-1 p-3 rounded-xl border border-border text-sm bg-base focus:border-primary outline-none">
                                 <button onclick="addBackpackItem()" class="bg-primary text-white w-12 rounded-xl hover:opacity-90 transition-transform active:scale-95"><i class="fa-solid fa-plus"></i></button>
                             </div>
-
-                            <button onclick="pushBackpackTasks()" class="w-full bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-paper-plane"></i> Send to Matrix
-                            </button>
+                            <button onclick="pushBackpackTasks()" class="w-full bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"><i class="fa-solid fa-paper-plane"></i> Send to Matrix</button>
                         </div>
                     </div>
 
+                    <!-- RIGHT COLUMN: Timer & Security -->
                     <div class="space-y-8">
+                        
                         <!-- TIMER SETTINGS -->
                         <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm h-fit">
                             <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
@@ -164,43 +148,48 @@
                                 <i class="fa-solid fa-check"></i> Update Timer
                             </button>
                         </div>
-                            <!-- NEW: SECURITY CARD -->
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                                    <i class="fa-solid fa-lock text-red-500"></i> Account Security
-                                </h3>
-                                <div class="space-y-4">
-                                    <div>
-                                        <label class="text-xs font-bold text-muted uppercase">Current Password</label>
-                                        <input type="password" id="sec-old-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-red-500 outline-none transition-colors">
-                                    </div>
-                                    <div>
-                                        <label class="text-xs font-bold text-muted uppercase">New Password</label>
-                                        <input type="password" id="sec-new-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-green-500 outline-none transition-colors">
-                                    </div>
-                                    <button onclick="changePassword()" class="w-full bg-base border border-border hover:bg-red-500 hover:text-white hover:border-red-500 text-muted font-bold py-3 rounded-xl transition-all shadow-sm">
-                                        Change Password
-                                    </button>
+
+                        <!-- SECURITY / PASSWORD CHANGE -->
+                        <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-lock text-red-500"></i> Security
+                            </h3>
+                            <div class="space-y-4">
+                                <!-- NEW: OLD PASSWORD FIELD -->
+                                <div>
+                                    <label class="text-xs font-bold text-muted uppercase">Current Password</label>
+                                    <input type="password" id="setting-old-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none">
                                 </div>
+
+                                <div>
+                                    <label class="text-xs font-bold text-muted uppercase">New Password</label>
+                                    <input type="password" id="setting-new-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none">
+                                </div>
+
+                                <button onclick="savePasswordChange()" class="w-full bg-base border border-border hover:bg-red-500 hover:text-white hover:border-red-500 text-muted font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-key"></i> Update Password
+                                </button>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
+            <!-- END SETTINGS VIEW -->
 
-            <!-- 3. VIEW: COMPLETED -->
+            <!-- 3. COMPLETED VIEW -->
             <div id="s-view-completed" class="hidden fade-in">
                 <h2 class="text-2xl font-bold mb-6">Task Archive</h2>
                 <div id="list-completed" class="grid grid-cols-1 gap-3 opacity-75 pb-20"></div>
             </div>
 
-            <!-- 4. VIEW: PROFILE (CLASS GRID) -->
+            <!-- 4. PROFILE VIEW -->
             <div id="s-view-profile" class="hidden fade-in">
                 <h2 class="text-2xl font-bold mb-6">My Classes</h2>
                 <div id="profile-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20"></div>
             </div>
 
-            <!-- 5. VIEW: CLASS DETAIL -->
+            <!-- 5. CLASS DETAIL VIEW -->
             <div id="s-view-class-detail" class="hidden h-full flex flex-col fade-in">
                 <div class="flex items-center gap-4 mb-6">
                     <button onclick="closeClassDetail()" class="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-base transition-colors shadow-sm"><i class="fa-solid fa-arrow-left"></i></button>
@@ -219,9 +208,12 @@
                     <div id="class-detail-list" class="overflow-y-auto p-2 space-y-1 custom-scrollbar"></div>
                 </div>
             </div>
-        </div>
+
+        </div> <!-- END SCROLLABLE AREA -->
 
         <!-- ADD BUTTON -->
-        <button onclick="openStudentModal()" class="absolute bottom-8 right-8 bg-primary hover:opacity-90 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition-transform hover:scale-110 z-40 active:scale-95"><i class="fa-solid fa-plus"></i></button>
+        <button onclick="openStudentModal()" class="absolute bottom-8 right-8 bg-primary hover:opacity-90 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition-transform hover:scale-110 z-40 active:scale-95">
+            <i class="fa-solid fa-plus"></i>
+        </button>
     </main>
 </div>

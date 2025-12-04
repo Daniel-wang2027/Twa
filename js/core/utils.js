@@ -117,3 +117,35 @@ function updateTimerUI() {
         else display.className = "text-lg font-mono font-bold text-green-500 w-14 text-center cursor-pointer";
     }
 }
+
+function getCycleDay(targetDate) {
+    // 1. If it's a weekend, it has no cycle day
+    const dayOfWeek = targetDate.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return null;
+
+    // 2. Calculate weekdays between Start Date and Target Date
+    const start = new Date(CYCLE_START_DATE);
+    const end = new Date(targetDate);
+
+    // Normalize to midnight
+    start.setHours(0,0,0,0);
+    end.setHours(0,0,0,0);
+
+    let count = 0;
+    const cur = new Date(start);
+
+    // If target is before start, return null
+    if (end < start) return null;
+
+    while (cur <= end) {
+        const d = cur.getDay();
+        if (d !== 0 && d !== 6) { // If not Sun (0) or Sat (6)
+            count++;
+        }
+        cur.setDate(cur.getDate() + 1);
+    }
+
+    // 3. Math: (Count - 1) % 7 + 1
+    const cycle = ((count - 1) % 7) + 1;
+    return cycle;
+}
