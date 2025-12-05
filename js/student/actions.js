@@ -309,21 +309,101 @@ function deleteSubtask(index) {
 
 /* --- MAIN TASK COMPLETION --- */
 
+/* --- INTERACTIVE COMPLETION LOGIC --- */
+
+let completingTaskId = null; // Track which task we are finishing
+
 function toggleComplete(id) {
     const t = globalTasks.find(x => x.id === id);
-    if(t) {
-        t.completed = !t.completed;
-        if(t.completed) {
-            streak++;
-            playSound('complete');
-            if(typeof showToast === 'function') showToast("Completed!", "success");
-        }
+    if(!t) return;
+
+    // 1. If already done, just UNDO it immediately (no modal needed)
+    if(t.completed) {
+        t.completed = false;
+        t.difficulty = null;
+        t.actualTime = null;
         saveData();
-        if(typeof renderMatrix === 'function') renderMatrix();
-        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
-        if(viewClassTarget && typeof renderClassDetailList === 'function') renderClassDetailList(viewClassTarget);
+        refreshAllViews();
+        return;
+    }
+
+    // 2. If not done, OPEN THE MODAL
+    completingTaskId = id;
+
+    // Reset Modal UI
+    document.getElementById('cm-difficulty').value = 0;
+    document.getElementById('cm-time').value = t.est || ""; // Pre-fill with estimated time
+
+    // Clear button styles
+    document.querySelectorAll('.diff-btn').forEach(b => {
+        b.classList.remove('bg-primary', 'text-white', 'border-primary', 'scale-110');
+        b.style.backgroundColor = ''; 
+        b.style.color = '';
+    });
+
+    document.getElementById('completionModal').classList.remove('hidden');
+}
+
+function setDifficulty(val) {
+    document.getElementById('cm-difficulty').value = val;
+
+    // Visual Highlight logic
+    document.querySelectorAll('.diff-btn').forEach(b => {
+        // Reset to base
+        b.className = "diff-btn w-10 h-10 rounded-lg border border-border transition-all font-bold text-muted";
+
+        // Re-apply hover classes (needed because we wiped them above)
+        const v = parseInt(b.getAttribute('data-val'));
+        if(v === 1) b.classList.add('hover:bg-green-500', 'hover:text-white');
+        if(v === 2) b.classList.add('hover:bg-yellow-500', 'hover:text-white');
+        if(v === 3) b.classList.add('hover:bg-orange-500', 'hover:text-white');
+        if(v === 4) b.classList.add('hover:bg-red-500', 'hover:text-white');
+        if(v === 5) b.classList.add('hover:bg-purple-600', 'hover:text-white');
+    });
+
+    // Highlight the selected one
+    const selectedBtn = document.querySelector(`.diff-btn[data-val="${val}"]`);
+    if(selectedBtn) {
+        selectedBtn.classList.remove('text-muted', 'border-border');
+        // Apply specific color based on value
+        if(val === 1) selectedBtn.classList.add('bg-green-500', 'text-white', 'border-green-500', 'scale-110', 'shadow-lg');
+        if(val === 2) selectedBtn.classList.add('bg-yellow-500', 'text-white', 'border-yellow-500', 'scale-110', 'shadow-lg');
+        if(val === 3) selectedBtn.classList.add('bg-orange-500', 'text-white', 'border-orange-500', 'scale-110', 'shadow-lg');
+        if(val === 4) selectedBtn.classList.add('bg-red-500', 'text-white', 'border-red-500', 'scale-110', 'shadow-lg');
+        if(val === 5) selectedBtn.classList.add('bg-purple-600', 'text-white', 'border-purple-600', 'scale-110', 'shadow-lg');
     }
 }
+
+function confirmCompletion() {
+    const t = globalTasks.find(x => x.id === completingTaskId);
+    if(t) {
+        const diff = parseInt(document.getElementById('cm-difficulty').value);
+        const time = parseInt(document.getElementById('cm-time').value);
+
+        t.completed = true;
+        t.difficulty = diff || 0; 
+        t.actualTime = time || t.est; // Default to estimate if they left it blank
+
+        streak++;
+        playSound('complete');
+
+        saveData();
+        refreshAllViews();
+        document.getElementById('completionModal').classList.add('hidden');
+
+        if(typeof showToast === 'function') showToast("Mission Accomplished! 🚀", "success");
+    }
+}
+
+function refreshAllViews() {
+    if(typeof renderMatrix === 'function') renderMatrix();
+    if(typeof renderStats === 'function') renderStats(); // If you use stats
+    if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
+    if(typeof viewClassTarget !== 'undefined' && viewClassTarget && typeof renderClassDetailList === 'function') {
+        renderClassDetailList(viewClassTarget);
+    }
+}
+
 /* --- DAY DETAIL / TOPIC VIEW --- */
 
 function openDayDetail(dateKey) {
@@ -416,3 +496,12 @@ function changePassword() {
     if(typeof showToast === 'function') showToast("Password Changed Successfully", "success");
     else alert("Password Changed");
 } 
+
+/* --- CALENDAR NAVIGATION --- */
+
+function changeCalendarWeek(amount) {
+    if (amount === 0) calendarOffset = 0;
+    else calendarOffset += amount;
+
+    if(typeof renderCalendar === 'function') renderCalendar();
+}

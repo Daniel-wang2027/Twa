@@ -7,6 +7,9 @@
             <span class="text-lg font-bold tracking-tight">Student HUD</span>
         </div>
         <nav class="flex-1 px-4 space-y-2 mt-4">
+            <button onclick="switchStudentView('calendar')" id="nav-s-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent">
+                <i class="fa-regular fa-calendar-days w-5"></i> Calendar
+            </button>
             <button onclick="switchStudentView('dashboard')" id="nav-s-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm">
                 <i class="fa-solid fa-table-cells w-5"></i> Matrix
             </button>
@@ -176,6 +179,56 @@
                 </div>
             </div>
             <!-- END SETTINGS VIEW -->
+
+            <!-- VIEW: CALENDAR -->
+            <div id="s-view-calendar" class="hidden h-full flex flex-col fade-in">
+
+                <!-- Calendar Header -->
+                <div class="flex justify-between items-center mb-4 shrink-0 px-1">
+                    <h2 class="text-2xl font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-clock text-primary"></i> Time Blocker
+                    </h2>
+                    <div class="flex bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
+                        <button onclick="changeCalendarWeek(-1)" class="px-4 py-2 hover:bg-base border-r border-border transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                        <div id="cal-week-label" class="px-6 py-2 font-bold text-sm flex items-center min-w-[200px] justify-center bg-base/50">--</div>
+                        <button onclick="changeCalendarWeek(1)" class="px-4 py-2 hover:bg-base border-l border-border transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <button onclick="changeCalendarWeek(0)" class="text-xs font-bold text-primary hover:underline">Jump to Today</button>
+                </div>
+
+                <div class="flex flex-1 overflow-hidden gap-4">
+
+                    <!-- DRAGGABLE SIDEBAR (Unscheduled) -->
+                    <div class="w-64 bg-surface border border-border rounded-2xl flex flex-col shadow-inner">
+                        <div class="p-3 border-b border-border bg-base/50 font-bold text-xs uppercase text-muted tracking-wider">
+                            Tasks to Schedule
+                        </div>
+                        <div id="cal-unscheduled-list" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar" ondragover="allowDrop(event)" ondrop="handleUnscheduleDrop(event)">
+                            <!-- Draggable items injected here -->
+                        </div>
+                    </div>
+
+                    <!-- CALENDAR GRID -->
+                    <div class="flex-1 bg-surface border border-border rounded-2xl overflow-hidden flex flex-col relative shadow-inner">
+                        <!-- Days Header -->
+                        <div class="flex border-b border-border bg-base/80 backdrop-blur-md z-10" id="cal-header-row"></div>
+
+                        <!-- Scrollable Grid -->
+                        <div class="flex-1 overflow-y-auto custom-scrollbar relative" id="cal-scroll-area">
+                            <div class="flex min-h-[1600px]"> 
+                                <!-- Time Gutter -->
+                                <div class="w-16 border-r border-border shrink-0 bg-base/30 text-xs text-muted font-mono flex flex-col items-center py-2" id="cal-time-gutter"></div>
+                                <!-- Main Grid Columns -->
+                                <div class="flex-1 flex relative" id="cal-grid-columns"></div>
+                                <!-- Current Time Line -->
+                                <div id="cal-current-time" class="absolute left-16 right-0 border-t-2 border-red-500 z-20 pointer-events-none hidden">
+                                    <div class="absolute -left-2 -top-1.5 w-3 h-3 bg-red-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- 3. COMPLETED VIEW -->
             <div id="s-view-completed" class="hidden fade-in">

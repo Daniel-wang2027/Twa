@@ -305,3 +305,98 @@ function teacherChangePassword() {
     if(typeof showToast === 'function') showToast("Password Updated", "success");
     else alert("Password Updated");
 }
+
+/* --- CALENDAR DRAG & DROP LOGIC --- */
+
+function allowDrop(ev) {
+    ev.preventDefault(); // Necessary to allow dropping
+    // Visual cue logic could go here
+}
+
+function handleDragStart(ev, taskId, duration) {
+    ev.dataTransfer.setData("text/plain", JSON.stringify({ id: taskId, est: duration }));
+    ev.dataTransfer.effectAllowed = "move";
+}
+
+function handleCalendarDrop(ev, dateStr) {
+    ev.preventDefault();
+
+    // 1. Get Drop Data
+    const data = JSON.parse(ev.dataTransfer.getData("text/plain"));
+    const task = globalTasks.find(t => t.id === data.id);
+    if (!task) return;
+
+    // 2. Calculate Drop Time
+    // We need to find the Y coordinate relative to the drop target (the column)
+    // ev.target might be the column OR a grid line inside it. We need the offset relative to the column top.
+    const rect = ev.currentTarget.getBoundingClientRect();
+    const offsetY = ev.clientY - rect.top;
+
+    // Convert Pixels to Hours (Using constant from render.js: 100px = 1 hour)
+    // 6 = Start Hour (6:00 AM)
+    const PIXELS_PER_HOUR = 100;
+    const START_HOUR = 6;
+
+    const hoursFromStart = offsetY / PIXELS_PER_HOUR;
+    const dropHour = START_HOUR + hoursFromStart;
+
+    // Round to nearest 15 minutes (0.25 hours)
+    const snappedHour = Math.round(dropHour * 4) / 4;
+
+    // 3. Create Proposed Date Object
+    const proposedDate = new Date(dateStr);
+    const h = Math.floor(snappedHour);
+    const m = (snappedHour - h) * 60;
+    proposedDate.setHours(h, m, 0, 0);
+
+    // 4. VALIDATE CONSTRAINT: Due Date - Buffer
+    const bufferMins = (settings.buffer || 0);
+    const effectiveDue = new Date(new Date(task.due).getTime() - (bufferMins * 60000));
+
+    // Calculate when the task would END
+    const durationMins = task.est || 30;
+    const proposedEnd = new Date(proposedDate.getTime() + (durationMins * 60000));
+
+    if (proposedEnd > effectiveDue) {
+        alert(`Cannot schedule this! \n\nIt ends at ${proposedEnd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}.\nYour deadline (minus buffer) is ${effectiveDue.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}.`);
+        return;
+    }
+
+    // 5. Save & Render
+    task.plannedDate = proposedDate.toISOString();
+    saveData();
+    renderCalendar(); // Refresh grid
+    playSound('click');
+}
+
+function handleUnscheduleDrop(ev) {
+    ev.preventDefault();
+    const data = JSON.parse(ev.dataTransfer.getData("text/plain"));
+    const task = globalTasks.find(t => t.id === data.id);
+
+    if (task) {
+        task.plannedDate = null; // Remove from grid
+        saveData();
+        renderCalendar();
+    }
+}
+
+// UPDATE: Modify saveGeneralSettings to save the 24h preference
+function saveGeneralSettings() {
+    const dysEl = document.getElementById('setting-dyslexia');
+    const time24El = document.getElementById('setting-time24');
+
+    if(dysEl) {
+        settings.dyslexia = dysEl.checked;
+        document.body.classList.toggle('dyslexia-mode', settings.dyslexia);
+    }
+
+    if(time24El) {
+        settings.timeFormat24 = time24El.checked;
+    }
+
+    saveData();
+    // Refresh views to apply time format
+    if(typeof renderCalendar === 'function') renderCalendar();
+    if(typeof renderMatrix === 'function') renderMatrix(); 
+}

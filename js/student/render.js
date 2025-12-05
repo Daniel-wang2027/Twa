@@ -26,13 +26,22 @@ function switchStudentView(view) {
     if(typeof playSound === 'function') playSound('click');
 
     // 1. Hide ALL views
-    ['dashboard', 'completed', 'profile', 'settings', 'class-detail'].forEach(v => {
+    ['dashboard', 'completed', 'profile', 'settings', 'class-detail', 'calendar'].forEach(v => {
         const el = document.getElementById(`s-view-${v}`);
         const btn = document.getElementById(`nav-s-${v}`);
 
         if (el) el.classList.add('hidden');
         if (btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent";
     });
+
+    if (view === 'calendar') {
+        renderCalendar();
+        // Re-scroll to 8:00 AM (approx) initially so they don't see just 6 AM
+        setTimeout(() => {
+            const scrollArea = document.getElementById('cal-scroll-area');
+            if(scrollArea) scrollArea.scrollTop = 200; 
+        }, 10);
+    }
 
     // 2. Show TARGET view
     const targetEl = document.getElementById(`s-view-${view}`);
@@ -90,8 +99,7 @@ function renderWelcomeBanner() {
     }
 }
 
-/* --- MATRIX (UPDATED WITH BUFFER MATH) --- */
-/* --- MATRIX (Fixed: Cycle Badge is now visible) --- */
+/* --- MATRIX--- */
 function renderMatrix() {
     const body = document.getElementById('matrix-body');
     const headerRow = document.getElementById('matrix-header-row');
@@ -171,24 +179,18 @@ function renderMatrix() {
 function createMatrixCard(t) {
     const color = classPreferences[t.course] || '#888';
 
-    // --- PROCRASTINATION BUFFER LOGIC ---
-    // 1. Get Buffer (Default to 0 if undefined)
+    // Buffer Math
     const buffer = (typeof settings !== 'undefined' && settings.buffer) ? parseInt(settings.buffer) : 0;
-
-    // 2. Calculate the "Fake" Display Time
-    // Subtract buffer minutes from the real due date
     const realDate = new Date(t.due);
-    const displayDate = new Date(realDate.getTime() - (buffer * 60000)); // 60000ms = 1 minute
-
+    const displayDate = new Date(realDate.getTime() - (buffer * 60000));
     const timeStr = displayDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
-    // --- PROGRESS BAR ---
+    // Progress Bar
     let progressHtml = '';
     if(t.checklist && t.checklist.length > 0) {
         const done = t.checklist.filter(i=>i.done).length;
         const total = t.checklist.length;
         const pct = (done / total) * 100;
-
         progressHtml = `
         <div class="mt-3">
             <div class="flex justify-between items-end mb-1">
@@ -201,9 +203,30 @@ function createMatrixCard(t) {
         </div>`;
     }
 
-    // Visual cue if buffer is active (Optional: makes time italic)
+    // --- NEW: COMPLETED STATS ---
+    let statsHtml = '';
+    if (t.completed) {
+        // Generate Star Rating if exists
+        let stars = '';
+        if(t.difficulty) {
+            for(let i=0; i<t.difficulty; i++) stars += '★';
+        }
+
+        // Show actual time if recorded, else nothing
+        const timeSpent = t.actualTime ? `${t.actualTime}m` : '';
+
+        if(stars || timeSpent) {
+            statsHtml = `
+            <div class="mt-2 pt-2 border-t border-border flex justify-between items-center text-[10px] font-bold">
+                <span class="text-yellow-500 tracking-widest">${stars}</span>
+                <span class="text-muted">${timeSpent} spent</span>
+            </div>`;
+        }
+    }
+
+    // Time Class logic
     const timeClass = buffer > 0 ? "text-orange-500 font-bold" : "text-muted";
-    const bufferIcon = buffer > 0 ? `<i class="fa-solid fa-clock-rotate-left mr-1" title="Buffer Active (-${buffer}m)"></i>` : `<i class="fa-regular fa-clock mr-1"></i>`;
+    const bufferIcon = buffer > 0 ? `<i class="fa-solid fa-clock-rotate-left mr-1" title="Buffer Active"></i>` : `<i class="fa-regular fa-clock mr-1"></i>`;
 
     return `
     <div onclick="openTaskDetails(${t.id})" class="bg-surface border border-border rounded-lg mb-2 shadow-sm p-3 hover:scale-[1.02] transition-all cursor-pointer group relative hover:border-primary/50">
@@ -212,11 +235,16 @@ function createMatrixCard(t) {
             <i class="fa-solid fa-book text-[10px] text-muted"></i>
             <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="text-muted hover:text-green-500"><i class="fa-regular fa-square"></i></button>
         </div>
-        <div class="font-bold text-sm leading-tight mb-1 text-text">${t.title}</div>
+
+        <!-- Strikethrough if done -->
+        <div class="font-bold text-sm leading-tight mb-1 text-text ${t.completed ? 'line-through opacity-50' : ''}">${t.title}</div>
+
         <div class="text-xs ${timeClass} flex justify-between">
             <span class="flex items-center">${bufferIcon} ${timeStr}</span>
-            <span class="text-muted">${t.est}m</span>
+            <span class="text-muted">${t.est}m est</span>
         </div>
+
+        ${statsHtml}
         ${progressHtml}
     </div>`;
 }
@@ -325,4 +353,191 @@ function renderBackpackList() {
             <button onclick="deleteBackpackItem(${index})" class="text-red-500 opacity-0 group-hover:opacity-100 hover:bg-surface w-6 h-6 rounded flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button>
         </div>`;
     });
+}
+
+/* --- CALENDAR RENDERER --- */
+
+const CAL_START_HOUR = 6; 
+const CAL_END_HOUR = 24; // Extended to midnight
+const PIXELS_PER_HOUR = 100;
+
+function renderCalendar() {
+    const gridCols = document.getElementById('cal-grid-columns');
+    const headerRow = document.getElementById('cal-header-row');
+    const timeGutter = document.getElementById('cal-time-gutter');
+    const label = document.getElementById('cal-week-label');
+    const unscheduledList = document.getElementById('cal-unscheduled-list');
+
+    if(!gridCols) return;
+
+    // 1. Setup Dates
+    const curr = new Date();
+    curr.setDate(curr.getDate() + (calendarOffset * 7));
+    const first = curr.getDate() - curr.getDay() + 1;
+    const weekStart = new Date(curr.setDate(first));
+    const weekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() + 6));
+    label.innerText = `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
+
+    // 2. Render Time Gutter (With 12h/24h toggle)
+    const is24 = settings.timeFormat24 || false;
+    timeGutter.innerHTML = '';
+
+    for(let h = CAL_START_HOUR; h <= CAL_END_HOUR; h++) {
+        let timeStr = "";
+        if (is24) {
+            timeStr = `${h}:00`;
+        } else {
+            timeStr = h > 12 ? `${h-12} PM` : (h === 12 ? `12 PM` : (h === 24 ? `12 AM` : `${h} AM`));
+        }
+        timeGutter.innerHTML += `<div style="height:${PIXELS_PER_HOUR}px" class="flex items-start justify-center pt-1 border-b border-transparent">${timeStr}</div>`;
+    }
+
+    // 3. Render Unscheduled Sidebar
+    renderUnscheduledSidebar();
+
+    // 4. Render Grid Columns
+    let headersHtml = '<div class="w-16 border-r border-border shrink-0 bg-base/50"></div>';
+    let columnsHtml = '';
+
+    for(let i=0; i<7; i++) {
+        const loopDate = new Date(weekStart);
+        loopDate.setDate(weekStart.getDate() + i);
+        const dateStr = loopDate.toISOString().split('T')[0];
+
+        // Headers
+        const isToday = new Date().toDateString() === loopDate.toDateString();
+        const headClass = isToday ? "text-primary font-extrabold bg-primary/5" : "text-muted font-bold";
+        headersHtml += `
+        <div class="flex-1 text-center py-3 border-r border-border ${headClass}">
+            <div class="text-xs uppercase tracking-widest">${loopDate.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+            <div class="text-lg leading-none mt-1">${loopDate.getDate()}</div>
+        </div>`;
+
+        // Grid Lines
+        let bgLines = '';
+        for(let h = CAL_START_HOUR; h <= CAL_END_HOUR; h++) {
+            bgLines += `<div style="height:${PIXELS_PER_HOUR}px" class="border-b border-border/30 w-full pointer-events-none"></div>`;
+        }
+
+        // Tasks for this column
+        const taskHtml = getTasksForCalendarColumn(loopDate);
+
+        // DROP ZONE ATTRIBUTES ADDED HERE
+        columnsHtml += `
+        <div class="flex-1 border-r border-border relative bg-base/5 group transition-colors hover:bg-base/10"
+             ondragover="allowDrop(event)"
+             ondrop="handleCalendarDrop(event, '${dateStr}')">
+            <div class="absolute inset-0 z-0 pointer-events-none">${bgLines}</div>
+            ${taskHtml}
+        </div>`;
+    }
+
+    headerRow.innerHTML = headersHtml;
+    gridCols.innerHTML = columnsHtml;
+    updateTimeLine();
+}
+
+function renderUnscheduledSidebar() {
+    const container = document.getElementById('cal-unscheduled-list');
+    container.innerHTML = '';
+
+    // Filter: Not Completed AND No Planned Date
+    const tasks = globalTasks.filter(t => !t.completed && !t.plannedDate);
+
+    if (tasks.length === 0) {
+        container.innerHTML = `<div class="text-center text-xs text-muted italic p-4">All active tasks scheduled!</div>`;
+        return;
+    }
+
+    tasks.forEach(t => {
+        const color = classPreferences[t.course] || '#888';
+        const est = t.est || 30;
+
+        // DRAG ATTRIBUTES ADDED
+        container.innerHTML += `
+        <div draggable="true" ondragstart="handleDragStart(event, ${t.id}, ${est})"
+             onclick="openTaskDetails(${t.id})"
+             class="bg-surface border border-border p-3 rounded-xl shadow-sm hover:scale-[1.02] cursor-grab active:cursor-grabbing transition-transform group">
+            <div class="flex justify-between items-start mb-1">
+                <div class="w-2 h-2 rounded-full" style="background:${color}"></div>
+                <div class="text-[10px] text-muted font-mono">${est}m</div>
+            </div>
+            <div class="font-bold text-sm leading-tight">${t.title}</div>
+            <div class="text-[10px] text-muted truncate">${t.course}</div>
+        </div>`;
+    });
+}
+
+function getTasksForCalendarColumn(dateObj) {
+    let html = '';
+
+    // Filter tasks that have a PLANNED DATE on this specific day
+    const tasks = globalTasks.filter(t => {
+        if(t.completed || !t.plannedDate) return false;
+        const pDate = new Date(t.plannedDate);
+        return pDate.getDate() === dateObj.getDate() && 
+               pDate.getMonth() === dateObj.getMonth() &&
+               pDate.getFullYear() === dateObj.getFullYear();
+    });
+
+    tasks.forEach(t => {
+        const plan = new Date(t.plannedDate);
+        const due = new Date(t.due);
+
+        // Calculate Position
+        const gridStartMins = CAL_START_HOUR * 60;
+        const planStartMins = (plan.getHours() * 60) + plan.getMinutes();
+        const duration = t.est || 30;
+
+        let topPx = (planStartMins - gridStartMins) * (PIXELS_PER_HOUR / 60);
+        let heightPx = duration * (PIXELS_PER_HOUR / 60);
+
+        if (topPx < 0) { heightPx += topPx; topPx = 0; } // Clamp top
+
+        const color = classPreferences[t.course] || '#888';
+        const is24 = settings.timeFormat24 || false;
+
+        // Format Time String for Card
+        const timeStr = is24 
+            ? plan.toLocaleTimeString([], {hour12: false, hour:'2-digit', minute:'2-digit'})
+            : plan.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+
+        html += `
+        <div draggable="true" ondragstart="handleDragStart(event, ${t.id}, ${duration})"
+             onclick="openTaskDetails(${t.id})" 
+             class="absolute inset-x-1 rounded-lg border-l-4 shadow-sm hover:brightness-110 cursor-pointer overflow-hidden text-[10px] p-1 flex flex-col justify-start transition-all hover:scale-[1.02] hover:z-20"
+             style="top:${topPx}px; height:${heightPx}px; background-color:${color}20; border-left-color:${color}; border: 1px solid ${color}40; border-left-width: 4px;">
+            <div class="font-bold truncate text-text leading-tight">${t.title}</div>
+            <div class="opacity-70 truncate">${timeStr} (${t.est}m)</div>
+        </div>`;
+    });
+
+    return html;
+}
+
+function updateTimeLine() {
+    const line = document.getElementById('cal-current-time');
+    const now = new Date();
+
+    // Only show if we are in the current week
+    if(calendarOffset !== 0) {
+        if(line) line.classList.add('hidden');
+        return;
+    }
+
+    const h = now.getHours();
+    const m = now.getMinutes();
+
+    if(h < CAL_START_HOUR || h > CAL_END_HOUR) {
+        if(line) line.classList.add('hidden');
+        return;
+    }
+
+    if(line) {
+        line.classList.remove('hidden');
+        const gridStartMins = CAL_START_HOUR * 60;
+        const currentTotalMins = (h * 60) + m;
+        const topPx = (currentTotalMins - gridStartMins) * (PIXELS_PER_HOUR / 60);
+        line.style.top = `${topPx}px`;
+    }
 }

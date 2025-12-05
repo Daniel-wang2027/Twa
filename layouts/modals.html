@@ -215,3 +215,43 @@
         </div>
     </div>
 </div>
+<!-- MISSION DEBRIEF MODAL -->
+<div id="completionModal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-50 backdrop-blur-md">
+    <div class="bg-surface p-8 rounded-3xl w-full max-w-sm border border-primary/50 shadow-[0_0_50px_rgba(var(--primary),0.3)] text-center relative overflow-hidden">
+
+        <!-- Decor -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
+
+        <h2 class="text-2xl font-black italic uppercase tracking-wider mb-2 text-primary">Mission Debrief</h2>
+        <p class="text-muted text-xs mb-6">Reflect to retain. How did it go?</p>
+
+        <!-- Difficulty Rating -->
+        <div class="mb-6">
+            <label class="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">Difficulty Rating</label>
+            <div class="flex justify-center gap-2">
+                <button onclick="setDifficulty(1)" class="diff-btn w-10 h-10 rounded-lg border border-border hover:bg-green-500 hover:text-white transition-all font-bold text-muted" data-val="1">1</button>
+                <button onclick="setDifficulty(2)" class="diff-btn w-10 h-10 rounded-lg border border-border hover:bg-yellow-500 hover:text-white transition-all font-bold text-muted" data-val="2">2</button>
+                <button onclick="setDifficulty(3)" class="diff-btn w-10 h-10 rounded-lg border border-border hover:bg-orange-500 hover:text-white transition-all font-bold text-muted" data-val="3">3</button>
+                <button onclick="setDifficulty(4)" class="diff-btn w-10 h-10 rounded-lg border border-border hover:bg-red-500 hover:text-white transition-all font-bold text-muted" data-val="4">4</button>
+                <button onclick="setDifficulty(5)" class="diff-btn w-10 h-10 rounded-lg border border-border hover:bg-purple-600 hover:text-white transition-all font-bold text-muted" data-val="5">5</button>
+            </div>
+            <input type="hidden" id="cm-difficulty" value="0">
+        </div>
+
+        <!-- Time Reflection -->
+        <div class="mb-8">
+            <label class="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">Actual Time Spent</label>
+            <div class="flex items-center justify-center gap-2">
+                <input type="number" id="cm-time" class="w-24 bg-base border border-border rounded-xl p-3 text-center font-mono text-lg outline-none focus:border-primary text-text" placeholder="--">
+                <span class="text-sm text-muted font-bold">MINUTES</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+            <button onclick="confirmCompletion()" class="w-full py-4 bg-primary hover:opacity-90 text-white font-black uppercase tracking-widest rounded-xl shadow-lg transform active:scale-95 transition-all">
+                Mark Complete
+            </button>
+            <button onclick="document.getElementById('completionModal').classList.add('hidden')" class="text-xs text-muted hover:text-text uppercase tracking-widest">Cancel</button>
+        </div>
+    </div>
+</div>

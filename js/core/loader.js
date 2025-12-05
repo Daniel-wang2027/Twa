@@ -9,7 +9,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "index.html";
         return;
     }
-
+    
+    // In initStudentUI or loadData
+    const time24El = document.getElementById('setting-time24');
+    if (time24El && settings) {
+        time24El.checked = settings.timeFormat24 || false;
+    }
     // 2. Hydrate State & Load Dynamic Classes
     if (typeof currentUser !== 'undefined') {
         currentUser = JSON.parse(storedUser);

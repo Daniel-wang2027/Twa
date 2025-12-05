@@ -10,7 +10,8 @@ const USERS_KEY = "operation_twa_users";
 let userRole = 'student';
 let currentUser = { name: "Guest", email: "" }; 
 let streak = 0;
-let currentTeacherClass = "AP Calculus"; // Default selection for teacher view
+let currentTeacherClass = "AP Calculus"; 
+let calendarOffset = 0;
 
 // 3. SETTINGS & PREFERENCES
 let settings = { 
