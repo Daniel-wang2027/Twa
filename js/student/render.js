@@ -12,7 +12,16 @@ function initStudentUI() {
     }
     document.getElementById('streak-count').innerText = `${streak} Day Streak`;
     document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
+    function initStudentUI() {
+        document.getElementById('student-layout').classList.remove('hidden');
 
+        // Load Preference or Default
+        if (typeof dashboardViewMode === 'undefined') dashboardViewMode = 'matrix';
+        setDashboardView(dashboardViewMode); // This triggers the correct render function
+
+        if(typeof renderBackpackList === 'function') renderBackpackList();
+        if(typeof renderThemeButtons === 'function') renderThemeButtons('theme-selector');
+    }
     // Renders
     renderMatrix();
     renderWelcomeBanner();
@@ -540,4 +549,220 @@ function updateTimeLine() {
         const topPx = (currentTotalMins - gridStartMins) * (PIXELS_PER_HOUR / 60);
         line.style.top = `${topPx}px`;
     }
+}
+
+/* --- STREAM VIEW (Chronological Agenda) --- */
+function renderStream() {
+    const container = document.getElementById('view-mode-stream');
+    if(!container) return;
+    container.innerHTML = '';
+
+    const now = new Date();
+    const tasks = globalTasks.filter(t => !t.completed).sort((a,b) => new Date(a.due) - new Date(b.due));
+
+    // Groups
+    const groups = {
+        overdue: { label: "⚠️ Overdue", items: [], color: "text-red-500" },
+        today: { label: "📅 Today", items: [], color: "text-green-500" },
+        tomorrow: { label: "🚀 Tomorrow", items: [], color: "text-blue-500" },
+        week: { label: "this Week", items: [], color: "text-purple-500" },
+        later: { label: "🔮 Later", items: [], color: "text-muted" }
+    };
+
+    tasks.forEach(t => {
+        const d = new Date(t.due);
+        const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth();
+        const isTomorrow = d.getDate() === now.getDate()+1 && d.getMonth() === now.getMonth();
+        const diffDays = (d - now) / (1000 * 60 * 60 * 24);
+
+        if (d < now && !isToday) groups.overdue.items.push(t);
+        else if (isToday) groups.today.items.push(t);
+        else if (isTomorrow) groups.tomorrow.items.push(t);
+        else if (diffDays < 7) groups.week.items.push(t);
+        else groups.later.items.push(t);
+    });
+
+    // Render Groups
+    Object.values(groups).forEach(g => {
+        if(g.items.length === 0) return;
+
+        let html = `
+        <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider mb-3 px-1 ${g.color}">${g.label}</h3>
+            <div class="space-y-2">`;
+
+        g.items.forEach(t => {
+            const color = classPreferences[t.course] || '#888';
+            const timeStr = new Date(t.due).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', month:'short', day:'numeric'});
+
+            html += `
+            <div onclick="openTaskDetails(${t.id})" class="bg-surface border border-border p-4 rounded-xl flex items-center justify-between shadow-sm hover:scale-[1.01] transition-all cursor-pointer group">
+                <div class="flex items-center gap-4">
+                    <div class="w-1.5 h-12 rounded-full" style="background:${color}"></div>
+                    <div>
+                        <div class="font-bold text-base group-hover:text-primary transition-colors">${t.title}</div>
+                        <div class="text-xs text-muted flex items-center gap-2">
+                            <span class="font-bold" style="color:${color}">${t.course}</span>
+                            <span>•</span>
+                            <span>${timeStr}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="font-mono text-sm font-bold">${t.est}m</div>
+                    <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="mt-1 text-muted hover:text-green-500"><i class="fa-regular fa-square text-xl"></i></button>
+                </div>
+            </div>`;
+        });
+
+        html += `</div></div>`;
+        container.innerHTML += html;
+    });
+
+    if(tasks.length === 0) container.innerHTML = `<div class="text-center text-muted py-20">No active assignments! 🎉</div>`;
+}
+
+/* --- KANBAN VIEW (Board) --- */
+function renderKanban() {
+    const cols = {
+        todo: document.getElementById('kb-col-todo'),
+        doing: document.getElementById('kb-col-doing'),
+        done: document.getElementById('kb-col-done')
+    };
+
+    if(!cols.todo) return;
+
+    // Reset Columns
+    cols.todo.innerHTML = `<div class="p-4 border-b border-border font-bold text-sm uppercase text-muted tracking-wider flex justify-between"><span>To Do</span><span class="bg-base px-2 rounded" id="kb-count-todo">0</span></div><div class="flex-1 p-3 space-y-3 overflow-y-auto custom-scrollbar" id="kb-list-todo"></div>`;
+    cols.doing.innerHTML = `<div class="p-4 border-b border-border font-bold text-sm uppercase text-blue-500 tracking-wider flex justify-between"><span>In Progress</span><span class="bg-base px-2 rounded" id="kb-count-doing">0</span></div><div class="flex-1 p-3 space-y-3 overflow-y-auto custom-scrollbar" id="kb-list-doing"></div>`;
+    cols.done.innerHTML = `<div class="p-4 border-b border-border font-bold text-sm uppercase text-green-500 tracking-wider flex justify-between"><span>Completed</span><span class="bg-base px-2 rounded" id="kb-count-done">0</span></div><div class="flex-1 p-3 space-y-3 overflow-y-auto custom-scrollbar" id="kb-list-done"></div>`;
+
+    const lists = {
+        todo: cols.todo.querySelector('#kb-list-todo'),
+        doing: cols.doing.querySelector('#kb-list-doing'),
+        done: cols.done.querySelector('#kb-list-done')
+    };
+
+    let counts = { todo: 0, doing: 0, done: 0 };
+
+    globalTasks.forEach(t => {
+        let target = 'todo';
+        if (t.completed) target = 'done';
+        // Simple logic: If it has a plan date but isn't done, it's "Doing"
+        else if (t.plannedDate) target = 'doing';
+
+        counts[target]++;
+        const color = classPreferences[t.course] || '#888';
+        const dateObj = new Date(t.due);
+        const dateStr = dateObj.toLocaleDateString(undefined, {month:'numeric', day:'numeric'});
+
+        lists[target].innerHTML += `
+        <div onclick="openTaskDetails(${t.id})" class="bg-base border border-border p-3 rounded-xl shadow-sm hover:border-primary/50 cursor-pointer group transition-all">
+            <div class="flex justify-between items-start mb-2">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border" style="color:${color}">${t.course}</span>
+                ${target !== 'done' ? `<button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="text-muted hover:text-green-500"><i class="fa-regular fa-square"></i></button>` : '<i class="fa-solid fa-check text-green-500"></i>'}
+            </div>
+            <div class="font-bold text-sm leading-tight mb-2 ${t.completed ? 'line-through text-muted' : ''}">${t.title}</div>
+            <div class="flex justify-between items-center text-xs text-muted">
+                <span><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                <span>${t.est}m</span>
+            </div>
+        </div>`;
+    });
+
+    // Update Counts
+    document.getElementById('kb-count-todo').innerText = counts.todo;
+    document.getElementById('kb-count-doing').innerText = counts.doing;
+    document.getElementById('kb-count-done').innerText = counts.done;
+}
+
+/* --- PLANNER VIEW (Weekly Grid) --- */
+
+function renderStudentPlanner() {
+    const grid = document.getElementById('student-planner-grid');
+    const label = document.getElementById('sp-week-label');
+    if(!grid) return;
+
+    grid.innerHTML = '';
+
+    // 1. Calculate Dates
+    const curr = new Date();
+    curr.setDate(curr.getDate() + (studentPlannerOffset * 7));
+
+    const first = curr.getDate() - curr.getDay() + 1; // Monday
+    const weekStart = new Date(curr.setDate(first));
+    const weekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() + 6));
+
+    if(label) label.innerText = `${weekStart.toLocaleDateString(undefined, {month:'short', day:'numeric'})} - ${weekEnd.toLocaleDateString(undefined, {month:'short', day:'numeric'})}`;
+
+    // 2. Loop 7 Days
+    for(let i=0; i<7; i++) {
+        const loopDate = new Date(weekStart);
+        loopDate.setDate(weekStart.getDate() + i);
+
+        const dayName = loopDate.toLocaleDateString('en-US', { weekday: 'long' });
+        const shortDate = loopDate.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric' });
+        const isToday = new Date().toDateString() === loopDate.toDateString();
+
+        // Cycle Day Logic
+        const cycleNum = getCycleDay(loopDate);
+        let cycleBadge = '';
+        if(cycleNum) {
+             const colors = ['text-red-500 bg-red-500/10 border-red-500/20', 'text-orange-500 bg-orange-500/10 border-orange-500/20', 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20', 'text-green-500 bg-green-500/10 border-green-500/20', 'text-blue-500 bg-blue-500/10 border-blue-500/20', 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20', 'text-purple-500 bg-purple-500/10 border-purple-500/20'];
+             const style = colors[cycleNum - 1] || 'text-muted';
+             cycleBadge = `<span class="text-[10px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded border ${style}">Day ${cycleNum}</span>`;
+        }
+
+        // Get Tasks
+        const dayTasks = globalTasks.filter(t => {
+            if(t.completed) return false; // Optional: Show completed?
+            const d = new Date(t.due);
+            return d.getDate() === loopDate.getDate() && d.getMonth() === loopDate.getMonth();
+        });
+
+        // Styling
+        const borderClass = isToday ? "border-primary shadow-[0_0_15px_rgba(var(--primary),0.2)]" : "border-border";
+        const bgClass = isToday ? "bg-surface" : "bg-surface/50";
+        const headClass = isToday ? "bg-primary text-white" : "bg-base border-b border-border";
+
+        grid.innerHTML += `
+        <div class="flex-1 min-w-[200px] flex flex-col h-full rounded-2xl border ${borderClass} ${bgClass} overflow-hidden">
+            <!-- Header -->
+            <div class="p-3 ${headClass} text-center">
+                <div class="text-sm font-bold uppercase tracking-widest">${dayName}</div>
+                <div class="flex justify-center items-center gap-2 mt-1">
+                    <span class="text-xs opacity-80">${shortDate}</span>
+                    ${cycleBadge}
+                </div>
+            </div>
+
+            <!-- List -->
+            <div class="flex-1 p-2 space-y-2 overflow-y-auto custom-scrollbar bg-base/20">
+                ${dayTasks.map(t => createPlannerTaskCard(t)).join('')}
+                ${dayTasks.length === 0 ? '<div class="text-center text-xs text-muted italic py-10 opacity-50">Nothing Due</div>' : ''}
+            </div>
+        </div>`;
+    }
+}
+
+function createPlannerTaskCard(t) {
+    const color = classPreferences[t.course] || '#888';
+
+    // Type Badge Color
+    let typeColor = 'text-primary bg-primary/10 border-primary/20';
+    if(t.type === 'TEST') typeColor = 'text-red-500 bg-red-500/10 border-red-500/20';
+
+    return `
+    <div onclick="openTaskDetails(${t.id})" class="bg-surface border border-border p-3 rounded-xl shadow-sm hover:scale-[1.02] hover:border-primary/50 transition-all cursor-pointer group">
+        <div class="flex justify-between items-start mb-1">
+            <span class="text-[9px] font-bold uppercase border px-1.5 py-0.5 rounded ${typeColor}">${t.type}</span>
+            <div class="w-2 h-2 rounded-full" style="background:${color}"></div>
+        </div>
+        <div class="font-bold text-sm leading-tight text-text mb-1">${t.title}</div>
+        <div class="text-[10px] text-muted truncate">${t.course}</div>
+
+        <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="w-full mt-2 py-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-green-500 hover:border-green-500 transition-colors">
+            Mark Done
+        </button>
+    </div>`;
 }

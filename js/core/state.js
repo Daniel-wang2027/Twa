@@ -12,6 +12,7 @@ let currentUser = { name: "Guest", email: "" };
 let streak = 0;
 let currentTeacherClass = "AP Calculus"; 
 let calendarOffset = 0;
+let studentPlannerOffset = 0;
 
 // 3. SETTINGS & PREFERENCES
 let settings = { 
@@ -42,6 +43,7 @@ let globalTasks = [];
 let teacherTasks = []; 
 let classBulletins = {}; 
 let classTopics = {};
+let dashboardViewMode = 'matrix';
 
 // MOCK ROSTER DATA
 const getRecent = (h) => new Date(Date.now() - (h * 3600000)).toISOString();

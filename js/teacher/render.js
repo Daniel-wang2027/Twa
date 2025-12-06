@@ -200,20 +200,65 @@ function renderTeacherPlanner() {
     }
 }
 
+/* --- UPDATED CARD RENDERER (With Analytics) --- */
+
 function createTeacherTaskCard(t) {
+    // 1. Color Coding by Type
     let typeColor = 'text-blue-300 border-blue-500/30 bg-blue-500/10';
-    if(t.type === 'TEST') typeColor = 'text-red-300 border-red-500/30 bg-red-500/10';
+    if(t.type === 'TEST') typeColor = 'text-red-400 border-red-500/30 bg-red-500/10';
+    if(t.type === 'PROJECT') typeColor = 'text-orange-400 border-orange-500/30 bg-orange-500/10';
+    if(t.type === 'LAB') typeColor = 'text-green-400 border-green-500/30 bg-green-500/10';
+
+    // 2. Simulate Class Analytics
+    // In a real app, this would average real student data.
+    // Here, we generate realistic stats based on the Task ID to keep it consistent.
+
+    // Pseudo-random difficulty (2.5 to 4.5)
+    const mockDiff = ((t.id % 20) / 10) + 2.5; 
+
+    // Pseudo-random time (Estimate +/- 15%)
+    const variance = (t.id % 30) - 15; 
+    const mockAvgTime = Math.max(5, (t.est || 30) + variance);
+
+    // Determine color for time (Red if taking longer than est, Green if faster)
+    const timeColor = mockAvgTime > (t.est || 30) ? "text-red-400" : "text-green-400";
 
     return `
-    <div class="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-2.5 relative group hover:border-blue-500/50 transition-colors shadow-sm">
-        <div class="flex justify-between items-start mb-1">
-            <span class="text-[9px] font-bold uppercase border px-1.5 py-0.5 rounded ${typeColor}">${t.type}</span>
-            <button onclick="deleteTaskFromFeed(${t.id})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs p-1 hover:bg-white/10 rounded"><i class="fa-solid fa-xmark"></i></button>
+    <div class="bg-black/40 backdrop-blur-sm border border-white/10 rounded-lg p-3 relative group hover:border-blue-500/50 transition-all shadow-sm flex flex-col gap-2">
+
+        <!-- Header -->
+        <div class="flex justify-between items-start">
+            <span class="text-[9px] font-bold uppercase border px-1.5 py-0.5 rounded ${typeColor} tracking-wider">${t.type}</span>
+            <button onclick="deleteTaskFromFeed(${t.id})" class="text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs p-1 hover:bg-white/10 rounded">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
+
+        <!-- Title -->
         <div class="font-bold text-sm leading-tight text-white/90">${t.title}</div>
-        <div class="text-[10px] text-white/50 mt-1.5 flex justify-between items-center">
-            <span><i class="fa-regular fa-clock"></i> ${t.est}m</span>
-            ${t.tag ? `<span class="bg-black/30 border border-white/10 px-1 rounded">${t.tag}</span>` : ''}
+
+        <!-- Meta Data -->
+        <div class="text-[10px] text-white/50 flex justify-between items-center border-b border-white/5 pb-2">
+            <span><i class="fa-regular fa-clock"></i> Est: ${t.est}m</span>
+            ${t.tag ? `<span class="bg-black/30 border border-white/10 px-1.5 rounded text-[9px] text-white/70">${t.tag}</span>` : ''}
         </div>
+
+        <!-- ANALYTICS SECTION -->
+        <div class="flex justify-between items-center bg-white/5 rounded px-2 py-1.5">
+            <div class="text-center">
+                <div class="text-[9px] text-white/40 uppercase font-bold">Avg Rating</div>
+                <div class="text-xs font-bold text-yellow-400 flex items-center gap-1">
+                    <i class="fa-solid fa-star text-[9px]"></i> ${mockDiff.toFixed(1)}
+                </div>
+            </div>
+            <div class="w-px h-6 bg-white/10"></div>
+            <div class="text-center">
+                <div class="text-[9px] text-white/40 uppercase font-bold">Avg Time</div>
+                <div class="text-xs font-bold ${timeColor}">
+                    ${mockAvgTime}m
+                </div>
+            </div>
+        </div>
+
     </div>`;
 }

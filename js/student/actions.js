@@ -505,3 +505,39 @@ function changeCalendarWeek(amount) {
 
     if(typeof renderCalendar === 'function') renderCalendar();
 }
+
+/* --- DASHBOARD VIEW SWITCHER --- */
+
+function setDashboardView(mode) {
+    dashboardViewMode = mode;
+    saveData();
+
+    // Update Buttons & Views
+    // Added 'planner' to the list
+    ['matrix', 'planner', 'stream', 'kanban'].forEach(m => {
+        const btn = document.getElementById(`btn-view-${m}`);
+        const view = document.getElementById(`view-mode-${m}`);
+
+        if (m === mode) {
+            btn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 bg-primary text-white shadow-sm";
+            view.classList.remove('hidden');
+        } else {
+            btn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 text-muted hover:text-text hover:bg-surface";
+            view.classList.add('hidden');
+        }
+    });
+
+    // Trigger Render
+    if (mode === 'matrix' && typeof renderMatrix === 'function') renderMatrix();
+    if (mode === 'planner' && typeof renderStudentPlanner === 'function') renderStudentPlanner(); // NEW
+    if (mode === 'stream' && typeof renderStream === 'function') renderStream();
+    if (mode === 'kanban' && typeof renderKanban === 'function') renderKanban();
+}
+
+/* --- PLANNER NAVIGATION --- */
+function changeStudentPlannerWeek(amount) {
+    if (amount === 0) studentPlannerOffset = 0;
+    else studentPlannerOffset += amount;
+
+    if(typeof renderStudentPlanner === 'function') renderStudentPlanner();
+}
