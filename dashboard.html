@@ -34,32 +34,32 @@
     <div id="toast-container"></div>
 
     <!-- SCRIPTS -->
-    <!-- 1. CORE -->
-        <script src="js/core/state.js"></script>
-        <script src="js/core/catalog.js"></script>
-        <script src="js/core/utils.js"></script>
-        <script src="js/core/storage.js"></script>
-        <script src="js/features/themes.js"></script>
+    <!-- 1. CORE (Global logic) -->
+    <script src="js/core/state.js"></script>
+    <script src="js/core/catalog.js"></script>
+    <script src="js/core/utils.js"></script>
+    <script src="js/core/storage.js"></script>
+    <script src="js/features/themes.js"></script>
+    
+    <!-- 2. STUDENT RENDERS (Moved to /renders/) -->
+    <script src="js/student/renders/core.js"></script>
+    <script src="js/student/renders/dashboard.js"></script>
+    <script src="js/student/renders/calendar.js"></script>
+    <script src="js/student/renders/profile.js"></script>
+    
+    <!-- 3. STUDENT ACTIONS (Inside /actions/) -->
+    <script src="js/student/actions/nav.js"></script>
+    <script src="js/student/actions/tasks.js"></script>
+    <script src="js/student/actions/settings.js"></script>
+    <script src="js/student/actions/backpack.js"></script>
+    <script src="js/student/actions/calendar.js"></script>
+    
+    <!-- 4. TEACHER & ADMIN -->
+    <script src="js/teacher/render.js"></script>
+    <script src="js/teacher/actions.js"></script>
+    <script src="js/admin/manager.js"></script>
 
-        <!-- 2. STUDENT MODULES (Split) -->
-        <script src="js/student/core.js"></script>
-        <script src="js/student/dashboard.js"></script>
-        <script src="js/student/calendar.js"></script>
-        <script src="js/student/profile.js"></script>
-
-        <!-- 3. STUDENT ACTIONS (Split) -->
-        <script src="js/student/actions/nav.js"></script>
-        <script src="js/student/actions/tasks.js"></script>
-        <script src="js/student/actions/settings.js"></script>
-        <script src="js/student/actions/backpack.js"></script>
-        <script src="js/student/actions/calendar.js"></script>
-
-        <!-- 4. TEACHER & ADMIN -->
-        <script src="js/teacher/render.js"></script>
-        <script src="js/teacher/actions.js"></script>
-        <script src="js/admin/manager.js"></script>
-
-        <!-- 5. LOADER (Main Entry) -->
-        <script src="js/core/loader.js"></script>
-    </body>
-    </html>
+    <!-- 5. LOADER -->
+    <script src="js/core/loader.js"></script>
+</body>
+</html>
