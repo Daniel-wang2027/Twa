@@ -3,35 +3,51 @@
    ========================================= */
 
 function initStudentUI() {
+    console.log("Initializing Student UI...");
     document.getElementById('student-layout').classList.remove('hidden');
 
-    // Profile Sidebar Data
-    if(currentUser) {
-        document.getElementById('s-profileInitials').innerText = currentUser.name.slice(0,2).toUpperCase();
-        document.getElementById('s-profileName').innerText = currentUser.name;
+    // 1. Setup Profile
+    if(typeof currentUser !== 'undefined' && currentUser) {
+        const initials = document.getElementById('s-profileInitials');
+        const name = document.getElementById('s-profileName');
+        if(initials) initials.innerText = currentUser.name.slice(0,2).toUpperCase();
+        if(name) name.innerText = currentUser.name;
     }
-    document.getElementById('streak-count').innerText = `${streak} Day Streak`;
-    document.getElementById('currentDate').innerText = new Date().toLocaleDateString();
 
-    // Initial Renders
+    // 2. Setup Header
+    const streakEl = document.getElementById('streak-count');
+    const dateEl = document.getElementById('currentDate');
+    if(streakEl) streakEl.innerText = `${streak || 0} Day Streak`;
+    if(dateEl) dateEl.innerText = new Date().toLocaleDateString();
+
+    // 3. Initial Renders (Safe Checks)
     if(typeof renderMatrix === 'function') renderMatrix();
-    renderWelcomeBanner();
-    renderStudentBulletins();
-
-    // Settings Renders
+    if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
+    if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
     if(typeof renderBackpackList === 'function') renderBackpackList();
     if(typeof renderThemeButtons === 'function') renderThemeButtons('theme-selector');
 
-    // Load Preference
+    // 4. Auto-Generate Backpack Tasks (Weekly)
+    try {
+        if(typeof generateWeeklyBackpackTasks === 'function') {
+            generateWeeklyBackpackTasks();
+        }
+    } catch (e) {
+        console.warn("Backpack generation skipped:", e);
+    }
+
+    // 5. Load Preference
     if (typeof dashboardViewMode === 'undefined') dashboardViewMode = 'matrix';
-    setDashboardView(dashboardViewMode);
+    switchStudentView('dashboard');
 }
 
 function switchStudentView(view) {
     if(typeof playSound === 'function') playSound('click');
 
     // 1. Hide ALL views
-    ['dashboard', 'completed', 'profile', 'settings', 'class-detail', 'calendar'].forEach(v => {
+    const views = ['dashboard', 'completed', 'profile', 'settings', 'class-detail', 'calendar'];
+
+    views.forEach(v => {
         const el = document.getElementById(`s-view-${v}`);
         const btn = document.getElementById(`nav-s-${v}`);
 
@@ -48,33 +64,60 @@ function switchStudentView(view) {
         // Force scroll to top
         const scroller = document.querySelector('.custom-scrollbar');
         if(scroller) scroller.scrollTop = 0;
+    } else {
+        console.error(`Error: View container 's-view-${view}' not found in HTML.`);
+        return;
     }
 
     if (targetBtn) {
         targetBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm";
     }
 
-    // 3. Render Data based on View
+    // 3. Render Data (Safe Mode)
     if (view === 'dashboard') {
-        // Dashboard has its own internal switcher (Matrix/Stream/etc), so we just ensure data is fresh
-        if(dashboardViewMode === 'matrix' && typeof renderMatrix === 'function') renderMatrix();
-        if(dashboardViewMode === 'planner' && typeof renderStudentPlanner === 'function') renderStudentPlanner();
-        if(dashboardViewMode === 'stream' && typeof renderStream === 'function') renderStream();
-        if(dashboardViewMode === 'kanban' && typeof renderKanban === 'function') renderKanban();
+        // Render the specific dashboard sub-view (Matrix/Planner/etc)
+        if(typeof dashboardViewMode !== 'undefined') {
+            const mode = dashboardViewMode;
+            // Toggle the sub-views inside dashboard
+            ['matrix', 'planner', 'stream', 'kanban'].forEach(m => {
+                const subView = document.getElementById(`view-mode-${m}`);
+                const subBtn = document.getElementById(`btn-view-${m}`);
+                if(subView) {
+                    if(m === mode) subView.classList.remove('hidden');
+                    else subView.classList.add('hidden');
+                }
+                if(subBtn) {
+                    if(m === mode) subBtn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 bg-primary text-white shadow-sm";
+                    else subBtn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 text-muted hover:text-text hover:bg-surface";
+                }
+            });
 
-        renderWelcomeBanner();
-        renderStudentBulletins();
+            // Trigger specific render
+            if (mode === 'matrix' && typeof renderMatrix === 'function') renderMatrix();
+            if (mode === 'planner' && typeof renderStudentPlanner === 'function') renderStudentPlanner();
+            if (mode === 'stream' && typeof renderStream === 'function') renderStream();
+            if (mode === 'kanban' && typeof renderKanban === 'function') renderKanban();
+        }
+
+        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
+        if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
     }
+
     if (view === 'calendar') {
-        if(typeof renderCalendar === 'function') renderCalendar();
-        setTimeout(() => {
-            const scrollArea = document.getElementById('cal-scroll-area');
-            if(scrollArea) scrollArea.scrollTop = 200; // Scroll to ~8am
-        }, 10);
+        if(typeof renderCalendar === 'function') {
+            renderCalendar();
+            // Scroll to morning (approx 8 AM)
+            setTimeout(() => {
+                const scrollArea = document.getElementById('cal-scroll-area');
+                if(scrollArea) scrollArea.scrollTop = 400; 
+            }, 50);
+        }
     }
+
     if (view === 'completed') {
         if(typeof renderCompleted === 'function') renderCompleted();
     }
+
     if (view === 'profile') {
         if(typeof renderProfile === 'function') renderProfile();
     }
@@ -109,6 +152,8 @@ function renderStudentBulletins() {
     if (!container) return;
     container.innerHTML = '';
     let hasBulletins = false;
+
+    // Check if bulletins exist in state
     if(typeof classBulletins !== 'undefined') {
         classes.forEach(cls => {
             const b = classBulletins[cls];
@@ -126,5 +171,6 @@ function renderStudentBulletins() {
             }
         });
     }
+
     if (hasBulletins) container.classList.remove('hidden'); else container.classList.add('hidden');
 }
