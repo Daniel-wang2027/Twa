@@ -115,24 +115,228 @@
                 </div>
             </div>
 
-            <!-- 6. SETTINGS VIEW -->
-            <div id="s-view-settings" class="hidden flex-1 overflow-y-auto p-6 custom-scrollbar fade-in">
+            <!-- 2. SETTINGS VIEW -->
+            <!-- Added overflow-y-auto here to fix scrolling -->
+            <div id="s-view-settings" class="hidden w-full h-full fade-in p-6 overflow-y-auto custom-scrollbar">
                 <div class="max-w-6xl mx-auto pb-20">
                     <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
-                    <div class="bg-surface p-8 rounded-3xl border border-border mb-8 shadow-sm"><h3 class="font-bold text-xl mb-6">Visual Theme</h3><div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="theme-selector"></div></div>
+
+                    <!-- THEMES -->
+                    <div class="bg-surface p-8 rounded-3xl border border-border mb-8 shadow-sm">
+                        <h3 class="font-bold text-xl mb-6">Visual Theme</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="theme-selector"></div>
+                    </div>
+
+                    <!-- MAIN GRID -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+                        <!-- LEFT COLUMN -->
                         <div class="space-y-8">
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm"><h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-universal-access text-primary"></i> Accessibility</h3><div class="space-y-4"><div class="flex items-center justify-between bg-base p-3 rounded-xl border border-border"><div><span class="font-bold block text-sm">Dyslexia Font</span></div><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="setting-dyslexia" class="sr-only peer" onchange="saveGeneralSettings()"><div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:bg-primary transition-colors"></div></label></div><div class="flex items-center justify-between bg-base p-3 rounded-xl border border-border"><div><span class="font-bold block text-sm">24-Hour Clock</span></div><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="setting-time24" class="sr-only peer" onchange="saveGeneralSettings()"><div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:bg-primary transition-colors"></div></label></div></div></div>
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm"><h3 class="font-bold text-lg mb-2 flex items-center gap-2"><i class="fa-solid fa-calendar-check text-green-500"></i> Matrix Calibration</h3><p class="text-xs text-muted mb-4">Trick your brain by shifting due times.</p><div class="flex gap-2 mt-1"><input type="number" id="setting-buffer" value="0" class="flex-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono"><button onclick="saveBufferSettings()" class="bg-surface border border-border hover:bg-base px-4 rounded-xl font-bold text-sm">Save</button></div></div>
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm"><h3 class="font-bold text-lg mb-2 flex items-center gap-2"><i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol</h3><div id="backpack-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div><div class="bg-base/50 p-3 rounded-xl border border-border"><div class="flex gap-2 mb-2"><input type="text" id="bp-new-name" placeholder="Item Name" class="flex-1 p-2 rounded-lg bg-surface border border-border text-sm outline-none focus:border-primary"><select id="bp-new-type" onchange="toggleBpInputs()" class="p-2 rounded-lg bg-surface border border-border text-xs font-bold outline-none"><option value="always">Daily</option><option value="weekday">Weekday</option><option value="cycle">Cycle Day</option></select></div><div class="flex flex-col gap-2 w-full"><div id="bp-select-weekday" class="hidden w-full"><div class="flex justify-between gap-1"><button onclick="toggleBpWeekday(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">M</button><button onclick="toggleBpWeekday(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button><button onclick="toggleBpWeekday(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">W</button><button onclick="toggleBpWeekday(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button><button onclick="toggleBpWeekday(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">F</button><button onclick="toggleBpWeekday(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button><button onclick="toggleBpWeekday(0, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button></div></div><div id="bp-select-cycle" class="hidden w-full"><div class="flex justify-between gap-1"><button onclick="toggleBpCycleDay(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">1</button><button onclick="toggleBpCycleDay(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">2</button><button onclick="toggleBpCycleDay(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">3</button><button onclick="toggleBpCycleDay(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">4</button><button onclick="toggleBpCycleDay(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">5</button><button onclick="toggleBpCycleDay(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">6</button><button onclick="toggleBpCycleDay(7, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">7</button></div></div><button onclick="addBackpackItem()" class="w-full bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90 transition-all text-xs">Add Item</button></div></div><button onclick="pushBackpackTasks()" class="w-full mt-4 bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"><i class="fa-solid fa-paper-plane"></i> Generate Checklist</button></div></div>
+
+                            <!-- 1. ACCESSIBILITY & PREFERENCES -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-universal-access text-primary"></i> Accessibility & Logic
+                                </h3>
+
+                                <div class="space-y-4">
+                                    <!-- Color Blindness -->
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase block mb-1">Color Vision Support</label>
+                                        <select id="setting-cb" onchange="saveAdvancedSettings()" class="w-full p-2 rounded-lg bg-base border border-border text-sm outline-none">
+                                            <option value="none">Standard</option>
+                                            <option value="protanopia">Protanopia (Red-Blind)</option>
+                                            <option value="deuteranopia">Deuteranopia (Green-Blind)</option>
+                                            <option value="tritanopia">Tritanopia (Blue-Blind)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Toggles Row A -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
+                                            <span class="text-xs font-bold">Dyslexia Font</span>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" id="setting-dyslexia" class="sr-only peer" onchange="saveAdvancedSettings()">
+                                                <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                                            </label>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
+                                            <span class="text-xs font-bold">Reduce Motion</span>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" id="setting-motion" class="sr-only peer" onchange="saveAdvancedSettings()">
+                                                <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Toggles Row B (Cognitive) -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
+                                            <span class="text-xs font-bold">Plain Language</span>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" id="setting-plain" class="sr-only peer" onchange="saveAdvancedSettings()">
+                                                <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                                            </label>
+                                        </div>
+
+                                        <!-- NEW: DENSITY SLIDER -->
+                                        <div class="bg-base p-2 rounded-lg border border-border flex flex-col justify-center">
+                                            <div class="flex justify-between text-[9px] uppercase font-bold text-muted mb-1 px-1">
+                                                <span>Cozy</span>
+                                                <span>Roomy</span>
+                                            </div>
+                                            <input type="range" id="setting-density" min="0" max="1" step="1" value="0" class="w-full accent-primary cursor-pointer h-2 bg-surface rounded-lg appearance-none" onchange="saveAdvancedSettings()">
+                                        </div>
+                                    </div>
+
+                                    <!-- Logic: Date/Time -->
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <select id="setting-dateformat" onchange="saveAdvancedSettings()" class="w-full p-2 rounded-lg bg-base border border-border text-xs font-bold outline-none">
+                                                <option value="US">Date: MM/DD</option>
+                                                <option value="INTL">Date: DD/MM</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
+                                            <span class="text-xs font-bold">24-Hour Time</span>
+                                            <label class="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" id="setting-time24" class="sr-only peer" onchange="saveAdvancedSettings()">
+                                                <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Start Monday -->
+                                    <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
+                                        <span class="text-xs font-bold">Start Week on Monday</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="setting-monday" class="sr-only peer" onchange="saveAdvancedSettings()">
+                                            <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. TIMER SETTINGS -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-stopwatch text-orange-500"></i> Timer Settings
+                                </h3>
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase">Focus (Min)</label>
+                                        <input type="number" id="setting-work" value="25" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono text-center text-lg">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase">Break (Min)</label>
+                                        <input type="number" id="setting-break" value="5" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono text-center text-lg">
+                                    </div>
+                                </div>
+                                <button onclick="saveTimerSettings()" class="w-full bg-primary hover:opacity-90 text-white py-3 rounded-xl font-bold shadow-md flex justify-center items-center gap-2">
+                                    <i class="fa-solid fa-check"></i> Update Timer
+                                </button>
+                            </div>
+
+                            <!-- 3. SECURITY -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-lock text-red-500"></i> Security
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase">Current Password</label>
+                                        <input type="password" id="setting-old-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase">New Password</label>
+                                        <input type="password" id="setting-new-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none">
+                                    </div>
+                                    <button onclick="savePasswordChange()" class="w-full bg-base border border-border hover:bg-red-500 hover:text-white hover:border-red-500 text-muted font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-key"></i> Update Password
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT COLUMN -->
                         <div class="space-y-8">
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm h-fit"><h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-stopwatch text-orange-500"></i> Timer Settings</h3><div class="grid grid-cols-2 gap-4 mb-6"><div><label class="text-xs font-bold text-muted uppercase">Focus (Min)</label><input type="number" id="setting-work" value="25" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono text-center text-lg"></div><div><label class="text-xs font-bold text-muted uppercase">Break (Min)</label><input type="number" id="setting-break" value="5" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono text-center text-lg"></div></div><button onclick="saveTimerSettings()" class="w-full bg-primary hover:opacity-90 text-white py-4 rounded-xl font-bold transition-all shadow-md flex justify-center items-center gap-2"><i class="fa-solid fa-check"></i> Update Timer</button></div>
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm"><h3 class="font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-lock text-red-500"></i> Security</h3><div class="space-y-4"><div><label class="text-xs font-bold text-muted uppercase">Current Password</label><input type="password" id="setting-old-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none"></div><div><label class="text-xs font-bold text-muted uppercase">New Password</label><input type="password" id="setting-new-pass" placeholder="••••••" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none"></div><button onclick="savePasswordChange()" class="w-full bg-base border border-border hover:bg-red-500 hover:text-white hover:border-red-500 text-muted font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-key"></i> Update Password</button></div></div>
+
+                            <!-- 4. SENSORY FEEDBACK -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                    <i class="fa-solid fa-ear-listen text-purple-500"></i> Sensory Profile
+                                </h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="text-xs font-bold text-muted uppercase block mb-1">Feedback Mode</label>
+                                        <div class="flex bg-base rounded-lg border border-border overflow-hidden">
+                                            <button onclick="setSoundMode('sound')" id="btn-snd-sound" class="flex-1 py-2 text-xs font-bold hover:bg-surface border-r border-border transition-colors">Sound</button>
+                                            <button onclick="setSoundMode('haptic')" id="btn-snd-haptic" class="flex-1 py-2 text-xs font-bold hover:bg-surface border-r border-border transition-colors">Haptic</button>
+                                            <button onclick="setSoundMode('silent')" id="btn-snd-silent" class="flex-1 py-2 text-xs font-bold hover:bg-surface transition-colors">Silent</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
+                                        <span class="text-xs font-bold">Reading Guide Cursor</span>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="setting-guide" class="sr-only peer" onchange="saveAdvancedSettings()">
+                                            <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-primary transition-colors"></div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. MATRIX CALIBRATION -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-calendar-check text-green-500"></i> Matrix Calibration
+                                </h3>
+                                <p class="text-xs text-muted mb-4">Trick your brain by shifting due times.</p>
+                                <div class="flex gap-2 mt-1">
+                                    <input type="number" id="setting-buffer" value="0" class="flex-1 p-3 rounded-xl bg-base border border-border focus:border-primary outline-none font-mono">
+                                    <button onclick="saveBufferSettings()" class="bg-surface border border-border hover:bg-base px-4 rounded-xl font-bold text-sm">Save</button>
+                                </div>
+                            </div>
+
+                            <!-- 6. BACKPACK PROTOCOL (Multi-Select) -->
+                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                                <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                                    <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
+                                </h3>
+                                <div id="backpack-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
+                                <div class="bg-base/50 p-3 rounded-xl border border-border">
+                                    <div class="flex gap-2 mb-2">
+                                        <input type="text" id="bp-new-name" placeholder="Item Name" class="flex-1 p-2 rounded-lg bg-surface border border-border text-sm outline-none focus:border-primary">
+                                        <select id="bp-new-type" onchange="toggleBpInputs()" class="p-2 rounded-lg bg-surface border border-border text-xs font-bold outline-none">
+                                            <option value="always">Daily</option>
+                                            <option value="weekday">Weekday</option>
+                                            <option value="cycle">Cycle Day</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-2 w-full">
+                                        <div id="bp-select-weekday" class="hidden w-full"><div class="flex justify-between gap-1"><button onclick="toggleBpWeekday(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">M</button><button onclick="toggleBpWeekday(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button><button onclick="toggleBpWeekday(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">W</button><button onclick="toggleBpWeekday(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button><button onclick="toggleBpWeekday(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">F</button><button onclick="toggleBpWeekday(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button><button onclick="toggleBpWeekday(0, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button></div></div>
+                                        <div id="bp-select-cycle" class="hidden w-full"><div class="flex justify-between gap-1"><button onclick="toggleBpCycleDay(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">1</button><button onclick="toggleBpCycleDay(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">2</button><button onclick="toggleBpCycleDay(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">3</button><button onclick="toggleBpCycleDay(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">4</button><button onclick="toggleBpCycleDay(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">5</button><button onclick="toggleBpCycleDay(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">6</button><button onclick="toggleBpCycleDay(7, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">7</button></div></div>
+                                        <button onclick="addBackpackItem()" class="w-full bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90 transition-all text-xs">Add Item</button>
+                                    </div>
+                                </div>
+                                <button onclick="generateWeeklyBackpackTasks()" class="w-full mt-4 bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"><i class="fa-solid fa-rotate"></i> Regenerate Week</button>
+                            </div>
+
+                            <!-- 7. DANGER ZONE -->
+                            <div class="bg-red-500/5 p-6 rounded-2xl border border-red-500/20 shadow-sm mt-8">
+                                <h3 class="font-bold text-lg mb-2 flex items-center gap-2 text-red-500">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
+                                </h3>
+                                <p class="text-xs text-muted mb-4">On a public computer? Use this to wipe all data.</p>
+                                <button onclick="nukeApp()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-bomb"></i> Reset App & Wipe Data
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-
         </div> <!-- END MAIN SCROLLABLE -->
 
         <!-- ADD BUTTON (OUTSIDE THE VIEWS) -->

@@ -246,3 +246,68 @@
          .tag-optional { color: #9ca3af; background: rgba(156, 163, 175, 0.1); }
          .tag-extra { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
          .tag-lab { color: #3b82f6; background: rgba(59, 130, 246, 0.1); } }
+
+/* --- 1. REDUCED MOTION --- */
+body.motion-reduce *,
+body.motion-reduce *::before,
+body.motion-reduce *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+}
+
+/* --- 2. VISUAL DENSITY --- */
+body.density-roomy .bg-surface,
+body.density-roomy .bg-base {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+body.density-roomy button, 
+body.density-roomy input, 
+body.density-roomy select {
+    min-height: 50px; /* Larger hit targets */
+    font-size: 1.05em;
+}
+body.density-roomy .matrix-cell {
+    min-height: 160px;
+}
+
+/* --- 3. READING GUIDE CURSOR --- */
+body.reading-guide {
+    cursor: text; 
+}
+/* A simple highlight line that follows hover */
+body.reading-guide *:hover {
+    outline: 1px dashed var(--primary);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* --- 4. COLOR BLINDNESS PALETTES --- */
+/* Default (Already defined in themes, but we override specific status colors here) */
+:root {
+    --status-green: #10b981;
+    --status-red: #ef4444;
+    --status-yellow: #f59e0b;
+}
+
+/* Protanopia (Red-Blind) & Deuteranopia (Green-Blind) -> Use Blue/Orange High Contrast */
+body.cb-protanopia, body.cb-deuteranopia {
+    --status-green: #2563eb; /* Blue for "Good/Done" */
+    --status-red: #d97706;   /* Dark Orange for "Bad/Late" */
+    --status-yellow: #fcd34d; /* Light Yellow */
+}
+
+/* Tritanopia (Blue-Blind) -> Use Red/Cyan */
+body.cb-tritanopia {
+    --status-green: #06b6d4; /* Cyan */
+    --status-red: #e11d48;   /* Rose/Red */
+    --status-yellow: #fcd34d;
+}
+
+/* Apply these variables to your classes */
+.text-green-500, .hover\:text-green-500:hover { color: var(--status-green) !important; }
+.bg-green-500 { background-color: var(--status-green) !important; }
+.text-red-500, .hover\:text-red-500:hover { color: var(--status-red) !important; }
+.bg-red-500 { background-color: var(--status-red) !important; }
+.text-yellow-500 { color: var(--status-yellow) !important; }

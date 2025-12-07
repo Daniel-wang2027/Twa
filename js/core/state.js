@@ -16,11 +16,31 @@ let studentPlannerOffset = 0;
 
 // 3. SETTINGS & PREFERENCES
 let settings = { 
-    buffer: 0,             // Procrastination buffer (minutes)
-    workTime: 25,          // Focus timer duration
-    breakTime: 5,          // Break timer duration
-    theme: 'space',        // Visual theme
-    dyslexia: false,       // Accessibility font toggle
+    buffer: 0, 
+    workTime: 25, 
+    breakTime: 5, 
+    theme: 'space',
+    dyslexia: false,
+
+    // NEW: PRIVACY
+    // No specific state needed, this is an action.
+
+    // NEW: CULTURAL & LOGICAL
+    dateFormat: 'US', // 'US', 'INTL'
+    timeFormat24: false, // true = 24h
+    startMonday: false, // true = Monday Start
+
+    // NEW: VISUAL ACCESSIBILITY
+    colorBlindMode: 'none', // 'none', 'protanopia', 'deuteranopia', 'tritanopia'
+    reducedMotion: false,
+
+    // NEW: COGNITIVE
+    plainLanguage: false, // "Assignments" -> "Work"
+    density: 'cozy', // 'cozy', 'roomy'
+
+    // NEW: SENSORY
+    soundMode: 'sound', // 'sound', 'haptic', 'silent'
+    readingGuide: false,
     backpack: [
         { text: "💻 Ipad & Charger", type: "always", value: null },
         { text: "📚 Homework Folder", type: "always", value: null },

@@ -112,3 +112,104 @@ function savePasswordChange() {
         }
     }
 }
+
+/* --- ADVANCED ACCESSIBILITY & LOGIC --- */
+
+function saveAdvancedSettings() {
+    // 1. Get Elements
+    const cbEl = document.getElementById('setting-cb');
+    const dysEl = document.getElementById('setting-dyslexia');
+    const motionEl = document.getElementById('setting-motion');
+    const plainEl = document.getElementById('setting-plain');
+
+    // CHANGED: Slider instead of Select
+    const densityEl = document.getElementById('setting-density');
+
+    const dateEl = document.getElementById('setting-dateformat');
+    const time24El = document.getElementById('setting-time24');
+    const monEl = document.getElementById('setting-monday');
+    const guideEl = document.getElementById('setting-guide');
+
+    // 2. Update Settings Object
+    if(cbEl) settings.colorBlindMode = cbEl.value;
+    if(dysEl) settings.dyslexia = dysEl.checked;
+    if(motionEl) settings.reducedMotion = motionEl.checked;
+    if(plainEl) settings.plainLanguage = plainEl.checked;
+
+    // CHANGED: Map Slider 0/1 to 'cozy'/'roomy'
+    if(densityEl) settings.density = densityEl.value === "1" ? "roomy" : "cozy";
+
+    if(dateEl) settings.dateFormat = dateEl.value;
+    if(time24El) settings.timeFormat24 = time24El.checked;
+    if(monEl) settings.startMonday = monEl.checked;
+    if(guideEl) settings.readingGuide = guideEl.checked;
+
+    saveData();
+    applyVisualSettings();
+
+    // Trigger updates
+    if(typeof updateInterfaceText === 'function') updateInterfaceText();
+    if(typeof renderMatrix === 'function') renderMatrix();
+    if(typeof renderCalendar === 'function') renderCalendar();
+
+    if(typeof showToast === 'function') showToast("Preferences Updated", "success");
+}
+
+function setSoundMode(mode) {
+    settings.soundMode = mode;
+    saveData();
+
+    // Update Buttons Visual
+    ['sound', 'haptic', 'silent'].forEach(m => {
+        const btn = document.getElementById(`btn-snd-${m}`);
+        if(btn) {
+            if(m === mode) btn.className = "flex-1 py-2 text-xs font-bold bg-primary text-white shadow-sm";
+            else btn.className = "flex-1 py-2 text-xs font-bold hover:bg-surface text-muted";
+        }
+    });
+}
+
+function applyVisualSettings() {
+    const body = document.body;
+
+    // Dyslexia
+    body.classList.toggle('dyslexia-mode', settings.dyslexia);
+
+    // Motion
+    body.classList.toggle('motion-reduce', settings.reducedMotion);
+
+    // Density
+    body.classList.remove('density-cozy', 'density-roomy');
+    body.classList.add(`density-${settings.density || 'cozy'}`);
+
+    // Color Blindness
+    body.classList.remove('cb-protanopia', 'cb-deuteranopia', 'cb-tritanopia');
+    if(settings.colorBlindMode !== 'none') {
+        body.classList.add(`cb-${settings.colorBlindMode}`);
+    }
+
+    // Reading Guide
+    body.classList.toggle('reading-guide', settings.readingGuide);
+
+    // Plain Language Replacements (Simple DOM Manipulation)
+    const plain = settings.plainLanguage;
+    const termMap = {
+        'Assignment': 'Work',
+        'Assignments': 'Work',
+        'Assessment': 'Test',
+        'Course': 'Class',
+        'Matrix': 'Grid'
+    };
+
+    // NOTE: A full plain language swap usually requires a render re-run.
+    // For now, we rely on the re-renders called in saveAdvancedSettings.
+}
+
+/* --- NUCLEAR OPTION --- */
+function nukeApp() {
+    if(confirm("DANGER: This will delete ALL your data, settings, and local history. This cannot be undone.\n\nAre you sure?")) {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "index.html";
+    }
+}

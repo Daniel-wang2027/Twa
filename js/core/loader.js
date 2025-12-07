@@ -9,6 +9,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = "index.html";
         return;
     }
+
+    if (typeof currentUser !== 'undefined') {
+        
+        if (settings) {
+            if(settings.dyslexia) document.body.classList.add('dyslexia-mode');
+            if(settings.reducedMotion) document.body.classList.add('motion-reduce');
+            if(settings.density) document.body.classList.add(`density-${settings.density}`);
+            if(settings.colorBlindMode && settings.colorBlindMode !== 'none') document.body.classList.add(`cb-${settings.colorBlindMode}`);
+        }
+    }
     
     // In initStudentUI or loadData
     const time24El = document.getElementById('setting-time24');

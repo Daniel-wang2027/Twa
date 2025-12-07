@@ -17,6 +17,10 @@ function initStudentUI() {
     // 2. Setup Header
     const streakEl = document.getElementById('streak-count');
     const dateEl = document.getElementById('currentDate');
+    const densitySlider = document.getElementById('setting-density');
+    if(densitySlider && settings.density) {
+        densitySlider.value = settings.density === "roomy" ? "1" : "0";
+    }
     if(streakEl) streakEl.innerText = `${streak || 0} Day Streak`;
     if(dateEl) dateEl.innerText = new Date().toLocaleDateString();
 
@@ -26,7 +30,9 @@ function initStudentUI() {
     if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
     if(typeof renderBackpackList === 'function') renderBackpackList();
     if(typeof renderThemeButtons === 'function') renderThemeButtons('theme-selector');
-
+    if(typeof dashboardViewMode === 'undefined') dashboardViewMode = 'matrix';
+    switchStudentView('dashboard');
+    updateInterfaceText();
     // 4. Auto-Generate Backpack Tasks (Weekly)
     try {
         if(typeof generateWeeklyBackpackTasks === 'function') {
@@ -173,4 +179,64 @@ function renderStudentBulletins() {
     }
 
     if (hasBulletins) container.classList.remove('hidden'); else container.classList.add('hidden');
+}
+
+/* --- PLAIN LANGUAGE HELPER --- */
+function txt(original) {
+    if (!settings || !settings.plainLanguage) return original;
+
+    // The Dictionary
+    const map = {
+        'Matrix': 'Grid',
+        'Calendar': 'Time',
+        'History': 'Finished',
+        'Classes': 'Classes',
+        'Settings': 'Tools',
+        'Assignment': 'Work',
+        'Assignments': 'Work',
+        'Assessment': 'Test',
+        'Project': 'Big Task',
+        'Quiz': 'Check-in',
+        'HOMEWORK': 'Work',
+        'TEST': 'Test',
+        'QUIZ': 'Check-in',
+        'PROJECT': 'Big Task',
+        'LAB': 'Hands-on',
+        'ESSAY': 'Writing',
+        'PRESENTATION': 'Talk',
+        'READING': 'Read',
+        'Task Archive': 'Finished Work',
+        'Student HUD': 'My Board'
+    };
+
+    // Case-insensitive check or direct match
+    return map[original] || map[original.toUpperCase()] || original;
+}
+
+/* --- UPDATE SIDEBAR TEXT --- */
+function updateInterfaceText() {
+    // 1. Sidebar Buttons
+    const updates = [
+        { id: 'nav-s-dashboard', text: 'Matrix' },
+        { id: 'nav-s-calendar', text: 'Calendar' },
+        { id: 'nav-s-completed', text: 'History' },
+        { id: 'nav-s-profile', text: 'Classes' },
+        { id: 'nav-s-settings', text: 'Settings' }
+    ];
+
+    updates.forEach(u => {
+        const btn = document.getElementById(u.id);
+        if(btn) {
+            // Keep the icon, change the text
+            const icon = btn.querySelector('i').outerHTML; 
+            btn.innerHTML = `${icon} ${txt(u.text)}`;
+        }
+    });
+
+    // 2. Titles
+    const histTitle = document.querySelector('#s-view-completed h2');
+    if(histTitle) histTitle.innerText = txt('Task Archive');
+
+    const hudTitle = document.querySelector('.tracking-tight');
+    if(hudTitle && hudTitle.innerText === 'Student HUD') hudTitle.innerText = txt('Student HUD');
 }

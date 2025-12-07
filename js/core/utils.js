@@ -9,6 +9,15 @@ const sounds = {
 };
 
 function playSound(type) {
+    if(settings.soundMode === 'silent') return;
+
+    if(settings.soundMode === 'haptic') {
+        // Try to vibrate if mobile
+        if(navigator.vibrate) navigator.vibrate(50);
+        return;
+    }
+
+    // Default Sound
     if(sounds[type]) {
         sounds[type].currentTime = 0;
         sounds[type].volume = 0.4;
