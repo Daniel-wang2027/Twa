@@ -192,63 +192,63 @@
                                 </div>
                             </div>
 
-                            <!-- 5. Backpack Protocol (Expanded) -->
-                            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-                                <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
-                                    <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
-                                </h3>
-                                <p class="text-xs text-muted mb-4">Items appear on your list only when needed.</p>
+            <!-- BACKPACK PROTOCOL (Updated Multi-Select) -->
+            <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+                <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
+                </h3>
+                <p class="text-xs text-muted mb-4">Items appear on your list only when needed.</p>
 
-                                <div id="backpack-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
+                <div id="backpack-list" class="space-y-2 mb-4 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
 
-                                <div class="bg-base/50 p-3 rounded-xl border border-border">
-                                    <div class="flex gap-2 mb-2">
-                                        <input type="text" id="bp-new-name" placeholder="Item Name" class="flex-1 p-2 rounded-lg bg-surface border border-border text-sm outline-none focus:border-primary">
-                                        <select id="bp-new-type" onchange="toggleBpInputs()" class="p-2 rounded-lg bg-surface border border-border text-xs font-bold outline-none">
-                                            <option value="always">Daily</option>
-                                            <option value="weekday">Weekday</option>
-                                            <option value="cycle">Cycle Day</option>
-                                        </select>
-                                    </div>
+                <div class="bg-base/50 p-3 rounded-xl border border-border">
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="bp-new-name" placeholder="Item Name" class="flex-1 p-2 rounded-lg bg-surface border border-border text-sm outline-none focus:border-primary">
+                        <select id="bp-new-type" onchange="toggleBpInputs()" class="p-2 rounded-lg bg-surface border border-border text-xs font-bold outline-none">
+                            <option value="always">Daily</option>
+                            <option value="weekday">Weekday</option>
+                            <option value="cycle">Cycle Day</option>
+                        </select>
+                    </div>
 
-                                    <div class="flex flex-col gap-2 w-full">
-                                        <!-- Weekday Selector -->
-                                        <select id="bp-select-weekday" class="hidden w-full p-2 rounded-lg bg-surface border border-border text-xs outline-none">
-                                            <option value="1">Monday</option>
-                                            <option value="2">Tuesday</option>
-                                            <option value="3">Wednesday</option>
-                                            <option value="4">Thursday</option>
-                                            <option value="5">Friday</option>
-                                        </select>
+                    <div class="flex flex-col gap-2 w-full">
 
-                                        <!-- Cycle Buttons (Multi-Select) -->
-                                        <div id="bp-select-cycle" class="hidden w-full">
-                                            <div class="flex justify-between gap-1">
-                                                <button onclick="toggleBpCycleDay(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">1</button>
-                                                <button onclick="toggleBpCycleDay(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">2</button>
-                                                <button onclick="toggleBpCycleDay(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">3</button>
-                                                <button onclick="toggleBpCycleDay(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">4</button>
-                                                <button onclick="toggleBpCycleDay(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">5</button>
-                                                <button onclick="toggleBpCycleDay(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">6</button>
-                                                <button onclick="toggleBpCycleDay(7, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">7</button>
-                                            </div>
-                                            <p class="text-[9px] text-muted mt-1 text-center">Select multiple days (e.g. 2 and 5)</p>
-                                        </div>
-
-                                        <button onclick="addBackpackItem()" class="w-full bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90 transition-all text-xs">Add Item</button>
-                                    </div>
-                                </div>
-
-                                <button onclick="pushBackpackTasks()" class="w-full mt-4 bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-paper-plane"></i> Generate Checklist
-                                </button>
+                        <!-- Weekday Buttons (Multi-Select) -->
+                        <div id="bp-select-weekday" class="hidden w-full">
+                            <div class="flex justify-between gap-1">
+                                <button onclick="toggleBpWeekday(0, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Sunday">S</button>
+                                <button onclick="toggleBpWeekday(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Monday">M</button>
+                                <button onclick="toggleBpWeekday(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Tuesday">T</button>
+                                <button onclick="toggleBpWeekday(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Wednesday">W</button>
+                                <button onclick="toggleBpWeekday(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Thursday">T</button>
+                                <button onclick="toggleBpWeekday(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Friday">F</button>
+                                <button onclick="toggleBpWeekday(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors" title="Saturday">S</button>
                             </div>
-
+                            <p class="text-[9px] text-muted mt-1 text-center">Select days (e.g. Mon, Wed, Fri)</p>
                         </div>
+
+                        <!-- Cycle Buttons (Multi-Select) -->
+                        <div id="bp-select-cycle" class="hidden w-full">
+                            <div class="flex justify-between gap-1">
+                                <button onclick="toggleBpCycleDay(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">1</button>
+                                <button onclick="toggleBpCycleDay(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">2</button>
+                                <button onclick="toggleBpCycleDay(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">3</button>
+                                <button onclick="toggleBpCycleDay(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">4</button>
+                                <button onclick="toggleBpCycleDay(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">5</button>
+                                <button onclick="toggleBpCycleDay(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">6</button>
+                                <button onclick="toggleBpCycleDay(7, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">7</button>
+                            </div>
+                            <p class="text-[9px] text-muted mt-1 text-center">Select cycle days (e.g. 2 and 5)</p>
+                        </div>
+
+                        <button onclick="addBackpackItem()" class="w-full bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90 transition-all text-xs">Add Item</button>
                     </div>
                 </div>
-            </div>
 
+                <button onclick="pushBackpackTasks()" class="w-full mt-4 bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Generate Checklist
+                </button>
+            </div>
             <!-- 3. CALENDAR VIEW -->
             <div id="s-view-calendar" class="hidden flex-1 flex flex-col h-full fade-in p-6">
                 <div class="flex justify-between items-center mb-4 shrink-0 px-1">

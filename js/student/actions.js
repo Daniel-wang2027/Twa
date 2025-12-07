@@ -68,11 +68,12 @@ function saveGeneralSettings() {
     }
 }
 
-/* --- BACKPACK PROTOCOL (Multi-Day Logic) --- */
+/* --- BACKPACK PROTOCOL (Multi-Select Logic) --- */
 
-let bpSelectedCycles = []; // Tracks currently selected days for new item
+let bpSelectedCycles = [];   // Tracks selected Cycle days
+let bpSelectedWeekdays = []; // Tracks selected Weekdays (0=Sun, 6=Sat)
 
-// 1. Toggle UI Visibility
+// 1. Toggle UI Visibility & Reset Selections
 function toggleBpInputs() {
     const type = document.getElementById('bp-new-type').value;
     document.getElementById('bp-select-weekday').classList.add('hidden');
@@ -81,50 +82,60 @@ function toggleBpInputs() {
     if (type === 'weekday') document.getElementById('bp-select-weekday').classList.remove('hidden');
     if (type === 'cycle') document.getElementById('bp-select-cycle').classList.remove('hidden');
 
-    // Reset selections when switching types
+    // Reset selections arrays
     bpSelectedCycles = [];
-    document.querySelectorAll('#bp-select-cycle button').forEach(b => {
-        b.className = "h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors";
-    });
+    bpSelectedWeekdays = [];
+
+    // Reset visual buttons
+    const resetBtnClass = "h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors";
+    document.querySelectorAll('#bp-select-cycle button').forEach(b => b.className = resetBtnClass);
+    document.querySelectorAll('#bp-select-weekday button').forEach(b => b.className = resetBtnClass);
 }
 
-// 2. Handle Button Clicks (1-7)
+// 2. Handle Cycle Button Clicks
 function toggleBpCycleDay(day, btn) {
     if (bpSelectedCycles.includes(day)) {
-        // Deselect
         bpSelectedCycles = bpSelectedCycles.filter(d => d !== day);
         btn.className = "h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors";
     } else {
-        // Select
         bpSelectedCycles.push(day);
         btn.className = "h-8 flex-1 rounded bg-primary text-white text-xs font-bold shadow-sm transition-colors";
     }
 }
 
-// 3. Add Item
+// 3. Handle Weekday Button Clicks (NEW)
+function toggleBpWeekday(dayIndex, btn) {
+    if (bpSelectedWeekdays.includes(dayIndex)) {
+        bpSelectedWeekdays = bpSelectedWeekdays.filter(d => d !== dayIndex);
+        btn.className = "h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors";
+    } else {
+        bpSelectedWeekdays.push(dayIndex);
+        btn.className = "h-8 flex-1 rounded bg-primary text-white text-xs font-bold shadow-sm transition-colors";
+    }
+}
+
+// 4. Add Item
 function addBackpackItem() {
     const nameInput = document.getElementById('bp-new-name');
     const typeInput = document.getElementById('bp-new-type');
-    const dayInput = document.getElementById('bp-select-weekday');
-
     const text = nameInput.value.trim();
+
     if (!text) return;
 
     let newItem = { text: text, type: typeInput.value, value: null };
 
-    // Capture Value
     if (typeInput.value === 'weekday') {
-        newItem.value = parseInt(dayInput.value);
+        if (bpSelectedWeekdays.length === 0) return alert("Select at least one day of the week.");
+        newItem.value = bpSelectedWeekdays.sort((a,b) => a - b);
     } 
     else if (typeInput.value === 'cycle') {
-        if (bpSelectedCycles.length === 0) return alert("Please select at least one Cycle Day.");
-        newItem.value = bpSelectedCycles.sort((a,b) => a - b); // Save as Array [2, 5]
+        if (bpSelectedCycles.length === 0) return alert("Select at least one Cycle Day.");
+        newItem.value = bpSelectedCycles.sort((a,b) => a - b);
     }
 
     if (!settings.backpack) settings.backpack = [];
     settings.backpack.push(newItem);
 
-    // Reset UI
     nameInput.value = '';
     typeInput.value = 'always';
     toggleBpInputs();
@@ -133,7 +144,7 @@ function addBackpackItem() {
     if(typeof renderBackpackList === 'function') renderBackpackList();
 }
 
-// 4. Delete Item
+// 5. Delete Item
 function deleteBackpackItem(index) {
     if(settings.backpack && settings.backpack[index]) {
         settings.backpack.splice(index, 1);
@@ -142,43 +153,35 @@ function deleteBackpackItem(index) {
     }
 }
 
-// 5. GENERATE TODAY'S LIST (Updated for Arrays)
+// 6. Generate Logic
 function pushBackpackTasks() {
-    if (!settings.backpack || settings.backpack.length === 0) {
-        return alert("Your backpack checklist is empty!");
-    }
+    if (!settings.backpack || settings.backpack.length === 0) return alert("Checklist empty!");
 
     const today = new Date();
-    const currentWeekday = today.getDay(); 
+    const currentWeekday = today.getDay(); // 0-6
 
     let currentCycle = null;
-    if(typeof getCycleDay === 'function') {
-        currentCycle = getCycleDay(today);
-    }
+    if(typeof getCycleDay === 'function') currentCycle = getCycleDay(today);
 
-    // Filter Items
     const itemsNeeded = settings.backpack.filter(item => {
-        // Migration safety
-        if (typeof item === 'string') return true;
+        if (typeof item === 'string' || item.type === 'always') return true;
 
-        if (item.type === 'always') return true;
-        if (item.type === 'weekday' && item.value === currentWeekday) return true;
+        // Check Weekdays (Array logic)
+        if (item.type === 'weekday') {
+            const vals = Array.isArray(item.value) ? item.value : [item.value];
+            return vals.includes(currentWeekday);
+        }
 
-        // CHECK IF ARRAY CONTAINS CURRENT DAY
+        // Check Cycles (Array logic)
         if (item.type === 'cycle' && currentCycle !== null) {
-            if (Array.isArray(item.value)) {
-                return item.value.includes(currentCycle);
-            } else {
-                return item.value === currentCycle; // Handle legacy single values
-            }
+            const vals = Array.isArray(item.value) ? item.value : [item.value];
+            return vals.includes(currentCycle);
         }
 
         return false;
     });
 
-    if (itemsNeeded.length === 0) {
-        return alert("Nothing needed for today!");
-    }
+    if (itemsNeeded.length === 0) return alert("Nothing scheduled for today!");
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 0, 0);

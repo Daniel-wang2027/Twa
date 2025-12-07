@@ -72,31 +72,37 @@ function renderBackpackList() {
     const container = document.getElementById('backpack-list');
     if (!container) return;
     if (!settings.backpack) settings.backpack = [];
+
     container.innerHTML = '';
 
     settings.backpack.forEach((item, index) => {
-        let displayText = "";
+        let displayText = item.text || item;
         let badge = "";
 
-        if (typeof item === 'string') {
-            displayText = item;
-            badge = `<span class="text-[9px] bg-gray-500/10 text-gray-500 px-1.5 py-0.5 rounded font-bold uppercase">Always</span>`;
-        } else {
-            displayText = item.text;
-            if (item.type === 'always') badge = `<span class="text-[9px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded font-bold uppercase">Daily</span>`;
-            else if (item.type === 'weekday') {
-                const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-                badge = `<span class="text-[9px] bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded font-bold uppercase">${days[item.value]}</span>`;
-            } else if (item.type === 'cycle') {
-                const val = Array.isArray(item.value) ? item.value.join(", ") : item.value;
-                badge = `<span class="text-[9px] bg-purple-500/10 text-purple-500 px-1.5 py-0.5 rounded font-bold uppercase">Day ${val}</span>`;
-            }
+        if (typeof item === 'string' || item.type === 'always') {
+            badge = `<span class="text-[9px] bg-green-500/10 text-green-500 px-1.5 py-0.5 rounded font-bold uppercase">Daily</span>`;
+        } 
+        else if (item.type === 'weekday') {
+            const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const vals = Array.isArray(item.value) ? item.value : [item.value];
+            // Convert numbers to short names
+            const dayNames = vals.map(d => days[d]).join(", ");
+            badge = `<span class="text-[9px] bg-blue-500/10 text-blue-500 px-1.5 py-0.5 rounded font-bold uppercase truncate max-w-[120px]">${dayNames}</span>`;
+        } 
+        else if (item.type === 'cycle') {
+            const vals = Array.isArray(item.value) ? item.value.join(", ") : item.value;
+            badge = `<span class="text-[9px] bg-purple-500/10 text-purple-500 px-1.5 py-0.5 rounded font-bold uppercase">Day ${vals}</span>`;
         }
 
         container.innerHTML += `
         <div class="flex items-center justify-between bg-base p-2.5 rounded-lg border border-border group hover:border-primary/30 transition-colors">
-            <div class="flex items-center gap-2 overflow-hidden"><span class="text-sm truncate">${displayText}</span>${badge}</div>
-            <button onclick="deleteBackpackItem(${index})" class="text-red-500 opacity-0 group-hover:opacity-100 hover:bg-surface w-6 h-6 rounded flex items-center justify-center transition-all shrink-0"><i class="fa-solid fa-xmark"></i></button>
+            <div class="flex items-center gap-2 overflow-hidden flex-1">
+                <span class="text-sm truncate">${displayText}</span>
+                ${badge}
+            </div>
+            <button onclick="deleteBackpackItem(${index})" class="text-red-500 opacity-0 group-hover:opacity-100 hover:bg-surface w-6 h-6 rounded flex items-center justify-center transition-all shrink-0">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>`;
     });
 }
