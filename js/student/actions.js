@@ -68,22 +68,72 @@ function saveGeneralSettings() {
     }
 }
 
-/* --- BACKPACK PROTOCOL --- */
+/* --- BACKPACK PROTOCOL (Multi-Day Logic) --- */
 
-function addBackpackItem() {
-    const input = document.getElementById('new-backpack-item');
-    if(!input) return;
+let bpSelectedCycles = []; // Tracks currently selected days for new item
 
-    const val = input.value.trim();
-    if (val) {
-        if(!settings.backpack) settings.backpack = [];
-        settings.backpack.push(val);
-        input.value = ''; 
-        saveData();
-        if(typeof renderBackpackList === 'function') renderBackpackList();
+// 1. Toggle UI Visibility
+function toggleBpInputs() {
+    const type = document.getElementById('bp-new-type').value;
+    document.getElementById('bp-select-weekday').classList.add('hidden');
+    document.getElementById('bp-select-cycle').classList.add('hidden');
+
+    if (type === 'weekday') document.getElementById('bp-select-weekday').classList.remove('hidden');
+    if (type === 'cycle') document.getElementById('bp-select-cycle').classList.remove('hidden');
+
+    // Reset selections when switching types
+    bpSelectedCycles = [];
+    document.querySelectorAll('#bp-select-cycle button').forEach(b => {
+        b.className = "h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors";
+    });
+}
+
+// 2. Handle Button Clicks (1-7)
+function toggleBpCycleDay(day, btn) {
+    if (bpSelectedCycles.includes(day)) {
+        // Deselect
+        bpSelectedCycles = bpSelectedCycles.filter(d => d !== day);
+        btn.className = "h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors";
+    } else {
+        // Select
+        bpSelectedCycles.push(day);
+        btn.className = "h-8 flex-1 rounded bg-primary text-white text-xs font-bold shadow-sm transition-colors";
     }
 }
 
+// 3. Add Item
+function addBackpackItem() {
+    const nameInput = document.getElementById('bp-new-name');
+    const typeInput = document.getElementById('bp-new-type');
+    const dayInput = document.getElementById('bp-select-weekday');
+
+    const text = nameInput.value.trim();
+    if (!text) return;
+
+    let newItem = { text: text, type: typeInput.value, value: null };
+
+    // Capture Value
+    if (typeInput.value === 'weekday') {
+        newItem.value = parseInt(dayInput.value);
+    } 
+    else if (typeInput.value === 'cycle') {
+        if (bpSelectedCycles.length === 0) return alert("Please select at least one Cycle Day.");
+        newItem.value = bpSelectedCycles.sort((a,b) => a - b); // Save as Array [2, 5]
+    }
+
+    if (!settings.backpack) settings.backpack = [];
+    settings.backpack.push(newItem);
+
+    // Reset UI
+    nameInput.value = '';
+    typeInput.value = 'always';
+    toggleBpInputs();
+
+    saveData();
+    if(typeof renderBackpackList === 'function') renderBackpackList();
+}
+
+// 4. Delete Item
 function deleteBackpackItem(index) {
     if(settings.backpack && settings.backpack[index]) {
         settings.backpack.splice(index, 1);
@@ -92,16 +142,48 @@ function deleteBackpackItem(index) {
     }
 }
 
+// 5. GENERATE TODAY'S LIST (Updated for Arrays)
 function pushBackpackTasks() {
     if (!settings.backpack || settings.backpack.length === 0) {
-        alert("Your backpack checklist is empty!");
-        return;
+        return alert("Your backpack checklist is empty!");
+    }
+
+    const today = new Date();
+    const currentWeekday = today.getDay(); 
+
+    let currentCycle = null;
+    if(typeof getCycleDay === 'function') {
+        currentCycle = getCycleDay(today);
+    }
+
+    // Filter Items
+    const itemsNeeded = settings.backpack.filter(item => {
+        // Migration safety
+        if (typeof item === 'string') return true;
+
+        if (item.type === 'always') return true;
+        if (item.type === 'weekday' && item.value === currentWeekday) return true;
+
+        // CHECK IF ARRAY CONTAINS CURRENT DAY
+        if (item.type === 'cycle' && currentCycle !== null) {
+            if (Array.isArray(item.value)) {
+                return item.value.includes(currentCycle);
+            } else {
+                return item.value === currentCycle; // Handle legacy single values
+            }
+        }
+
+        return false;
+    });
+
+    if (itemsNeeded.length === 0) {
+        return alert("Nothing needed for today!");
     }
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 0, 0);
 
-    const checkItems = settings.backpack.map(item => ({ text: item, done: false }));
+    const checkItems = itemsNeeded.map(item => ({ text: item.text, done: false }));
 
     globalTasks.push({
         id: Date.now(), 
@@ -116,7 +198,7 @@ function pushBackpackTasks() {
 
     saveData();
     if(typeof renderMatrix === 'function') renderMatrix();
-    if(typeof showToast === 'function') showToast("Checklist added to Matrix", "success");
+    if(typeof showToast === 'function') showToast(`Added ${checkItems.length} items`, "success");
     switchStudentView('dashboard');
 }
 

@@ -34,20 +34,26 @@
     <div id="toast-container"></div>
 
     <!-- SCRIPTS -->
-    <script src="js/core/state.js"></script>
-    <script src="js/core/catalog.js"></script> <!-- NEW -->
-    <script src="js/core/utils.js"></script>
-    <script src="js/core/storage.js"></script>
-    <script src="js/features/themes.js"></script>
+    <!-- CORE -->
+        <script src="js/core/state.js"></script>
+        <script src="js/core/catalog.js"></script>
+        <script src="js/core/utils.js"></script>
+        <script src="js/core/storage.js"></script>
+        <script src="js/features/themes.js"></script>
 
-    <script src="js/student/render.js"></script>
-    <script src="js/student/actions.js"></script>
+        <!-- STUDENT MODULES (NEW SPLIT) -->
+        <script src="js/student/core.js"></script>
+        <script src="js/student/dashboard.js"></script>
+        <script src="js/student/calendar.js"></script>
+        <script src="js/student/profile.js"></script>
+        <script src="js/student/actions.js"></script>
 
-    <script src="js/teacher/render.js"></script>
-    <script src="js/teacher/actions.js"></script>
+        <!-- TEACHER & ADMIN -->
+        <script src="js/teacher/render.js"></script>
+        <script src="js/teacher/actions.js"></script>
+        <script src="js/admin/manager.js"></script>
 
-    <script src="js/admin/manager.js"></script> <!-- NEW -->
-
-    <script src="js/core/loader.js"></script>
-</body>
+        <!-- LOADER -->
+        <script src="js/core/loader.js"></script>
+    </body>
 </html>

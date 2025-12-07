@@ -21,11 +21,11 @@ let settings = {
     breakTime: 5,          // Break timer duration
     theme: 'space',        // Visual theme
     dyslexia: false,       // Accessibility font toggle
-    backpack: [            // Default backpack checklist
-        "💻 Laptop & Charger", 
-        "📚 Homework Folder", 
-        "✏️ Pencil Case",
-        "📓 Planner"
+    backpack: [
+        { text: "💻 Ipad & Charger", type: "always", value: null },
+        { text: "📚 Homework Folder", type: "always", value: null },
+        { text: "👟 Gym Clothes", type: "weekday", value: 1 }, // 1 = Monday
+        { text: "🎻 Violin", type: "cycle", value: 3 } // Day 3
     ] 
 };
 
