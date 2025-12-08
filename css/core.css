@@ -1,78 +1,157 @@
-        /* --- ACCESSIBILITY FONTS (MUST BE AT TOP) --- */
-        @import url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css');
+/* =========================================
+   1. ACCESSIBILITY & FONTS
+   ========================================= */
 
-        /* Override everything when this class is on body */
-        body.dyslexia-mode, 
-        body.dyslexia-mode * {
-            font-family: 'OpenDyslexic', sans-serif !important;
-            line-height: 1.6 !important;
-            letter-spacing: 0.05em !important;
-        }
+/* Import OpenDyslexic Font */
+@import url('https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/open-dyslexic.min.css');
 
-        /* --- GENERAL STYLES --- */
-        body { 
-            font-family: var(--font-main); 
-            background-color: var(--bg); 
-            color: var(--text); 
-            transition: background 0.3s, color 0.3s; 
-            height: 100vh; 
-            overflow: hidden; 
-        }
+/* 
+   Dyslexia Mode Override 
+   - Forces font, line-height, and spacing on ALL elements when active.
+*/
+body.dyslexia-mode, 
+body.dyslexia-mode * {
+    font-family: 'OpenDyslexic', sans-serif !important;
+    line-height: 1.6 !important;
+    letter-spacing: 0.05em !important;
+}
 
-        .bg-surface { 
-            background-color: var(--surface); 
-            backdrop-filter: blur(var(--glass-blur)); 
-        }
+/* =========================================
+   2. CORE STYLES & LAYOUT
+   ========================================= */
 
-        /* --- SCROLLBARS --- */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+/* Base Body Styles */
+body { 
+    font-family: var(--font-main); 
+    background-color: var(--bg); 
+    color: var(--text); 
+    /* Smooth transition for theme switching */
+    transition: background 0.3s, color 0.3s; 
+    height: 100vh; 
+    overflow: hidden; /* Prevents scroll on body, assumes content scrolls internally */
+}
 
-        /* --- TOASTS --- */
-        #toast-container {
-            position: fixed; bottom: 20px; right: 20px; z-index: 100;
-            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
-        }
-        .toast {
-            background: var(--surface); border: 1px solid var(--border); color: var(--text);
-            padding: 12px 20px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 12px;
-            animation: slideIn 0.3s ease-out forwards; backdrop-filter: blur(10px); pointer-events: auto; min-width: 250px;
-        }
-        .toast.success { border-left: 4px solid #10b981; }
-        .toast.error { border-left: 4px solid #ef4444; }
-        .toast.info { border-left: 4px solid #3b82f6; }
+/* Glassmorphism Surface Effect */
+.bg-surface { 
+    background-color: var(--surface); 
+    backdrop-filter: blur(var(--glass-blur)); 
+}
 
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes fadeOut { to { opacity: 0; transform: translateY(10px); } }
+/* --- Input Elements --- */
+input, select, textarea { 
+    background: var(--surface) !important; 
+    color: var(--text) !important; 
+    border: 1px solid var(--border) !important; 
+    outline: none;
+}
 
-        /* --- UTILS --- */
-        input, select, textarea { background: var(--surface) !important; color: var(--text) !important; border: 1px solid var(--border) !important; }
-        .fade-in { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .matrix-cell { min-height: 120px; }
+/* Focus states for inputs */
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary) !important;
+}
 
-/* ... Existing CSS ... */
+/* --- Animations --- */
+.fade-in { 
+    animation: fadeIn 0.3s ease-out; 
+}
 
-/* --- TEACHER PORTAL EXTRAS --- */
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
 
-/* 1. Silent Observer Banner */
+.matrix-cell { 
+    min-height: 120px; 
+}
+
+/* =========================================
+   3. VISUAL POLISH
+   ========================================= */
+
+/* --- Custom Scrollbars (Webkit Browsers) --- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border); 
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary); 
+}
+
+/* --- Toast Notifications --- */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000; /* High z-index to ensure visibility over modals */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none; /* Clicks pass through the container... */
+}
+
+.toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease-out forwards;
+    backdrop-filter: blur(10px);
+    pointer-events: auto; /* ...but are caught by the toast itself */
+    min-width: 250px;
+}
+
+/* Toast Status Colors */
+.toast.success { border-left: 4px solid #10b981; } /* Green */
+.toast.error { border-left: 4px solid #ef4444; }   /* Red */
+.toast.info { border-left: 4px solid #3b82f6; }    /* Blue */
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateY(10px); }
+}
+
+/* =========================================
+   4. TEACHER PORTAL SPECIFIC
+   ========================================= */
+
+/* --- Silent Observer Banner --- */
+/* Striped warning pattern for observer mode */
 #observer-banner {
     background: repeating-linear-gradient(
         45deg,
-        #f59e0b,
-        #f59e0b 10px,
-        #d97706 10px,
-        #d97706 20px
+        #eab308,
+        #eab308 10px,
+        #ca8a04 10px,
+        #ca8a04 20px
     );
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    color: black;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    z-index: 2000; /* Highest priority */
 }
 
-/* 2. Engagement Heatmap Dots */
+/* --- Engagement Heatmap Dots --- */
 .status-dot {
     height: 10px;
     width: 10px;
@@ -81,10 +160,10 @@
     box-shadow: 0 0 5px currentColor;
 }
 .status-dot.active { background-color: #10b981; color: #10b981; } /* Green */
-.status-dot.idle { background-color: #facc15; color: #facc15; } /* Yellow */
+.status-dot.idle { background-color: #facc15; color: #facc15; }   /* Yellow */
 .status-dot.offline { background-color: #ef4444; color: #ef4444; } /* Red */
 
-/* 3. Smart Tags (Pills) */
+/* --- Smart Tags (Pills) --- */
 .tag-pill {
     font-size: 0.6rem;
     font-weight: 800;
@@ -97,157 +176,14 @@
 .tag-major { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
 .tag-optional { color: #9ca3af; background: rgba(156, 163, 175, 0.1); }
 .tag-extra { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
-.tag-lab { color: #3b82f6; background: rgba(59, 130, 246, 0.1);/* =========================================
-            CORE STYLES & LAYOUT
-            ========================================= */
+.tag-lab { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 
-         /* --- GENERAL --- */
-         body { 
-             font-family: var(--font-main); 
-             background-color: var(--bg); 
-             color: var(--text); 
-             transition: background 0.3s, color 0.3s; 
-             height: 100vh; 
-             overflow: hidden; 
-         }
+/* =========================================
+   5. ADVANCED ACCESSIBILITY SETTINGS
+   ========================================= */
 
-         .bg-surface { 
-             background-color: var(--surface); 
-             backdrop-filter: blur(var(--glass-blur)); 
-         }
-
-         /* --- INPUTS & FORMS --- */
-         input, select, textarea { 
-             background: var(--surface) !important; 
-             color: var(--text) !important; 
-             border: 1px solid var(--border) !important; 
-             outline: none;
-         }
-
-         input:focus, select:focus, textarea:focus {
-             border-color: var(--primary) !important;
-         }
-
-         /* --- ANIMATIONS --- */
-         .fade-in { animation: fadeIn 0.3s ease-out; }
-
-         @keyframes fadeIn { 
-             from { opacity: 0; transform: translateY(10px); } 
-             to { opacity: 1; transform: translateY(0); } 
-         }
-
-         .matrix-cell { min-height: 120px; }
-
-         /* =========================================
-            VISUAL POLISH
-            ========================================= */
-
-         /* --- CUSTOM SCROLLBARS (Chrome/Safari) --- */
-         ::-webkit-scrollbar {
-             width: 8px;
-             height: 8px;
-         }
-         ::-webkit-scrollbar-track {
-             background: transparent; 
-         }
-         ::-webkit-scrollbar-thumb {
-             background: var(--border); 
-             border-radius: 4px;
-         }
-         ::-webkit-scrollbar-thumb:hover {
-             background: var(--primary); 
-         }
-
-         /* --- TOAST NOTIFICATIONS --- */
-         #toast-container {
-             position: fixed;
-             bottom: 20px;
-             right: 20px;
-             z-index: 1000; /* High z-index to sit on top of modals */
-             display: flex;
-             flex-direction: column;
-             gap: 10px;
-             pointer-events: none;
-         }
-
-         .toast {
-             background: var(--surface);
-             border: 1px solid var(--border);
-             color: var(--text);
-             padding: 12px 20px;
-             border-radius: 12px;
-             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-             font-size: 0.85rem;
-             font-weight: 600;
-             display: flex;
-             align-items: center;
-             gap: 12px;
-             animation: slideIn 0.3s ease-out forwards;
-             backdrop-filter: blur(10px);
-             pointer-events: auto;
-             min-width: 250px;
-         }
-
-         .toast.success { border-left: 4px solid #10b981; } /* Green */
-         .toast.error { border-left: 4px solid #ef4444; }   /* Red */
-         .toast.info { border-left: 4px solid #3b82f6; }    /* Blue */
-
-         @keyframes slideIn {
-             from { transform: translateX(100%); opacity: 0; }
-             to { transform: translateX(0); opacity: 1; }
-         }
-
-         @keyframes fadeOut {
-             to { opacity: 0; transform: translateY(10px); }
-         }
-
-         /* =========================================
-            TEACHER PORTAL SPECIFIC
-            ========================================= */
-
-         /* --- OBSERVER BANNER --- */
-         #observer-banner {
-             background: repeating-linear-gradient(
-                 45deg,
-                 #eab308,
-                 #eab308 10px,
-                 #ca8a04 10px,
-                 #ca8a04 20px
-             );
-             color: black;
-             text-shadow: 0 1px 0 rgba(255,255,255,0.4);
-             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-             z-index: 2000; /* Highest priority */
-         }
-
-         /* --- ENGAGEMENT DOTS --- */
-         .status-dot {
-             height: 10px;
-             width: 10px;
-             border-radius: 50%;
-             display: inline-block;
-             box-shadow: 0 0 5px currentColor;
-         }
-         .status-dot.active { background-color: #10b981; color: #10b981; } /* Green */
-         .status-dot.idle { background-color: #facc15; color: #facc15; }   /* Yellow */
-         .status-dot.offline { background-color: #ef4444; color: #ef4444; } /* Red */
-
-         /* --- SMART TAG PILLS --- */
-         .tag-pill {
-             font-size: 0.6rem;
-             font-weight: 800;
-             text-transform: uppercase;
-             padding: 2px 6px;
-             border-radius: 4px;
-             letter-spacing: 0.05em;
-             border: 1px solid currentColor;
-         }
-         .tag-major { color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-         .tag-optional { color: #9ca3af; background: rgba(156, 163, 175, 0.1); }
-         .tag-extra { color: #fbbf24; background: rgba(251, 191, 36, 0.1); }
-         .tag-lab { color: #3b82f6; background: rgba(59, 130, 246, 0.1); } }
-
-/* --- 1. REDUCED MOTION --- */
+/* --- Reduced Motion --- */
+/* Forces animations to finish instantly for users sensitive to motion */
 body.motion-reduce *,
 body.motion-reduce *::before,
 body.motion-reduce *::after {
@@ -257,57 +193,66 @@ body.motion-reduce *::after {
     scroll-behavior: auto !important;
 }
 
-/* --- 2. VISUAL DENSITY --- */
+/* --- Visual Density (Roomy Mode) --- */
+/* Increases padding and hit targets for better clickability */
 body.density-roomy .bg-surface,
 body.density-roomy .bg-base {
     padding-top: 1.5rem !important;
     padding-bottom: 1.5rem !important;
 }
+
 body.density-roomy button, 
 body.density-roomy input, 
 body.density-roomy select {
     min-height: 50px; /* Larger hit targets */
     font-size: 1.05em;
 }
+
 body.density-roomy .matrix-cell {
     min-height: 160px;
 }
 
-/* --- 3. READING GUIDE CURSOR --- */
+/* --- Reading Guide Cursor --- */
+/* Changes cursor and adds a horizontal guide line on hover */
 body.reading-guide {
     cursor: text; 
 }
-/* A simple highlight line that follows hover */
+
 body.reading-guide *:hover {
     outline: 1px dashed var(--primary);
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* --- 4. COLOR BLINDNESS PALETTES --- */
-/* Default (Already defined in themes, but we override specific status colors here) */
+/* --- Color Blindness Palettes --- */
+
+/* Default Status Colors (Fallback) */
 :root {
     --status-green: #10b981;
     --status-red: #ef4444;
     --status-yellow: #f59e0b;
 }
 
-/* Protanopia (Red-Blind) & Deuteranopia (Green-Blind) -> Use Blue/Orange High Contrast */
+/* Protanopia (Red-Blind) & Deuteranopia (Green-Blind) 
+   Uses Blue/Orange High Contrast scheme */
 body.cb-protanopia, body.cb-deuteranopia {
     --status-green: #2563eb; /* Blue for "Good/Done" */
     --status-red: #d97706;   /* Dark Orange for "Bad/Late" */
     --status-yellow: #fcd34d; /* Light Yellow */
 }
 
-/* Tritanopia (Blue-Blind) -> Use Red/Cyan */
+/* Tritanopia (Blue-Blind) 
+   Uses Red/Cyan scheme */
 body.cb-tritanopia {
     --status-green: #06b6d4; /* Cyan */
     --status-red: #e11d48;   /* Rose/Red */
     --status-yellow: #fcd34d;
 }
 
-/* Apply these variables to your classes */
+/* Utility classes to apply the accessible variables */
 .text-green-500, .hover\:text-green-500:hover { color: var(--status-green) !important; }
 .bg-green-500 { background-color: var(--status-green) !important; }
+
 .text-red-500, .hover\:text-red-500:hover { color: var(--status-red) !important; }
 .bg-red-500 { background-color: var(--status-red) !important; }
+
 .text-yellow-500 { color: var(--status-yellow) !important; }
