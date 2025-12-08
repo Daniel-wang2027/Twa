@@ -1,0 +1,16 @@
+Copyright (c) [2025] Daniel Wang
+
+All rights reserved.
+
+1. GRANT OF LICENSE TO Saint Anthony's Hight School
+Permission is hereby granted, free of charge, to Saint Anthony's Hight School (the "Licensee") and its authorized students/faculty to use, copy, and modify this software      (TWA) for internal, non-commercial, and educational purposes only.
+
+2. RESTRICTIONS
+- NON-COMMERCIAL: This software may not be sold, sub-licensed, or used for commercial gain by the Licensee or any third party without express written permission from the Copyright Holder.
+- NO REDISTRIBUTION: This source code may not be distributed publicly (e.g., on public GitHub repositories) or to other institutions without the Copyright Holder's permission.
+
+3. OWNERSHIP
+Daniel Wang retains all ownership, title, and intellectual property rights to the software. This license acts only as a limited grant of use for [Your School Name].
+
+4. DISCLAIMER
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED.
