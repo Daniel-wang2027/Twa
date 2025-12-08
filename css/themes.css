@@ -1,191 +1,338 @@
-/* --- THEME ENGINE --- */
+/* =========================================
+   THEME ENGINE
+   ========================================= */
+
 :root {
     --font-main: 'Inter', sans-serif;
-    --glass-blur: 0px;
+    --glass-blur: 0px; /* Default blur (overridden by specific themes) */
 }
 
-/* 1. DARK MODE */
+/* =========================================
+   1. STANDARD COLOR THEMES
+   ========================================= */
+
+/* --- 1. DARK MODE --- */
 [data-theme="dark"] {
-    --bg: #111827; --surface: #1f2937; --border: #374151;
-    --text: #f9fafb; --muted: #9ca3af; --primary: #3b82f6; --accent: #8b5cf6;
-}
-/* 2. LIGHT MODE */
-[data-theme="light"] {
-    --bg: #f3f4f6; --surface: #ffffff; --border: #e5e7eb;
-    --text: #111827; --muted: #6b7280; --primary: #2563eb; --accent: #4f46e5;
+    --bg: #111827;
+    --surface: #1f2937;
+    --border: #374151;
+    --text: #f9fafb;
+    --muted: #9ca3af;
+    --primary: #3b82f6;
+    --accent: #8b5cf6;
 }
 
-/* 3. SPACE */
-[data-theme="space"] {
-    --bg: #050511; --surface: #0f1221; --border: #1e293b;
-    --text: #e2e8f0; --muted: #64748b; --primary: #38bdf8; --accent: #818cf8;
+/* --- 2. LIGHT MODE --- */
+[data-theme="light"] {
+    --bg: #f3f4f6;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --primary: #2563eb;
+    --accent: #4f46e5;
 }
-[data-theme="space"] body, [data-theme="space"] #view-login {
+
+/* --- 3. SPACE --- */
+[data-theme="space"] {
+    --bg: #050511;
+    --surface: #0f1221;
+    --border: #1e293b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --primary: #38bdf8;
+    --accent: #818cf8;
+}
+/* Generates a starry background using radial gradients */
+[data-theme="space"] body, 
+[data-theme="space"] #view-login {
     background-color: #050511;
-    background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+    background-image: 
+        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px), 
+        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
     background-size: 550px 550px, 350px 350px;
 }
 
-/* 4. DARK ACADEMIA */
+/* --- 4. DARK ACADEMIA --- */
 [data-theme="academia"] {
     --font-main: 'Merriweather', serif;
-    --bg: #1c1917; --surface: #292524; --border: #44403c;
-    --text: #f5f5dc; --muted: #a8a29e; --primary: #d4af37; --accent: #7f1d1d;
-}
-/* 5. LO-FI CHILL */
-[data-theme="lofi"] {
-    --bg: #e0e7ff; --surface: #ffffff; --border: #c7d2fe;
-    --text: #4338ca; --muted: #818cf8; --primary: #a78bfa; --accent: #86efac;
-}
-/* 6. MIDNIGHT OLED (Pure Black) */
-[data-theme="oled"] {
-    --bg: #000000; --surface: #000000; --border: #333333;
-    --text: #ffffff; --muted: #666666; --primary: #00ff00; --accent: #00ffff;
+    --bg: #1c1917;
+    --surface: #292524;
+    --border: #44403c;
+    --text: #f5f5dc;
+    --muted: #a8a29e;
+    --primary: #d4af37; /* Gold */
+    --accent: #7f1d1d;
 }
 
-/* 7. GRAPH PAPER */
+/* --- 5. LO-FI CHILL --- */
+[data-theme="lofi"] {
+    --bg: #e0e7ff;
+    --surface: #ffffff;
+    --border: #c7d2fe;
+    --text: #4338ca;
+    --muted: #818cf8;
+    --primary: #a78bfa;
+    --accent: #86efac;
+}
+
+/* --- 6. MIDNIGHT OLED (High Contrast) --- */
+[data-theme="oled"] {
+    --bg: #000000;
+    --surface: #000000;
+    --border: #333333;
+    --text: #ffffff;
+    --muted: #666666;
+    --primary: #00ff00;
+    --accent: #00ffff;
+}
+
+/* --- 7. GRAPH PAPER --- */
 [data-theme="graph"] {
     --font-main: 'Indie Flower', cursive;
-    --bg: #ffffff; --surface: #ffffff; --border: #000000;
-    --text: #000000; --muted: #555555; --primary: #2563eb; --accent: #db2777;
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --border: #000000;
+    --text: #000000;
+    --muted: #555555;
+    --primary: #2563eb;
+    --accent: #db2777;
 }
-[data-theme="graph"] body, [data-theme="graph"] #view-login {
+/* Generates a grid pattern */
+[data-theme="graph"] body, 
+[data-theme="graph"] #view-login {
     background-color: #ffffff;
-    background-image: linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
+    background-image: 
+        linear-gradient(#e5e7eb 1px, transparent 1px), 
+        linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
     background-size: 20px 20px;
 }
 
-/* 8. FRUTIGER AERO */
+/* --- 8. FRUTIGER AERO (Glossy Web 2.0) --- */
 [data-theme="frutiger"] {
-    --bg: #87CEEB; --surface: rgba(255, 255, 255, 0.65);
-    --border: rgba(255, 255, 255, 0.9); --text: #0f172a; --muted: #334155;
-    --primary: #0284c7; --accent: #84cc16; --glass-blur: 12px;
+    --bg: #87CEEB;
+    --surface: rgba(255, 255, 255, 0.65);
+    --border: rgba(255, 255, 255, 0.9);
+    --text: #0f172a;
+    --muted: #334155;
+    --primary: #0284c7;
+    --accent: #84cc16;
+    --glass-blur: 12px;
 }
-[data-theme="frutiger"] body, [data-theme="frutiger"] #view-login {
+[data-theme="frutiger"] body, 
+[data-theme="frutiger"] #view-login {
     background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 50%, #87CEEB 100%);
     background-attachment: fixed;
 }
 
-/* 9. SUNSET */
+/* --- 9. SUNSET --- */
 [data-theme="sunset"] {
-    --bg: #7f1d1d; --surface: rgba(67, 20, 7, 0.8); --border: #f97316;
-    --text: #fff7ed; --muted: #fdba74; --primary: #fbbf24; --accent: #ef4444;
+    --bg: #7f1d1d;
+    --surface: rgba(67, 20, 7, 0.8);
+    --border: #f97316;
+    --text: #fff7ed;
+    --muted: #fdba74;
+    --primary: #fbbf24;
+    --accent: #ef4444;
 }
-[data-theme="sunset"] body, [data-theme="sunset"] #view-login {
+[data-theme="sunset"] body, 
+[data-theme="sunset"] #view-login {
     background-image: linear-gradient(to bottom, #991b1b 0%, #ea580c 50%, #facc15 100%);
     background-attachment: fixed;
     background-size: cover;
 }
 
-/* 10. CYBERPUNK (Blurred City) */
+/* --- 10. CYBERPUNK (Neon City) --- */
 [data-theme="cyberpunk"] {
-    --bg: #050505; --surface: rgba(0, 0, 0, 0.85); --border: #f000ff;
-    --text: #e0e0e0; --muted: #888888; --primary: #f000ff; --accent: #00ff9f;
+    --bg: #050505;
+    --surface: rgba(0, 0, 0, 0.85);
+    --border: #f000ff;
+    --text: #e0e0e0;
+    --muted: #888888;
+    --primary: #f000ff;
+    --accent: #00ff9f;
 }
-[data-theme="cyberpunk"] body, [data-theme="cyberpunk"] #view-login {
-    /* Image of a blurred neon city */
+[data-theme="cyberpunk"] body, 
+[data-theme="cyberpunk"] #view-login {
     background: url('https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
     background-size: cover;
 }
 
-/* 11. TERMINAL */
+/* --- 11. TERMINAL (Matrix Style) --- */
 [data-theme="terminal"] {
     --font-main: 'Courier New', 'Roboto Mono', monospace;
-    --bg: #0c0c0c; --surface: #000000; --border: #22c55e;
-    --text: #4ade80; --muted: #15803d; --primary: #22c55e; --accent: #16a34a;
+    --bg: #0c0c0c;
+    --surface: #000000;
+    --border: #22c55e;
+    --text: #4ade80;
+    --muted: #15803d;
+    --primary: #22c55e;
+    --accent: #16a34a;
 }
 
-/* 12. BLUEPRINT */
+/* --- 12. BLUEPRINT --- */
 [data-theme="blueprint"] {
-    --bg: #1e3a8a; --surface: rgba(30, 58, 138, 0.8); --border: rgba(255,255,255,0.5);
-    --text: #ffffff; --muted: #93c5fd; --primary: #60a5fa; --accent: #ffffff;
+    --bg: #1e3a8a;
+    --surface: rgba(30, 58, 138, 0.8);
+    --border: rgba(255,255,255,0.5);
+    --text: #ffffff;
+    --muted: #93c5fd;
+    --primary: #60a5fa;
+    --accent: #ffffff;
 }
-[data-theme="blueprint"] body, [data-theme="blueprint"] #view-login {
+/* Generates a grid pattern on blue background */
+[data-theme="blueprint"] body, 
+[data-theme="blueprint"] #view-login {
     background-color: #1e3a8a;
-    background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), 
+        linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 
-/* 13. LATTE */
+/* --- 13. LATTE --- */
 [data-theme="latte"] {
-    --bg: #fff7ed; --surface: #ffedd5; --border: #fed7aa;
-    --text: #7c2d12; --muted: #9a3412; --primary: #c2410c; --accent: #d97706;
-}
-/* 14. VAPORWAVE */
-[data-theme="vaporwave"] {
-    --bg: #2a2139; --surface: #2a2139; --border: #06b6d4;
-    --text: #ffffff; --muted: #e879f9; --primary: #ec4899; --accent: #facc15;
-}
-/* 15. PAPERBACK */
-[data-theme="paperback"] {
-    --bg: #fdf6e3; --surface: #eee8d5; --border: #d6d3c9;
-    --text: #657b83; --muted: #93a1a1; --primary: #b58900; --accent: #cb4b16;
+    --bg: #fff7ed;
+    --surface: #ffedd5;
+    --border: #fed7aa;
+    --text: #7c2d12;
+    --muted: #9a3412;
+    --primary: #c2410c;
+    --accent: #d97706;
 }
 
-/* 16. EVERGREEN (Cartoon Forest) */
-[data-theme="evergreen"] {
-    --bg: #064e3b; --surface: rgba(6, 78, 59, 0.9); --border: #047857;
-    --text: #d1fae5; --muted: #6ee7b7; --primary: #10b981; --accent: #92400e;
+/* --- 14. VAPORWAVE --- */
+[data-theme="vaporwave"] {
+    --bg: #2a2139;
+    --surface: #2a2139;
+    --border: #06b6d4;
+    --text: #ffffff;
+    --muted: #e879f9;
+    --primary: #ec4899;
+    --accent: #facc15;
 }
-[data-theme="evergreen"] body, [data-theme="evergreen"] #view-login {
-    /* Cartoon/Low Poly Forest Image */
+
+/* --- 15. PAPERBACK --- */
+[data-theme="paperback"] {
+    --bg: #fdf6e3;
+    --surface: #eee8d5;
+    --border: #d6d3c9;
+    --text: #657b83;
+    --muted: #93a1a1;
+    --primary: #b58900;
+    --accent: #cb4b16;
+}
+
+/* =========================================
+   2. IMAGE-BASED & ADVANCED THEMES
+   ========================================= */
+
+/* --- 16. EVERGREEN (Cartoon Forest) --- */
+[data-theme="evergreen"] {
+    --bg: #064e3b;
+    --surface: rgba(6, 78, 59, 0.9);
+    --border: #047857;
+    --text: #d1fae5;
+    --muted: #6ee7b7;
+    --primary: #10b981;
+    --accent: #92400e;
+}
+[data-theme="evergreen"] body, 
+[data-theme="evergreen"] #view-login {
     background: url('https://img.freepik.com/free-vector/flat-design-forest-landscape_23-2149155031.jpg?w=2000') no-repeat center center fixed;
     background-size: cover;
 }
 
-/* 17. VISTA (FROSTED GLASS) */
+/* --- 17. VISTA (Frosted Glass) --- */
 [data-theme="vista"] {
-    --bg: #000000; --surface: rgba(255, 255, 255, 0.15); --border: rgba(255, 255, 255, 0.3);
-    --text: #ffffff; --muted: #cbd5e1; --primary: #38bdf8; --accent: #f472b6;
+    --bg: #000000;
+    --surface: rgba(255, 255, 255, 0.15);
+    --border: rgba(255, 255, 255, 0.3);
+    --text: #ffffff;
+    --muted: #cbd5e1;
+    --primary: #38bdf8;
+    --accent: #f472b6;
     --glass-blur: 16px;
 }
-[data-theme="vista"] body, [data-theme="vista"] #view-login {
+[data-theme="vista"] body, 
+[data-theme="vista"] #view-login {
     background: url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
     background-size: cover;
 }
 
-/* 18. OCEAN THEME */
+/* --- 18. OCEAN THEME --- */
 [data-theme="ocean"] {
-    --bg: #0f172a; --surface: rgba(15, 23, 42, 0.85); --border: #1e40af;
-    --text: #e0f2fe; --muted: #94a3b8; --primary: #06b6d4; --accent: #38bdf8;
+    --bg: #0f172a;
+    --surface: rgba(15, 23, 42, 0.85);
+    --border: #1e40af;
+    --text: #e0f2fe;
+    --muted: #94a3b8;
+    --primary: #06b6d4;
+    --accent: #38bdf8;
 }
-[data-theme="ocean"] body, [data-theme="ocean"] #view-login {
+[data-theme="ocean"] body, 
+[data-theme="ocean"] #view-login {
     background: url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
     background-size: cover;
 }
 
-/* 19. LIGHT ACADEMIA */
+/* --- 19. LIGHT ACADEMIA --- */
 [data-theme="light-academia"] {
     --font-main: 'Merriweather', serif;
-    --bg: #f5f5dc; --surface: #fafaf5; --border: #d6d3c9;
-    --text: #4a4a4a; --muted: #8c8c8c; --primary: #a0522d; --accent: #556b2f;
+    --bg: #f5f5dc;
+    --surface: #fafaf5;
+    --border: #d6d3c9;
+    --text: #4a4a4a;
+    --muted: #8c8c8c;
+    --primary: #a0522d;
+    --accent: #556b2f;
 }
-[data-theme="light-academia"] body, [data-theme="light-academia"] #view-login {
+/* Creates a notebook lined paper effect */
+[data-theme="light-academia"] body, 
+[data-theme="light-academia"] #view-login {
     background-color: #f5f5dc;
     background-image: repeating-linear-gradient(0deg, transparent, transparent 29px, #d6d3c9 30px);
     background-size: 100% 30px;
 }
 
-/* 20. MIDNIGHT (GALAXY) */
+/* --- 20. MIDNIGHT (Galaxy) --- */
 [data-theme="midnight"] {
-    --bg: #000000; --surface: rgba(15, 5, 30, 0.8); --border: #4c1d95;
-    --text: #e9d5ff; --muted: #a855f7; --primary: #d8b4fe; --accent: #c084fc;
+    --bg: #000000;
+    --surface: rgba(15, 5, 30, 0.8);
+    --border: #4c1d95;
+    --text: #e9d5ff;
+    --muted: #a855f7;
+    --primary: #d8b4fe;
+    --accent: #c084fc;
 }
-[data-theme="midnight"] body, [data-theme="midnight"] #view-login {
+[data-theme="midnight"] body, 
+[data-theme="midnight"] #view-login {
     background: url('https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') no-repeat center center fixed;
     background-size: cover;
 }
 
-/* --- SPECIAL FX & GLOWS --- */
+/* =========================================
+   3. SPECIAL EFFECTS & OVERLAYS
+   ========================================= */
+
+/* --- Cyberpunk Glow Effects --- */
 [data-theme="cyberpunk"] .bg-surface {
     border: 1px solid var(--border);
     box-shadow: 0 0 15px rgba(240, 0, 255, 0.3), inset 0 0 20px rgba(0,0,0,0.8);
 }
-[data-theme="cyberpunk"] .text-primary { text-shadow: 0 0 10px #f000ff; }
-[data-theme="cyberpunk"] button, [data-theme="cyberpunk"] i { text-shadow: 0 0 8px currentColor; }
-[data-theme="cyberpunk"] .bg-primary { box-shadow: 0 0 20px #f000ff; }
+[data-theme="cyberpunk"] .text-primary { 
+    text-shadow: 0 0 10px #f000ff; 
+}
+[data-theme="cyberpunk"] button, 
+[data-theme="cyberpunk"] i { 
+    text-shadow: 0 0 8px currentColor; 
+}
+[data-theme="cyberpunk"] .bg-primary { 
+    box-shadow: 0 0 20px #f000ff; 
+}
 
-/* TINT OVERLAYS FOR IMAGE THEMES */
+/* --- Tint Overlays for Image Themes --- */
+/* Ensures text remains readable over complex background images */
 [data-theme="sunset"] .bg-surface, 
 [data-theme="evergreen"] .bg-surface,
 [data-theme="vista"] .bg-surface,

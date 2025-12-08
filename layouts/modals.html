@@ -1,25 +1,47 @@
+<!-- ==========================================================================
+     SHARED MODALS CONTAINER
+     (Loaded dynamically into #modal-container)
+     ========================================================================== -->
+
 <!-- =========================================
-     STUDENT MODALS
+     SECTION 1: STUDENT MODALS
      ========================================= -->
 
 <!-- 1. ADD TASK MODAL -->
+<!-- Used by students to manually add personal tasks or reminders -->
 <div id="addModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
         <h2 class="text-2xl font-bold mb-6">Add Assignment</h2>
+        
         <div class="space-y-4">
+            <!-- Class Selection -->
             <div>
                 <label class="text-xs font-bold text-muted uppercase ml-1">Class</label>
-                <select id="m-course" class="w-full p-4 rounded-xl outline-none border border-border bg-base mt-1 focus:border-primary"></select>
+                <select id="m-course" class="w-full p-4 rounded-xl outline-none border border-border bg-base mt-1 focus:border-primary">
+                    <!-- Populated by JS -->
+                </select>
             </div>
+
+            <!-- Task Title -->
             <div>
                 <label class="text-xs font-bold text-muted uppercase ml-1">Assignment / Task</label>
                 <input type="text" id="m-title" placeholder="Task Name" class="w-full p-4 rounded-xl placeholder-muted bg-base mt-1 border border-border focus:border-primary">
             </div>
+
+            <!-- Time & Date -->
             <div class="grid grid-cols-2 gap-4">
-                <div><label class="text-xs font-bold text-muted uppercase ml-1">Time (Min)</label><input type="number" id="m-est" placeholder="15" class="w-full p-4 rounded-xl placeholder-muted bg-base mt-1 border border-border"></div>
-                <div><label class="text-xs font-bold text-muted uppercase ml-1">Due Date</label><input type="datetime-local" id="m-due" class="w-full p-4 rounded-xl bg-base mt-1 border border-border text-sm"></div>
+                <div>
+                    <label class="text-xs font-bold text-muted uppercase ml-1">Time (Min)</label>
+                    <input type="number" id="m-est" placeholder="15" class="w-full p-4 rounded-xl placeholder-muted bg-base mt-1 border border-border">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-muted uppercase ml-1">Due Date</label>
+                    <input type="datetime-local" id="m-due" class="w-full p-4 rounded-xl bg-base mt-1 border border-border text-sm">
+                </div>
             </div>
         </div>
+
+        <!-- Footer Actions -->
         <div class="flex justify-end gap-3 mt-8">
             <button onclick="document.getElementById('addModal').classList.add('hidden')" class="px-6 py-3 text-muted font-bold hover:text-text">Cancel</button>
             <button onclick="addTask()" class="px-8 py-3 bg-primary hover:opacity-90 text-white rounded-xl font-bold shadow-lg">Add Task</button>
@@ -28,10 +50,12 @@
 </div>
 
 <!-- 2. CLASS SETTINGS MODAL -->
+<!-- Allows changing the color code for a specific class -->
 <div id="classSettingsModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
         <h2 class="text-2xl font-bold mb-2">Class Settings</h2>
         <p class="text-muted mb-6">Editing: <span id="modal-class-name" class="text-primary font-bold"></span></p>
+        
         <div>
             <label class="text-xs font-bold text-muted uppercase">Color Preference</label>
             <div class="flex items-center gap-3 mt-1 bg-base p-3 rounded-lg border border-border">
@@ -39,6 +63,7 @@
                 <span class="text-xs text-muted">Updates dashboard instantly.</span>
             </div>
         </div>
+
         <div class="flex justify-end gap-3 mt-8">
             <button onclick="document.getElementById('classSettingsModal').classList.add('hidden')" class="px-6 py-2 text-muted font-bold">Cancel</button>
             <button onclick="saveClassSettings()" class="px-6 py-2 bg-primary text-white rounded-xl font-bold">Save Changes</button>
@@ -47,46 +72,65 @@
 </div>
 
 <!-- 3. TASK DETAIL MODAL -->
+<!-- View details, edit notes, and manage sub-checklists -->
 <div id="detailModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-lg border border-border shadow-2xl relative max-h-[90vh] overflow-y-auto">
-        <button onclick="closeDetailModal()" class="absolute top-6 right-6 text-muted hover:text-text z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-base"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <button onclick="closeDetailModal()" class="absolute top-6 right-6 text-muted hover:text-text z-10 w-8 h-8 flex items-center justify-center rounded-full hover:bg-base">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
         
+        <!-- Editable Title -->
         <input type="text" id="d-title" class="w-[90%] bg-transparent text-2xl font-bold mb-2 outline-none border-b border-transparent focus:border-border mt-2" placeholder="Task Name">
         
+        <!-- Date Input -->
         <div class="flex items-center gap-4 text-sm text-muted mb-6">
             <input type="datetime-local" id="d-due" class="bg-transparent border-none p-0 text-muted">
         </div>
 
+        <!-- Notes Area -->
         <div class="mb-6">
             <label class="text-xs font-bold text-muted uppercase tracking-wider mb-2 block">Notes</label>
             <textarea id="d-desc" class="w-full bg-base rounded-xl p-3 text-sm min-h-[80px] border border-border resize-none focus:border-primary outline-none" placeholder="Notes..."></textarea>
         </div>
 
+        <!-- Subtasks / Checklist -->
         <div class="mb-6">
              <div class="flex justify-between items-center mb-2">
                  <label class="text-xs font-bold text-muted uppercase tracking-wider block">Checklist</label>
                  <span id="d-checklist-progress" class="text-xs font-bold text-primary">0/0</span>
              </div>
+             
              <div id="d-checklist-container" class="space-y-1 mb-3"></div>
+             
              <div class="flex gap-2">
                  <input type="text" id="d-new-subtask" placeholder="Add step..." class="flex-1 bg-base rounded-lg px-3 py-2 text-sm border border-border outline-none focus:border-primary">
-                 <button onclick="addSubtask()" class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 w-10 rounded-lg flex items-center justify-center transition-colors"><i class="fa-solid fa-plus"></i></button>
+                 <button onclick="addSubtask()" class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 w-10 rounded-lg flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-plus"></i>
+                 </button>
              </div>
         </div>
 
+        <!-- Footer Actions -->
         <div class="flex justify-between mt-8 pt-6 border-t border-border">
-            <button onclick="deleteTask()" class="text-red-500 hover:text-red-400 text-sm font-bold flex items-center gap-2"><i class="fa-solid fa-trash"></i> Delete</button>
+            <button onclick="deleteTask()" class="text-red-500 hover:text-red-400 text-sm font-bold flex items-center gap-2">
+                <i class="fa-solid fa-trash"></i> Delete
+            </button>
             <button onclick="saveTaskDetails()" class="bg-primary hover:opacity-90 text-white px-8 py-3 rounded-xl font-bold shadow-lg">Save</button>
         </div>
     </div>
 </div>
 
 <!-- 4. MISSION DEBRIEF MODAL -->
+<!-- Gamified completion screen asking for reflection -->
 <div id="completionModal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-50 backdrop-blur-md">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-sm border border-primary/50 shadow-[0_0_50px_rgba(var(--primary),0.3)] text-center relative overflow-hidden">
+        <!-- Decoration Line -->
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary to-transparent"></div>
+        
         <h2 class="text-2xl font-black italic uppercase tracking-wider mb-2 text-primary">Mission Debrief</h2>
         <p class="text-muted text-xs mb-6">Reflect to retain. How did it go?</p>
+        
+        <!-- Difficulty Rating -->
         <div class="mb-6">
             <label class="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">Difficulty Rating</label>
             <div class="flex justify-center gap-2">
@@ -98,6 +142,8 @@
             </div>
             <input type="hidden" id="cm-difficulty" value="0">
         </div>
+
+        <!-- Actual Time -->
         <div class="mb-8">
             <label class="text-[10px] font-bold text-muted uppercase tracking-widest block mb-2">Actual Time Spent</label>
             <div class="flex items-center justify-center gap-2">
@@ -105,6 +151,7 @@
                 <span class="text-sm text-muted font-bold">MINUTES</span>
             </div>
         </div>
+
         <div class="flex flex-col gap-3">
             <button onclick="confirmCompletion()" class="w-full py-4 bg-primary hover:opacity-90 text-white font-black uppercase tracking-widest rounded-xl shadow-lg transform active:scale-95 transition-all">Mark Complete</button>
             <button onclick="document.getElementById('completionModal').classList.add('hidden')" class="text-xs text-muted hover:text-text uppercase tracking-widest">Cancel</button>
@@ -113,8 +160,10 @@
 </div>
 
 <!-- 5. DAY DETAIL MODAL -->
+<!-- Shows a specific day's agenda when clicked on the Matrix view -->
 <div id="dayDetailModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-6 rounded-3xl w-full max-w-md border border-border shadow-2xl relative max-h-[80vh] flex flex-col fade-in">
+        
         <div class="flex justify-between items-center mb-4 shrink-0">
             <div>
                 <h2 class="text-2xl font-bold" id="dd-date-title">Date</h2>
@@ -124,7 +173,11 @@
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
         </div>
-        <div id="dd-task-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1"></div>
+
+        <div id="dd-task-list" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+            <!-- Content injected by openDayDetail() -->
+        </div>
+
         <div class="mt-4 pt-4 border-t border-border shrink-0">
             <button onclick="openStudentModalFromDay()" class="w-full py-3 rounded-xl bg-primary/10 text-primary font-bold hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2">
                 <i class="fa-solid fa-plus"></i> Add Task to this Day
@@ -134,15 +187,18 @@
 </div>
 
 <!-- =========================================
-     TEACHER MODALS
+     SECTION 2: TEACHER MODALS
      ========================================= -->
 
 <!-- 6. TEACHER ADD ASSIGNMENT -->
+<!-- Allows teachers to push assignments to all subscribed students -->
 <div id="teacherAddModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
         <h2 class="text-2xl font-bold mb-6">Assign Work</h2>
+        
         <div class="space-y-4">
             <input type="text" id="tm-title" placeholder="Assignment Title" class="w-full p-4 rounded-xl placeholder-muted bg-base border border-border outline-none focus:border-primary">
+            
             <div class="grid grid-cols-2 gap-4">
                 <select id="tm-type" class="w-full p-4 rounded-xl bg-base border border-border">
                     <option value="HOMEWORK">Homework</option>
@@ -159,8 +215,10 @@
                 </select>
                 <input type="number" id="tm-est" placeholder="30 min" class="w-full p-4 rounded-xl bg-base border border-border">
             </div>
+            
             <input type="datetime-local" id="tm-due" class="w-full p-4 rounded-xl bg-base border border-border text-sm">
         </div>
+
         <div class="flex justify-end gap-3 mt-8">
             <button onclick="document.getElementById('teacherAddModal').classList.add('hidden')" class="px-6 py-3 text-muted font-bold hover:text-text">Cancel</button>
             <button onclick="submitTeacherTask()" class="px-8 py-3 bg-primary hover:opacity-90 text-white rounded-xl font-bold shadow-lg">Create</button>
@@ -169,11 +227,16 @@
 </div>
 
 <!-- 7. BULLETIN MODAL -->
+<!-- Sets a sticky message on the student dashboard -->
 <div id="bulletinModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
-        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2"><i class="fa-solid fa-thumbtack text-yellow-500"></i> Sticky Note</h2>
+        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-thumbtack text-yellow-500"></i> Sticky Note
+        </h2>
         <p class="text-muted text-sm mb-6">This message will appear at the top of the student dashboard.</p>
+        
         <textarea id="bm-text" class="w-full bg-base p-4 rounded-xl border border-border focus:border-primary outline-none min-h-[120px] resize-none" placeholder="Message..."></textarea>
+        
         <div class="flex justify-between mt-6">
             <button onclick="clearBulletinAction()" class="text-red-500 font-bold text-sm hover:underline px-2">Clear Active Note</button>
             <div class="flex gap-3">
@@ -185,18 +248,27 @@
 </div>
 
 <!-- 8. SNOW DAY MODAL -->
+<!-- Shifts all deadlines forward by X days -->
 <div id="snowDayModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-md border border-border shadow-2xl">
-        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2"><i class="fa-regular fa-snowflake text-blue-500"></i> Snow Day Protocol</h2>
+        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+            <i class="fa-regular fa-snowflake text-blue-500"></i> Snow Day Protocol
+        </h2>
         <p class="text-muted text-sm mb-6">Shift all active assignment due dates forward.</p>
+        
         <div class="bg-base p-4 rounded-xl border border-border mb-6">
             <label class="text-xs font-bold text-muted uppercase">Days to Shift</label>
             <div class="flex items-center gap-4 mt-2">
-                <button onclick="adjustSnowDay(-1)" class="w-10 h-10 rounded-lg bg-surface border border-border hover:bg-border flex items-center justify-center"><i class="fa-solid fa-minus"></i></button>
+                <button onclick="adjustSnowDay(-1)" class="w-10 h-10 rounded-lg bg-surface border border-border hover:bg-border flex items-center justify-center">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
                 <input type="number" id="sd-days" value="1" class="w-20 text-center bg-transparent font-bold text-xl outline-none" readonly>
-                <button onclick="adjustSnowDay(1)" class="w-10 h-10 rounded-lg bg-surface border border-border hover:bg-border flex items-center justify-center"><i class="fa-solid fa-plus"></i></button>
+                <button onclick="adjustSnowDay(1)" class="w-10 h-10 rounded-lg bg-surface border border-border hover:bg-border flex items-center justify-center">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
             </div>
         </div>
+
         <div class="flex justify-end gap-3">
             <button onclick="document.getElementById('snowDayModal').classList.add('hidden')" class="px-4 py-2 text-muted font-bold hover:text-text">Cancel</button>
             <button onclick="confirmSnowDayAction()" class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg">Confirm Shift</button>
@@ -205,7 +277,7 @@
 </div>
 
 <!-- =========================================
-     ADMIN MODALS (Missing from your paste)
+     SECTION 3: ADMIN MODALS
      ========================================= -->
 
 <!-- 9. CREATE USER MODAL -->
@@ -278,18 +350,24 @@
     </div>
 </div>
 
-<!-- 12. ENROLLMENT MODAL -->
+<!-- 12. ENROLLMENT MODAL (Assign Classes) -->
 <div id="enrollmentModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-2xl border border-border shadow-2xl flex flex-col max-h-[85vh]">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold">Manage Classes</h2>
-            <button onclick="closeEnrollmentModal()" class="text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <button onclick="closeEnrollmentModal()" class="text-muted hover:text-text">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
+        
         <div class="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
+            <!-- Available Classes -->
             <div class="flex flex-col h-full">
                 <input type="text" id="em-search" onkeyup="filterEnrollmentCatalog()" placeholder="Search Catalog..." class="w-full p-2 mb-2 rounded-lg bg-base border border-border text-sm">
                 <div id="em-catalog-list" class="flex-1 overflow-y-auto bg-base border border-border rounded-xl p-2 space-y-1 custom-scrollbar"></div>
             </div>
+            
+            <!-- Assigned Classes -->
             <div class="flex flex-col h-full">
                 <label class="text-xs font-bold text-muted uppercase mb-2">Current Schedule</label>
                 <div id="em-assigned-list" class="flex-1 overflow-y-auto bg-base border border-border rounded-xl p-2 space-y-1 custom-scrollbar"></div>
@@ -299,6 +377,7 @@
 </div>
 
 <!-- 13. COURSE INSTANCE DETAILS MODAL -->
+<!-- Manage specific sections (e.g. Period 1, Honors) -->
 <div id="courseDetailsModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
     <div class="bg-surface p-8 rounded-3xl w-full max-w-lg border border-border shadow-2xl">
         <div class="flex justify-between items-start mb-6">
@@ -306,16 +385,23 @@
                 <h2 class="text-xl font-bold" id="cd-title">Course Name</h2>
                 <p class="text-primary font-mono text-sm" id="cd-id">ID</p>
             </div>
-            <button onclick="document.getElementById('courseDetailsModal').classList.add('hidden')" class="text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <button onclick="document.getElementById('courseDetailsModal').classList.add('hidden')" class="text-muted hover:text-text">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
+
         <div class="mb-6">
             <label class="text-xs font-bold text-muted uppercase mb-2 block">Active Sections</label>
             <div id="cd-instance-list" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar border border-border rounded-xl p-2 bg-base"></div>
         </div>
+
         <div class="flex gap-2">
             <input type="text" id="cd-new-inst" placeholder="New Section ID (e.g. 2, H)" class="flex-1 p-3 rounded-xl bg-base border border-border outline-none focus:border-primary text-sm">
-            <button onclick="addInstanceAction()" class="bg-primary text-white px-4 rounded-xl font-bold hover:opacity-90"><i class="fa-solid fa-plus"></i></button>
+            <button onclick="addInstanceAction()" class="bg-primary text-white px-4 rounded-xl font-bold hover:opacity-90">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
+        
         <div class="mt-6 pt-6 border-t border-border flex justify-between items-center">
             <button onclick="deleteCourseAction()" class="text-red-500 text-xs font-bold hover:underline">Delete Entire Course</button>
             <button onclick="document.getElementById('courseDetailsModal').classList.add('hidden')" class="px-4 py-2 bg-surface border border-border rounded-xl text-sm font-bold">Close</button>

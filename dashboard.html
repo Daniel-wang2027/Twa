@@ -3,63 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Prevent caching issues during development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    
     <title>Operation TWA | Dashboard</title>
 
-    <!-- CSS -->
+    <!-- =========================================
+         EXTERNAL DEPENDENCIES
+         ========================================= -->
+    
+    <!-- 1. Icons (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 2. Fonts (Inter & Merriweather) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/themes.css">
-    <link rel="stylesheet" href="css/core.css">
+    
+    <!-- 3. Local Styles -->
+    <link rel="stylesheet" href="css/themes.css"> <!-- Color definitions -->
+    <link rel="stylesheet" href="css/core.css">   <!-- Base styles & overrides -->
+
+    <!-- 4. Tailwind CSS (CDN Runtime) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- TAILWIND CONFIGURATION -->
+    <!-- Maps our CSS Variables (defined in themes.css) to Tailwind Utility classes -->
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { base: 'var(--bg)', surface: 'var(--surface)', border: 'var(--border)', text: 'var(--text)', muted: 'var(--muted)', primary: 'var(--primary)', accent: 'var(--accent)' }, fontFamily: { sans: 'var(--font-main)' } } }
+            theme: { 
+                extend: { 
+                    colors: { 
+                        base: 'var(--bg)', 
+                        surface: 'var(--surface)', 
+                        border: 'var(--border)', 
+                        text: 'var(--text)', 
+                        muted: 'var(--muted)', 
+                        primary: 'var(--primary)', 
+                        accent: 'var(--accent)' 
+                    }, 
+                    fontFamily: { 
+                        sans: 'var(--font-main)' 
+                    } 
+                } 
+            }
         }
     </script>
 </head>
+
 <body class="h-screen flex flex-col bg-base text-text overflow-hidden">
 
-    <!-- OBSERVER BANNER (Always present) -->
+    <!-- =========================================
+         1. LAYOUT SHELLS
+         ========================================= -->
+
+    <!-- OBSERVER BANNER -->
+    <!-- Only visible when a Teacher is "viewing as" a Student -->
     <div id="observer-banner" class="w-full h-8 z-50 flex items-center justify-center text-xs font-bold tracking-widest hidden bg-yellow-500 text-black shadow-md">
-        <i class="fa-solid fa-eye mr-2"></i> SILENT OBSERVER MODE: VIEWING AS <span id="observer-name" class="ml-1 uppercase mr-4">--</span>
+        <i class="fa-solid fa-eye mr-2" aria-hidden="true"></i> 
+        SILENT OBSERVER MODE: VIEWING AS <span id="observer-name" class="ml-1 uppercase mr-4">--</span>
         <button onclick="exitObserverMode()" class="underline hover:text-white font-extrabold border border-black px-2 rounded">EXIT MODE</button>
     </div>
 
-    <!-- DYNAMIC CONTENT CONTAINER -->
-    <!-- This is where student.html or teacher.html will be injected -->
+    <!-- MAIN APP CONTAINER -->
+    <!-- Content is injected here dynamically by loader.js -->
+    <!-- It will load layouts/student.html OR layouts/teacher.html -->
     <div id="app-container" class="flex-1 flex w-full h-full relative"></div>
 
-    <!-- SHARED MODALS CONTAINER -->
-    <div id="modal-container"></div>
-    <div id="toast-container"></div>
+    <!-- SHARED OVERLAYS -->
+    <div id="modal-container"></div> <!-- Modals inject here -->
+    <div id="toast-container"></div> <!-- Notification popups inject here -->
 
-    <!-- SCRIPTS -->
-    <!-- 1. CORE (Global logic) -->
-    <script src="js/core/state.js"></script>
-    <script src="js/core/catalog.js"></script>
-    <script src="js/core/utils.js"></script>
-    <script src="js/core/storage.js"></script>
-    <script src="js/features/themes.js"></script>
+    <!-- =========================================
+         2. JAVASCRIPT LOAD ORDER
+         (CRITICAL: Do not change order without checking dependencies)
+         ========================================= -->
+
+    <!-- A. CORE (State & Database) -->
+    <script src="js/core/state.js"></script>   <!-- Global Variables (userRole, settings) -->
+    <script src="js/core/catalog.js"></script> <!-- Course Database -->
+    <script src="js/core/utils.js"></script>   <!-- Helpers (Dates, Sounds) -->
+    <script src="js/core/storage.js"></script> <!-- Save/Load Logic -->
+    <script src="js/features/themes.js"></script> <!-- Theme Switcher -->
     
-    <!-- 2. STUDENT RENDERS (Moved to /renders/) -->
-    <script src="js/student/renders/core.js"></script>
-    <script src="js/student/renders/dashboard.js"></script>
-    <script src="js/student/renders/calendar.js"></script>
-    <script src="js/student/renders/profile.js"></script>
+    <!-- B. STUDENT LOGIC -->
+    <!-- Renders (View Generation) -->
+    <script src="js/student/renders/core.js"></script>      <!-- InitStudentUI -->
+    <script src="js/student/renders/dashboard.js"></script> <!-- Matrix, Stream, Kanban -->
+    <script src="js/student/renders/calendar.js"></script>  <!-- Weekly Schedule -->
+    <script src="js/student/renders/profile.js"></script>   <!-- Class Lists -->
     
-    <!-- 3. STUDENT ACTIONS (Inside /actions/) -->
-    <script src="js/student/actions/nav.js"></script>
-    <script src="js/student/actions/tasks.js"></script>
-    <script src="js/student/actions/settings.js"></script>
-    <script src="js/student/actions/backpack.js"></script>
-    <script src="js/student/actions/calendar.js"></script>
+    <!-- Actions (Click Handlers) -->
+    <script src="js/student/actions/nav.js"></script>       <!-- Navigation switching -->
+    <script src="js/student/actions/tasks.js"></script>     <!-- Add/Edit/Complete Tasks -->
+    <script src="js/student/actions/settings.js"></script>  <!-- Preferences -->
+    <script src="js/student/actions/backpack.js"></script>  <!-- Backpack Protocol -->
+    <script src="js/student/actions/calendar.js"></script>  <!-- Drag & Drop Logic -->
     
-    <!-- 4. TEACHER & ADMIN -->
+    <!-- C. TEACHER & ADMIN LOGIC -->
     <script src="js/teacher/render.js"></script>
     <script src="js/teacher/actions.js"></script>
     <script src="js/admin/manager.js"></script>
 
-    <!-- 5. LOADER -->
-    <script src="js/core/loader.js"></script>
+    <!-- D. MAIN ENTRY POINT (Must be last) -->
+    <script src="js/core/loader.js"></script> <!-- Checks Login & Starts App -->
+
 </body>
 </html>

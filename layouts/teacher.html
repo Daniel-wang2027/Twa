@@ -1,29 +1,37 @@
+<!-- ==========================================================================
+     TEACHER DASHBOARD LAYOUT
+     ========================================================================== -->
+
 <div id="teacher-layout" class="flex-1 flex w-full h-full fade-in" style="background: transparent;">
     
-    <!-- SIDEBAR: Manual Glass (Matches Planner) -->
+    <!-- 1. SIDEBAR NAVIGATION -->
+    <!-- Note: Uses manual glassmorphism classes to match the specific "Planner" aesthetic -->
     <aside class="w-72 bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col hidden md:flex pt-8 transition-colors duration-300 z-20 text-white">
+        
+        <!-- Brand -->
         <div class="px-8 flex items-center gap-4 mb-6">
             <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">T</div>
             <span class="text-lg font-bold tracking-tight text-white">Faculty Hub</span>
         </div>
         
-        <!-- NAV -->
+        <!-- Class Navigation (Populated by JS) -->
         <div class="px-6 mb-6">
             <div class="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">My Classes</div>
             <div id="teacher-class-list" class="space-y-1"></div>
         </div>
 
-        <!-- ROSTER -->
+        <!-- Student Roster (Populated by JS) -->
         <div class="flex-1 px-4 overflow-y-auto border-t border-white/10 pt-4 custom-scrollbar">
             <div class="text-xs font-bold text-white/50 uppercase tracking-wider mb-2 px-2">Student Status</div>
             <div id="student-roster-sidebar" class="space-y-2"></div>
         </div>
 
-        <!-- FOOTER -->
+        <!-- Footer / Profile -->
         <div class="p-6 border-t border-white/10 bg-black/20">
             <button onclick="switchTeacherView('settings')" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-white/70 hover:text-white hover:bg-white/10 mb-4 transition-colors">
-                <i class="fa-solid fa-gear"></i> Settings
+                <i class="fa-solid fa-gear" aria-hidden="true"></i> Settings
             </button>
+            
             <div class="flex items-center gap-3 px-2">
                 <div class="w-10 h-10 rounded-full bg-black/40 border border-white/10 flex items-center justify-center text-blue-400 font-bold" id="t-profileInitials">T</div>
                 <div class="w-full overflow-hidden text-white">
@@ -34,11 +42,13 @@
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
+    <!-- 2. MAIN CONTENT AREA -->
     <main class="flex-1 flex flex-col h-full overflow-hidden relative">
         
-        <!-- PLANNER VIEW -->
+        <!-- VIEW 1: WEEKLY PLANNER -->
         <div id="t-view-planner" class="flex flex-col h-full">
+            
+            <!-- Toolbar Header -->
             <header class="h-20 flex items-center justify-between px-8 border-b border-white/10 bg-black/20 backdrop-blur-md z-10 shrink-0 text-white">
                 <div>
                     <h1 class="text-2xl font-extrabold flex items-center gap-3">
@@ -49,63 +59,75 @@
                 
                 <div class="flex gap-2">
                     <button onclick="setBulletin()" class="bg-black/40 border border-white/10 hover:bg-white/10 px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors text-yellow-400">
-                        <i class="fa-solid fa-thumbtack mr-2"></i> Bulletin
+                        <i class="fa-solid fa-thumbtack mr-2" aria-hidden="true"></i> Bulletin
                     </button>
                     <button onclick="bulkShiftDates()" class="bg-black/40 border border-white/10 hover:bg-white/10 px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors text-blue-400">
-                        <i class="fa-regular fa-snowflake mr-2"></i> Snow Day
+                        <i class="fa-regular fa-snowflake mr-2" aria-hidden="true"></i> Snow Day
                     </button>
                     <button onclick="renderTeacherPlanner()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg shadow-sm font-bold text-sm transition-colors">
-                        <i class="fa-solid fa-rotate mr-2"></i> Refresh
+                        <i class="fa-solid fa-rotate mr-2" aria-hidden="true"></i> Refresh
                     </button>
                 </div>
             </header>
 
+            <!-- Active Bulletin Banner (Sticky Note) -->
             <div id="t-bulletin-container" class="hidden bg-yellow-500/20 border-b border-yellow-500/30 px-8 py-2 flex justify-between items-center shrink-0 backdrop-blur-sm">
-                <span class="text-sm font-bold text-yellow-400"><i class="fa-solid fa-note-sticky mr-2"></i> Bulletin: <span id="t-bulletin-text" class="italic font-normal text-white/90">--</span></span>
+                <span class="text-sm font-bold text-yellow-400">
+                    <i class="fa-solid fa-note-sticky mr-2" aria-hidden="true"></i> Bulletin: 
+                    <span id="t-bulletin-text" class="italic font-normal text-white/90">--</span>
+                </span>
                 <button onclick="clearBulletin()" class="text-xs font-bold text-red-400 hover:underline">Clear</button>
             </div>
 
+            <!-- Horizontal Scrollable Grid -->
             <div class="flex-1 overflow-x-auto overflow-y-auto p-6">
-                <div class="grid grid-cols-7 gap-4 min-w-[1600px] h-full" id="teacher-planner-grid"></div>
+                <div class="grid grid-cols-7 gap-4 min-w-[1600px] h-full" id="teacher-planner-grid">
+                    <!-- Columns injected by JS -->
+                </div>
             </div>
         </div>
 
-        <!-- SETTINGS VIEW (UPDATED TO MATCH STUDENT) -->
+        <!-- VIEW 2: SETTINGS -->
         <div id="t-view-settings" class="hidden h-full p-10 overflow-y-auto text-text custom-scrollbar">
             
             <button onclick="switchTeacherView('planner')" class="mb-6 flex items-center gap-2 text-muted hover:text-text font-bold transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Back to Planner
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Planner
             </button>
             
             <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
             
-            <!-- COPIED FROM STUDENT LAYOUT -->
-            <div class="bg-surface p-8 rounded-3xl border border-border mb-8 shadow-sm">
-                <h3 class="font-bold text-xl mb-6">Visual Theme</h3>
-                <!-- ID is 't-theme-selector' for teacher logic -->
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="t-theme-selector"></div>
-            </div>
-                    <div class="bg-surface p-6 rounded-3xl border border-border shadow-sm h-fit">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved text-blue-500"></i> Security
-                        </h3>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-xs font-bold text-muted uppercase">Current Password</label>
-                                <input type="password" id="t-sec-old" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-muted uppercase">New Password</label>
-                                <input type="password" id="t-sec-new" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-blue-500 outline-none">
-                            </div>
-                            <button onclick="teacherChangePassword()" class="w-full bg-blue-500/10 text-blue-500 border border-blue-500/20 hover:bg-blue-500 hover:text-white font-bold py-3 rounded-xl transition-all">
-                                Update Credentials
-                            </button>
-                        </div>
-                    </div>
-
+            <!-- Grid Layout for Settings Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Card 1: Themes -->
+                <div class="bg-surface p-8 rounded-3xl border border-border shadow-sm col-span-1 lg:col-span-2">
+                    <h3 class="font-bold text-xl mb-6">Visual Theme</h3>
+                    <!-- ID is 't-theme-selector' for teacher logic -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="t-theme-selector"></div>
                 </div>
-            </div>
+
+                <!-- Card 2: Security -->
+                <div class="bg-surface p-6 rounded-3xl border border-border shadow-sm h-fit">
+                    <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-blue-500" aria-hidden="true"></i> Security
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-muted uppercase">Current Password</label>
+                            <input type="password" id="t-sec-old" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-blue-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-muted uppercase">New Password</label>
+                            <input type="password" id="t-sec-new" class="w-full mt-1 p-3 rounded-xl bg-base border border-border focus:border-blue-500 outline-none">
+                        </div>
+                        <button onclick="teacherChangePassword()" class="w-full bg-blue-500/10 text-blue-500 border border-blue-500/20 hover:bg-blue-500 hover:text-white font-bold py-3 rounded-xl transition-all">
+                            Update Credentials
+                        </button>
+                    </div>
+                </div>
+
+            </div> <!-- End Grid -->
         </div>
 
     </main>

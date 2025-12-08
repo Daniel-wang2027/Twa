@@ -1,113 +1,222 @@
+<!-- ==========================================================================
+     STUDENT DASHBOARD LAYOUT
+     ========================================================================== -->
+
 <div id="student-layout" class="flex w-full h-full fade-in">
-    
-    <!-- SIDEBAR -->
+
+    <!-- 1. SIDEBAR NAVIGATION -->
     <aside class="w-64 bg-surface border-r border-border flex flex-col hidden md:flex z-20 transition-colors duration-300">
+        <!-- Brand -->
         <div class="p-6 flex items-center gap-3">
             <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold shadow-lg shadow-primary/30">S</div>
             <span class="text-lg font-bold tracking-tight">Student HUD</span>
         </div>
+
+        <!-- Links -->
         <nav class="flex-1 px-4 space-y-2 mt-4">
-            <button onclick="switchStudentView('dashboard')" id="nav-s-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm"><i class="fa-solid fa-table-cells w-5"></i> Matrix</button>
-            <button onclick="switchStudentView('calendar')" id="nav-s-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent"><i class="fa-regular fa-calendar-days w-5"></i> Calendar</button>
-            <button onclick="switchStudentView('completed')" id="nav-s-completed" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent"><i class="fa-solid fa-check-double w-5"></i> History</button>
-            <button onclick="switchStudentView('profile')" id="nav-s-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent"><i class="fa-solid fa-graduation-cap w-5"></i> Classes</button>
-            <button onclick="switchStudentView('settings')" id="nav-s-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent"><i class="fa-solid fa-sliders w-5"></i> Settings</button>
+            <button onclick="switchStudentView('dashboard')" id="nav-s-dashboard" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm">
+                <i class="fa-solid fa-table-cells w-5"></i> Matrix
+            </button>
+            <button onclick="switchStudentView('calendar')" id="nav-s-calendar" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent">
+                <i class="fa-regular fa-calendar-days w-5"></i> Calendar
+            </button>
+            <button onclick="switchStudentView('completed')" id="nav-s-completed" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent">
+                <i class="fa-solid fa-check-double w-5"></i> History
+            </button>
+            <button onclick="switchStudentView('profile')" id="nav-s-profile" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent">
+                <i class="fa-solid fa-graduation-cap w-5"></i> Classes
+            </button>
+            <button onclick="switchStudentView('settings')" id="nav-s-settings" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent">
+                <i class="fa-solid fa-sliders w-5"></i> Settings
+            </button>
         </nav>
+
+        <!-- Profile Footer -->
         <div class="p-6 border-t border-border">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-full bg-base border border-border flex items-center justify-center text-primary font-bold shadow-sm" id="s-profileInitials"></div>
-                <div class="text-sm overflow-hidden w-full"><p class="font-bold truncate" id="s-profileName">Loading...</p><button onclick="doLogout()" class="text-xs text-red-500 hover:text-red-600 hover:underline mt-0.5 font-medium transition-colors">Log Out</button></div>
+                <div class="text-sm overflow-hidden w-full">
+                    <p class="font-bold truncate" id="s-profileName">Loading...</p>
+                    <button onclick="doLogout()" class="text-xs text-red-500 hover:text-red-600 hover:underline mt-0.5 font-medium transition-colors">Log Out</button>
+                </div>
             </div>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
+    <!-- 2. MAIN CONTENT AREA -->
     <main class="flex-1 flex flex-col h-full relative" style="background-color: transparent;">
-        
-        <!-- HEADER -->
+
+        <!-- HEADER (Top Bar) -->
         <header class="h-16 flex items-center justify-between px-6 border-b border-border bg-surface/50 backdrop-blur-sm z-30 shrink-0">
-            <div><h1 class="text-lg font-bold tracking-tight">The Week Ahead</h1><div class="text-xs text-muted font-medium" id="currentDate"></div></div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight">The Week Ahead</h1>
+                <div class="text-xs text-muted font-medium" id="currentDate"></div>
+            </div>
+
+            <!-- Global Widgets (Timer & Streak) -->
             <div class="flex items-center gap-4">
                 <div id="timer-container" class="flex items-center gap-3 bg-base border border-border px-3 py-1.5 rounded-xl shadow-sm hover:border-primary transition-colors">
                     <div onclick="switchTimerMode()" class="text-lg font-mono font-bold text-primary w-14 text-center cursor-pointer select-none" id="timerDisplay">25:00</div>
-                    <div class="flex gap-1"><button onclick="toggleTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors"><i class="fa-solid fa-play" id="timerIcon"></i></button><button onclick="resetTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors"><i class="fa-solid fa-rotate-left"></i></button></div>
+                    <div class="flex gap-1">
+                        <button onclick="toggleTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors">
+                            <i class="fa-solid fa-play" id="timerIcon"></i>
+                        </button>
+                        <button onclick="resetTimer()" class="w-7 h-7 rounded-lg bg-surface hover:bg-border flex items-center justify-center text-xs text-text transition-colors">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2 px-3 py-1.5 bg-base border border-border rounded-xl shadow-sm" id="streak-container"><i class="fa-solid fa-fire text-orange-500 animate-pulse-fast"></i><span class="font-bold text-sm whitespace-nowrap" id="streak-count">-- Streak</span></div>
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-base border border-border rounded-xl shadow-sm" id="streak-container">
+                    <i class="fa-solid fa-fire text-orange-500 animate-pulse-fast"></i>
+                    <span class="font-bold text-sm whitespace-nowrap" id="streak-count">-- Streak</span>
+                </div>
             </div>
         </header>
 
-        <!-- MAIN SCROLLABLE CONTAINER -->
+        <!-- SCROLLABLE VIEWPORT -->
         <div class="flex-1 overflow-hidden relative flex flex-col">
 
-            <!-- 1. DASHBOARD VIEW (Matrix, Planner, etc.) -->
-            <!-- IMPORTANT: This div contains ONLY the dashboard widgets -->
+            <!-- VIEW 1: DASHBOARD (Home) -->
             <div id="s-view-dashboard" class="flex-1 flex flex-col h-full fade-in p-6 custom-scrollbar overflow-y-auto">
-                
-                <!-- Dashboard Controls -->
+
+                <!-- Welcome & Controls -->
                 <div class="mb-6 flex flex-col md:flex-row gap-4 justify-between items-end md:items-center">
                     <div id="welcome-banner" class="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-6 rounded-2xl flex-1 shadow-sm relative overflow-hidden mr-4">
-                        <div class="z-10 relative"><h1 class="text-2xl font-extrabold text-primary mb-1">Welcome, <span id="banner-student-name">Student</span>! 👋</h1><p class="text-sm text-muted" id="banner-message">Loading schedule...</p></div>
+                        <div class="z-10 relative">
+                            <h1 class="text-2xl font-extrabold text-primary mb-1">Welcome, <span id="banner-student-name">Student</span>! 👋</h1>
+                            <p class="text-sm text-muted" id="banner-message">Loading schedule...</p>
+                        </div>
                         <i class="fa-solid fa-calendar-day text-8xl absolute -right-4 -bottom-6 text-primary/5 z-0 transform rotate-12"></i>
                     </div>
+
+                    <!-- View Switcher Tabs -->
                     <div class="bg-base border border-border p-1 rounded-xl flex shrink-0">
-                        <button onclick="setDashboardView('matrix')" id="btn-view-matrix" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all"><i class="fa-solid fa-table-cells"></i> Matrix</button>
-                        <button onclick="setDashboardView('planner')" id="btn-view-planner" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all"><i class="fa-solid fa-calendar-week"></i> Planner</button>
-                        <button onclick="setDashboardView('stream')" id="btn-view-stream" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all"><i class="fa-solid fa-list-ul"></i> Stream</button>
-                        <button onclick="setDashboardView('kanban')" id="btn-view-kanban" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all"><i class="fa-solid fa-columns"></i> Board</button>
+                        <button onclick="setDashboardView('matrix')" id="btn-view-matrix" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-table-cells"></i> Matrix
+                        </button>
+                        <button onclick="setDashboardView('planner')" id="btn-view-planner" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-calendar-week"></i> Planner
+                        </button>
+                        <button onclick="setDashboardView('stream')" id="btn-view-stream" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-list-ul"></i> Stream
+                        </button>
+                        <button onclick="setDashboardView('kanban')" id="btn-view-kanban" class="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                            <i class="fa-solid fa-columns"></i> Board
+                        </button>
                     </div>
                 </div>
 
+                <!-- Sticky Bulletin Area -->
                 <div id="student-bulletin-area" class="mb-6 space-y-2 hidden"></div>
 
-                <!-- SUB-VIEWS (Inside Dashboard) -->
+                <!-- Sub-View Container -->
                 <div class="flex-1 relative">
+                    <!-- MATRIX MODE -->
                     <div id="view-mode-matrix" class="h-full">
                         <div class="overflow-x-auto pb-20 rounded-2xl border border-border shadow-sm bg-surface">
-                            <table class="w-full border-collapse min-w-[1000px]"><thead><tr id="matrix-header-row"></tr></thead><tbody id="matrix-body"></tbody></table>
+                            <table class="w-full border-collapse min-w-[1000px]">
+                                <thead><tr id="matrix-header-row"></tr></thead>
+                                <tbody id="matrix-body"></tbody>
+                            </table>
                         </div>
                     </div>
+
+                    <!-- PLANNER MODE -->
                     <div id="view-mode-planner" class="hidden h-full flex flex-col">
-                        <div class="flex justify-between items-center mb-4 px-1"><h3 class="text-lg font-bold" id="sp-week-label">--</h3><div class="flex bg-surface border border-border rounded-lg overflow-hidden shadow-sm"><button onclick="changeStudentPlannerWeek(-1)" class="px-3 py-1 hover:bg-base border-r border-border"><i class="fa-solid fa-chevron-left text-xs"></i></button><button onclick="changeStudentPlannerWeek(0)" class="px-3 py-1 hover:bg-base border-r border-border text-xs font-bold">Today</button><button onclick="changeStudentPlannerWeek(1)" class="px-3 py-1 hover:bg-base"><i class="fa-solid fa-chevron-right text-xs"></i></button></div></div>
-                        <div class="flex-1 overflow-x-auto overflow-y-hidden pb-4 custom-scrollbar"><div class="flex gap-4 h-full min-w-[1200px]" id="student-planner-grid"></div></div>
+                        <div class="flex justify-between items-center mb-4 px-1">
+                            <h3 class="text-lg font-bold" id="sp-week-label">--</h3>
+                            <div class="flex bg-surface border border-border rounded-lg overflow-hidden shadow-sm">
+                                <button onclick="changeStudentPlannerWeek(-1)" class="px-3 py-1 hover:bg-base border-r border-border"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                                <button onclick="changeStudentPlannerWeek(0)" class="px-3 py-1 hover:bg-base border-r border-border text-xs font-bold">Today</button>
+                                <button onclick="changeStudentPlannerWeek(1)" class="px-3 py-1 hover:bg-base"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                            </div>
+                        </div>
+                        <div class="flex-1 overflow-x-auto overflow-y-hidden pb-4 custom-scrollbar">
+                            <div class="flex gap-4 h-full min-w-[1200px]" id="student-planner-grid"></div>
+                        </div>
                     </div>
+
+                    <!-- STREAM MODE -->
                     <div id="view-mode-stream" class="hidden h-full space-y-6 pb-20"></div>
+
+                    <!-- KANBAN MODE -->
                     <div id="view-mode-kanban" class="hidden h-full overflow-x-auto pb-4">
-                        <div class="flex gap-4 h-full min-w-[1000px]"><div class="flex-1 bg-surface border border-border rounded-2xl flex flex-col" id="kb-col-todo"></div><div class="flex-1 bg-surface border border-border rounded-2xl flex flex-col" id="kb-col-doing"></div><div class="flex-1 bg-surface border border-border rounded-2xl flex flex-col" id="kb-col-done"></div></div>
+                        <div class="flex gap-4 h-full min-w-[1000px]">
+                            <div class="flex-1 bg-surface border border-border rounded-2xl flex flex-col" id="kb-col-todo"></div>
+                            <div class="flex-1 bg-surface border border-border rounded-2xl flex flex-col" id="kb-col-doing"></div>
+                            <div class="flex-1 bg-surface border border-border rounded-2xl flex flex-col" id="kb-col-done"></div>
+                        </div>
                     </div>
                 </div>
             </div> 
-            <!-- !!! END OF DASHBOARD VIEW !!! -->
-            <!-- Everything below here is a SIBLING to dashboard, not a child -->
 
-            <!-- 2. CALENDAR VIEW -->
+            <!-- VIEW 2: CALENDAR (Drag & Drop) -->
             <div id="s-view-calendar" class="hidden flex-1 flex flex-col h-full fade-in p-6">
                 <div class="flex justify-between items-center mb-4 shrink-0 px-1">
                     <h2 class="text-2xl font-bold flex items-center gap-2"><i class="fa-solid fa-clock text-primary"></i> Time Blocker</h2>
-                    <div class="flex bg-surface border border-border rounded-xl overflow-hidden shadow-sm"><button onclick="changeCalendarWeek(-1)" class="px-4 py-2 hover:bg-base border-r border-border transition-colors"><i class="fa-solid fa-chevron-left"></i></button><div id="cal-week-label" class="px-6 py-2 font-bold text-sm flex items-center min-w-[200px] justify-center bg-base/50">--</div><button onclick="changeCalendarWeek(1)" class="px-4 py-2 hover:bg-base border-l border-border transition-colors"><i class="fa-solid fa-chevron-right"></i></button></div><button onclick="changeCalendarWeek(0)" class="text-xs font-bold text-primary hover:underline">Jump to Today</button>
+
+                    <div class="flex bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
+                        <button onclick="changeCalendarWeek(-1)" class="px-4 py-2 hover:bg-base border-r border-border transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                        <div id="cal-week-label" class="px-6 py-2 font-bold text-sm flex items-center min-w-[200px] justify-center bg-base/50">--</div>
+                        <button onclick="changeCalendarWeek(1)" class="px-4 py-2 hover:bg-base border-l border-border transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+
+                    <button onclick="changeCalendarWeek(0)" class="text-xs font-bold text-primary hover:underline">Jump to Today</button>
                 </div>
+
                 <div class="flex flex-1 overflow-hidden gap-4">
-                    <div class="w-64 bg-surface border border-border rounded-2xl flex flex-col shadow-inner shrink-0"><div class="p-3 border-b border-border bg-base/50 font-bold text-xs uppercase text-muted tracking-wider">Tasks to Schedule</div><div id="cal-unscheduled-list" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar" ondragover="allowDrop(event)" ondrop="handleUnscheduleDrop(event)"></div></div>
-                    <div class="flex-1 bg-surface border border-border rounded-2xl overflow-hidden flex flex-col relative shadow-inner"><div class="flex border-b border-border bg-base/80 backdrop-blur-md z-10" id="cal-header-row"></div><div class="flex-1 overflow-y-auto custom-scrollbar relative" id="cal-scroll-area"><div class="flex min-h-[1600px]"> <div class="w-16 border-r border-border shrink-0 bg-base/30 text-xs text-muted font-mono flex flex-col items-center py-2" id="cal-time-gutter"></div><div class="flex-1 flex relative" id="cal-grid-columns"></div><div id="cal-current-time" class="absolute left-16 right-0 border-t-2 border-red-500 z-20 pointer-events-none hidden"><div class="absolute -left-2 -top-1.5 w-3 h-3 bg-red-500 rounded-full"></div></div></div></div></div>
+                    <!-- Unscheduled Sidebar -->
+                    <div class="w-64 bg-surface border border-border rounded-2xl flex flex-col shadow-inner shrink-0">
+                        <div class="p-3 border-b border-border bg-base/50 font-bold text-xs uppercase text-muted tracking-wider">Tasks to Schedule</div>
+                        <div id="cal-unscheduled-list" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar" ondragover="allowDrop(event)" ondrop="handleUnscheduleDrop(event)"></div>
+                    </div>
+
+                    <!-- Main Calendar Grid -->
+                    <div class="flex-1 bg-surface border border-border rounded-2xl overflow-hidden flex flex-col relative shadow-inner">
+                        <div class="flex border-b border-border bg-base/80 backdrop-blur-md z-10" id="cal-header-row"></div>
+
+                        <div class="flex-1 overflow-y-auto custom-scrollbar relative" id="cal-scroll-area">
+                            <div class="flex min-h-[1600px]"> 
+                                <div class="w-16 border-r border-border shrink-0 bg-base/30 text-xs text-muted font-mono flex flex-col items-center py-2" id="cal-time-gutter"></div>
+                                <div class="flex-1 flex relative" id="cal-grid-columns"></div>
+
+                                <!-- Current Time Red Line -->
+                                <div id="cal-current-time" class="absolute left-16 right-0 border-t-2 border-red-500 z-20 pointer-events-none hidden">
+                                    <div class="absolute -left-2 -top-1.5 w-3 h-3 bg-red-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 3. COMPLETED VIEW -->
+            <!-- VIEW 3: COMPLETED HISTORY -->
             <div id="s-view-completed" class="hidden flex-1 overflow-y-auto p-6 fade-in custom-scrollbar">
                 <h2 class="text-2xl font-bold mb-6">Task Archive</h2>
                 <div id="list-completed" class="grid grid-cols-1 gap-3 opacity-75 pb-20"></div>
             </div>
 
-            <!-- 4. PROFILE VIEW -->
+            <!-- VIEW 4: PROFILE (Classes) -->
             <div id="s-view-profile" class="hidden flex-1 overflow-y-auto p-6 fade-in custom-scrollbar">
                 <h2 class="text-2xl font-bold mb-6">My Classes</h2>
                 <div id="profile-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20"></div>
             </div>
 
-            <!-- 5. CLASS DETAIL VIEW -->
+            <!-- VIEW 5: CLASS DETAILS (Sub-view of Profile) -->
             <div id="s-view-class-detail" class="hidden flex-1 flex flex-col h-full fade-in p-6">
                 <div class="flex items-center gap-4 mb-6">
                     <button onclick="closeClassDetail()" class="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center hover:bg-base transition-colors shadow-sm"><i class="fa-solid fa-arrow-left"></i></button>
-                    <div><h2 class="text-2xl font-bold flex items-center gap-3"><span id="detail-class-name">--</span><span id="detail-class-dot" class="w-4 h-4 rounded-full shadow-sm"></span></h2><p class="text-xs text-muted">Course Assignment History</p></div><div class="flex-1"></div><button onclick="openCurrentClassSettings()" class="text-xs font-bold border border-border px-3 py-2 rounded-lg hover:bg-surface flex items-center gap-2 transition-colors"><i class="fa-solid fa-paint-roller text-primary"></i> Customize</button>
+                    <div>
+                        <h2 class="text-2xl font-bold flex items-center gap-3">
+                            <span id="detail-class-name">--</span>
+                            <span id="detail-class-dot" class="w-4 h-4 rounded-full shadow-sm"></span>
+                        </h2>
+                        <p class="text-xs text-muted">Course Assignment History</p>
+                    </div>
+                    <div class="flex-1"></div>
+                    <button onclick="openCurrentClassSettings()" class="text-xs font-bold border border-border px-3 py-2 rounded-lg hover:bg-surface flex items-center gap-2 transition-colors">
+                        <i class="fa-solid fa-paint-roller text-primary"></i> Customize
+                    </button>
                 </div>
                 <div class="bg-surface rounded-2xl border border-border flex-1 overflow-hidden flex flex-col shadow-sm">
                     <div class="p-4 border-b border-border bg-base/50 flex justify-between text-xs font-bold text-muted uppercase"><span>Assignment</span><span>Status</span></div>
@@ -115,8 +224,7 @@
                 </div>
             </div>
 
-            <!-- 2. SETTINGS VIEW -->
-            <!-- Added overflow-y-auto here to fix scrolling -->
+            <!-- VIEW 6: SETTINGS -->
             <div id="s-view-settings" class="hidden w-full h-full fade-in p-6 overflow-y-auto custom-scrollbar">
                 <div class="max-w-6xl mx-auto pb-20">
                     <h2 class="text-3xl font-bold mb-8">System Configuration</h2>
@@ -127,13 +235,13 @@
                         <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4" id="theme-selector"></div>
                     </div>
 
-                    <!-- MAIN GRID -->
+                    <!-- MAIN SETTINGS GRID -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                         <!-- LEFT COLUMN -->
                         <div class="space-y-8">
 
-                            <!-- 1. ACCESSIBILITY & PREFERENCES -->
+                            <!-- ACCESSIBILITY -->
                             <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                                 <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                                     <i class="fa-solid fa-universal-access text-primary"></i> Accessibility & Logic
@@ -169,7 +277,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Toggles Row B (Cognitive) -->
+                                    <!-- Toggles Row B (Density) -->
                                     <div class="grid grid-cols-2 gap-3">
                                         <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
                                             <span class="text-xs font-bold">Plain Language</span>
@@ -179,7 +287,6 @@
                                             </label>
                                         </div>
 
-                                        <!-- NEW: DENSITY SLIDER -->
                                         <div class="bg-base p-2 rounded-lg border border-border flex flex-col justify-center">
                                             <div class="flex justify-between text-[9px] uppercase font-bold text-muted mb-1 px-1">
                                                 <span>Cozy</span>
@@ -189,7 +296,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Logic: Date/Time -->
+                                    <!-- Toggles Row C (Logic) -->
                                     <div class="grid grid-cols-2 gap-3">
                                         <div>
                                             <select id="setting-dateformat" onchange="saveAdvancedSettings()" class="w-full p-2 rounded-lg bg-base border border-border text-xs font-bold outline-none">
@@ -206,7 +313,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Start Monday -->
                                     <div class="flex items-center justify-between bg-base p-2 rounded-lg border border-border">
                                         <span class="text-xs font-bold">Start Week on Monday</span>
                                         <label class="relative inline-flex items-center cursor-pointer">
@@ -217,7 +323,7 @@
                                 </div>
                             </div>
 
-                            <!-- 2. TIMER SETTINGS -->
+                            <!-- TIMER SETTINGS -->
                             <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                                 <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                                     <i class="fa-solid fa-stopwatch text-orange-500"></i> Timer Settings
@@ -237,7 +343,7 @@
                                 </button>
                             </div>
 
-                            <!-- 3. SECURITY -->
+                            <!-- SECURITY -->
                             <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                                 <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                                     <i class="fa-solid fa-lock text-red-500"></i> Security
@@ -261,7 +367,7 @@
                         <!-- RIGHT COLUMN -->
                         <div class="space-y-8">
 
-                            <!-- 4. SENSORY FEEDBACK -->
+                            <!-- SENSORY FEEDBACK -->
                             <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                                 <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
                                     <i class="fa-solid fa-ear-listen text-purple-500"></i> Sensory Profile
@@ -286,7 +392,7 @@
                                 </div>
                             </div>
 
-                            <!-- 5. MATRIX CALIBRATION -->
+                            <!-- MATRIX CALIBRATION -->
                             <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                                 <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
                                     <i class="fa-solid fa-calendar-check text-green-500"></i> Matrix Calibration
@@ -298,7 +404,7 @@
                                 </div>
                             </div>
 
-                            <!-- 6. BACKPACK PROTOCOL (Multi-Select) -->
+                            <!-- BACKPACK PROTOCOL (Multi-Select) -->
                             <div class="bg-surface p-6 rounded-2xl border border-border shadow-sm">
                                 <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
                                     <i class="fa-solid fa-suitcase text-accent"></i> Backpack Protocol
@@ -314,15 +420,37 @@
                                         </select>
                                     </div>
                                     <div class="flex flex-col gap-2 w-full">
-                                        <div id="bp-select-weekday" class="hidden w-full"><div class="flex justify-between gap-1"><button onclick="toggleBpWeekday(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">M</button><button onclick="toggleBpWeekday(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button><button onclick="toggleBpWeekday(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">W</button><button onclick="toggleBpWeekday(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button><button onclick="toggleBpWeekday(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">F</button><button onclick="toggleBpWeekday(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button><button onclick="toggleBpWeekday(0, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button></div></div>
-                                        <div id="bp-select-cycle" class="hidden w-full"><div class="flex justify-between gap-1"><button onclick="toggleBpCycleDay(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">1</button><button onclick="toggleBpCycleDay(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">2</button><button onclick="toggleBpCycleDay(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">3</button><button onclick="toggleBpCycleDay(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">4</button><button onclick="toggleBpCycleDay(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">5</button><button onclick="toggleBpCycleDay(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">6</button><button onclick="toggleBpCycleDay(7, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">7</button></div></div>
+                                        <div id="bp-select-weekday" class="hidden w-full">
+                                            <div class="flex justify-between gap-1">
+                                                <button onclick="toggleBpWeekday(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">M</button>
+                                                <button onclick="toggleBpWeekday(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button>
+                                                <button onclick="toggleBpWeekday(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">W</button>
+                                                <button onclick="toggleBpWeekday(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">T</button>
+                                                <button onclick="toggleBpWeekday(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">F</button>
+                                                <button onclick="toggleBpWeekday(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button>
+                                                <button onclick="toggleBpWeekday(0, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">S</button>
+                                            </div>
+                                        </div>
+                                        <div id="bp-select-cycle" class="hidden w-full">
+                                            <div class="flex justify-between gap-1">
+                                                <button onclick="toggleBpCycleDay(1, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">1</button>
+                                                <button onclick="toggleBpCycleDay(2, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">2</button>
+                                                <button onclick="toggleBpCycleDay(3, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">3</button>
+                                                <button onclick="toggleBpCycleDay(4, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">4</button>
+                                                <button onclick="toggleBpCycleDay(5, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">5</button>
+                                                <button onclick="toggleBpCycleDay(6, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">6</button>
+                                                <button onclick="toggleBpCycleDay(7, this)" class="h-8 flex-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-primary transition-colors">7</button>
+                                            </div>
+                                        </div>
                                         <button onclick="addBackpackItem()" class="w-full bg-primary text-white px-4 py-2 rounded-lg font-bold hover:opacity-90 transition-all text-xs">Add Item</button>
                                     </div>
                                 </div>
-                                <button onclick="generateWeeklyBackpackTasks()" class="w-full mt-4 bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"><i class="fa-solid fa-rotate"></i> Regenerate Week</button>
+                                <button onclick="generateWeeklyBackpackTasks()" class="w-full mt-4 bg-base border-2 border-dashed border-border hover:border-accent text-muted hover:text-accent font-bold py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-rotate"></i> Regenerate Week
+                                </button>
                             </div>
 
-                            <!-- 7. DANGER ZONE -->
+                            <!-- DANGER ZONE -->
                             <div class="bg-red-500/5 p-6 rounded-2xl border border-red-500/20 shadow-sm mt-8">
                                 <h3 class="font-bold text-lg mb-2 flex items-center gap-2 text-red-500">
                                     <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
@@ -339,7 +467,7 @@
             </div>
         </div> <!-- END MAIN SCROLLABLE -->
 
-        <!-- ADD BUTTON (OUTSIDE THE VIEWS) -->
+        <!-- FAB: ADD BUTTON -->
         <button onclick="openStudentModal()" class="absolute bottom-8 right-8 bg-primary hover:opacity-90 text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl transition-transform hover:scale-110 z-40 active:scale-95">
             <i class="fa-solid fa-plus"></i>
         </button>

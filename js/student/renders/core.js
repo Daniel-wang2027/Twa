@@ -1,56 +1,79 @@
+/* ==========================================================================
+   STUDENT CORE: INITIALIZATION & NAVIGATION
+   ==========================================================================
+   PURPOSE: 
+   1. Initializes the Student Interface.
+   2. Handles switching between main views (Dashboard, Calendar, History, etc).
+   3. Handles plain language translation for accessibility.
+   ========================================================================== */
+
 /* =========================================
-   STUDENT CORE: Init & Navigation
+   1. INITIALIZATION
    ========================================= */
 
 function initStudentUI() {
-    console.log("Initializing Student UI...");
+    console.log("🚀 Initializing Student UI...");
+
+    // Show the main layout container
     document.getElementById('student-layout').classList.remove('hidden');
 
-    // 1. Setup Profile
-    if(typeof currentUser !== 'undefined' && currentUser) {
+    // 1. Setup Profile Header
+    if (typeof currentUser !== 'undefined' && currentUser) {
         const initials = document.getElementById('s-profileInitials');
         const name = document.getElementById('s-profileName');
-        if(initials) initials.innerText = currentUser.name.slice(0,2).toUpperCase();
-        if(name) name.innerText = currentUser.name;
+
+        if (initials) initials.innerText = currentUser.name.slice(0,2).toUpperCase();
+        if (name) name.innerText = currentUser.name;
     }
 
-    // 2. Setup Header
+    // 2. Setup Stats & Config Inputs
     const streakEl = document.getElementById('streak-count');
     const dateEl = document.getElementById('currentDate');
     const densitySlider = document.getElementById('setting-density');
-    if(densitySlider && settings.density) {
+
+    // Sync slider with saved settings
+    if (densitySlider && settings.density) {
         densitySlider.value = settings.density === "roomy" ? "1" : "0";
     }
-    if(streakEl) streakEl.innerText = `${streak || 0} Day Streak`;
-    if(dateEl) dateEl.innerText = new Date().toLocaleDateString();
 
-    // 3. Initial Renders (Safe Checks)
-    if(typeof renderMatrix === 'function') renderMatrix();
-    if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
-    if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
-    if(typeof renderBackpackList === 'function') renderBackpackList();
-    if(typeof renderThemeButtons === 'function') renderThemeButtons('theme-selector');
-    if(typeof dashboardViewMode === 'undefined') dashboardViewMode = 'matrix';
+    if (streakEl) streakEl.innerText = `${streak || 0} Day Streak`;
+    if (dateEl) dateEl.innerText = new Date().toLocaleDateString();
+
+    // 3. Initial Render (Safe Mode)
+    // We check if functions exist before calling them to prevent crashes.
+    if (typeof renderMatrix === 'function') renderMatrix();
+    if (typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
+    if (typeof renderStudentBulletins === 'function') renderStudentBulletins();
+    if (typeof renderBackpackList === 'function') renderBackpackList();
+    if (typeof renderThemeButtons === 'function') renderThemeButtons('theme-selector');
+
+    // 4. Set Default View
+    if (typeof dashboardViewMode === 'undefined') dashboardViewMode = 'matrix';
     switchStudentView('dashboard');
-    updateInterfaceText();
-    // 4. Auto-Generate Backpack Tasks (Weekly)
+    updateInterfaceText(); // Apply plain language if needed
+
+    // 5. Backpack Automation
     try {
-        if(typeof generateWeeklyBackpackTasks === 'function') {
+        if (typeof generateWeeklyBackpackTasks === 'function') {
             generateWeeklyBackpackTasks();
         }
     } catch (e) {
         console.warn("Backpack generation skipped:", e);
     }
-
-    // 5. Load Preference
-    if (typeof dashboardViewMode === 'undefined') dashboardViewMode = 'matrix';
-    switchStudentView('dashboard');
 }
 
-function switchStudentView(view) {
-    if(typeof playSound === 'function') playSound('click');
+/* =========================================
+   2. VIEW NAVIGATION CONTROLLER
+   ========================================= */
 
-    // 1. Hide ALL views
+/**
+ * Switches the main content area.
+ * @param {string} view - 'dashboard', 'calendar', 'completed', 'profile', 'settings'
+ */
+function switchStudentView(view) {
+    if (typeof playSound === 'function') playSound('click');
+
+    // 1. Hide ALL Views & Reset Nav Buttons
     const views = ['dashboard', 'completed', 'profile', 'settings', 'class-detail', 'calendar'];
 
     views.forEach(v => {
@@ -58,88 +81,104 @@ function switchStudentView(view) {
         const btn = document.getElementById(`nav-s-${v}`);
 
         if (el) el.classList.add('hidden');
-        if (btn) btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent";
+        if (btn) {
+            btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-muted hover:text-text hover:bg-base border border-transparent";
+        }
     });
 
-    // 2. Show TARGET view
+    // 2. Show TARGET View
     const targetEl = document.getElementById(`s-view-${view}`);
     const targetBtn = document.getElementById(`nav-s-${view}`);
 
     if (targetEl) {
         targetEl.classList.remove('hidden');
-        // Force scroll to top
+
+        // Force scroll to top (UX Fix)
         const scroller = document.querySelector('.custom-scrollbar');
-        if(scroller) scroller.scrollTop = 0;
+        if (scroller) scroller.scrollTop = 0;
     } else {
         console.error(`Error: View container 's-view-${view}' not found in HTML.`);
         return;
     }
 
+    // Highlight Active Button
     if (targetBtn) {
         targetBtn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold bg-base text-primary border border-border shadow-sm";
     }
 
-    // 3. Render Data (Safe Mode)
+    // 3. Trigger Specific Logic per View
     if (view === 'dashboard') {
-        // Render the specific dashboard sub-view (Matrix/Planner/etc)
-        if(typeof dashboardViewMode !== 'undefined') {
-            const mode = dashboardViewMode;
-            // Toggle the sub-views inside dashboard
-            ['matrix', 'planner', 'stream', 'kanban'].forEach(m => {
-                const subView = document.getElementById(`view-mode-${m}`);
-                const subBtn = document.getElementById(`btn-view-${m}`);
-                if(subView) {
-                    if(m === mode) subView.classList.remove('hidden');
-                    else subView.classList.add('hidden');
-                }
-                if(subBtn) {
-                    if(m === mode) subBtn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 bg-primary text-white shadow-sm";
-                    else subBtn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 text-muted hover:text-text hover:bg-surface";
-                }
-            });
-
-            // Trigger specific render
-            if (mode === 'matrix' && typeof renderMatrix === 'function') renderMatrix();
-            if (mode === 'planner' && typeof renderStudentPlanner === 'function') renderStudentPlanner();
-            if (mode === 'stream' && typeof renderStream === 'function') renderStream();
-            if (mode === 'kanban' && typeof renderKanban === 'function') renderKanban();
-        }
-
-        if(typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
-        if(typeof renderStudentBulletins === 'function') renderStudentBulletins();
+        handleDashboardSubViews();
     }
 
     if (view === 'calendar') {
-        if(typeof renderCalendar === 'function') {
+        if (typeof renderCalendar === 'function') {
             renderCalendar();
-            // Scroll to morning (approx 8 AM)
+            // Scroll to 8:00 AM automatically
             setTimeout(() => {
                 const scrollArea = document.getElementById('cal-scroll-area');
-                if(scrollArea) scrollArea.scrollTop = 400; 
+                if (scrollArea) scrollArea.scrollTop = 400; 
             }, 50);
         }
     }
 
-    if (view === 'completed') {
-        if(typeof renderCompleted === 'function') renderCompleted();
-    }
-
-    if (view === 'profile') {
-        if(typeof renderProfile === 'function') renderProfile();
-    }
+    if (view === 'completed' && typeof renderCompleted === 'function') renderCompleted();
+    if (view === 'profile' && typeof renderProfile === 'function') renderProfile();
 }
+
+/**
+ * Helper to handle the sub-tabs inside the Dashboard (Matrix vs. List vs. Stream).
+ */
+function handleDashboardSubViews() {
+    if (typeof dashboardViewMode === 'undefined') return;
+
+    const mode = dashboardViewMode;
+
+    // Toggle Visibility
+    ['matrix', 'planner', 'stream', 'kanban'].forEach(m => {
+        const subView = document.getElementById(`view-mode-${m}`);
+        const subBtn = document.getElementById(`btn-view-${m}`);
+
+        if (subView) {
+            if (m === mode) subView.classList.remove('hidden');
+            else subView.classList.add('hidden');
+        }
+
+        if (subBtn) {
+            if (m === mode) subBtn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 bg-primary text-white shadow-sm";
+            else subBtn.className = "px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 text-muted hover:text-text hover:bg-surface";
+        }
+    });
+
+    // Render Data
+    if (mode === 'matrix' && typeof renderMatrix === 'function') renderMatrix();
+    if (mode === 'planner' && typeof renderStudentPlanner === 'function') renderStudentPlanner();
+    if (mode === 'stream' && typeof renderStream === 'function') renderStream();
+    if (mode === 'kanban' && typeof renderKanban === 'function') renderKanban();
+
+    // Always update header widgets
+    if (typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
+    if (typeof renderStudentBulletins === 'function') renderStudentBulletins();
+}
+
+/* =========================================
+   3. DASHBOARD WIDGETS
+   ========================================= */
 
 function renderWelcomeBanner() {
     const nameEl = document.getElementById('banner-student-name');
     const msgEl = document.getElementById('banner-message');
 
-    if(!nameEl || !msgEl) return;
+    if (!nameEl || !msgEl) return;
 
-    nameEl.innerText = currentUser.name.split(' ')[0]; 
+    nameEl.innerText = currentUser.name.split(' ')[0]; // First name only
 
     const today = new Date();
+
+    // Count tasks due TODAY that are NOT completed
     const count = globalTasks.filter(t => {
         if (t.completed) return false;
+
         const d = new Date(t.due);
         return d.getDate() === today.getDate() && 
                d.getMonth() === today.getMonth() && 
@@ -156,21 +195,25 @@ function renderWelcomeBanner() {
 function renderStudentBulletins() {
     const container = document.getElementById('student-bulletin-area');
     if (!container) return;
+
     container.innerHTML = '';
     let hasBulletins = false;
 
-    // Check if bulletins exist in state
-    if(typeof classBulletins !== 'undefined') {
+    // Check if any enrolled classes have active bulletins
+    if (typeof classBulletins !== 'undefined') {
         classes.forEach(cls => {
             const b = classBulletins[cls];
             if (b && b.active) {
                 hasBulletins = true;
                 const color = classPreferences[cls] || '#888';
+
                 container.innerHTML += `
                 <div class="bg-yellow-500/10 border border-yellow-500/50 p-4 rounded-xl flex items-start gap-4 shadow-sm mb-2 animate-pulse">
                     <div class="w-1 h-10 rounded-full" style="background:${color}"></div>
                     <div class="flex-1">
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-muted mb-1 flex items-center gap-2"><i class="fa-solid fa-thumbtack text-yellow-600"></i> ${cls} • Instructor Message</div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-muted mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-thumbtack text-yellow-600"></i> ${cls} • Instructor Message
+                        </div>
                         <div class="font-bold text-yellow-700 dark:text-yellow-400 text-sm leading-relaxed">"${b.msg}"</div>
                     </div>
                 </div>`;
@@ -178,14 +221,23 @@ function renderStudentBulletins() {
         });
     }
 
-    if (hasBulletins) container.classList.remove('hidden'); else container.classList.add('hidden');
+    // Toggle visibility based on content
+    if (hasBulletins) container.classList.remove('hidden'); 
+    else container.classList.add('hidden');
 }
 
-/* --- PLAIN LANGUAGE HELPER --- */
+/* =========================================
+   4. ACCESSIBILITY: PLAIN LANGUAGE
+   ========================================= */
+
+/**
+ * Translates academic jargon into simple English.
+ * Only active if settings.plainLanguage is true.
+ */
 function txt(original) {
     if (!settings || !settings.plainLanguage) return original;
 
-    // The Dictionary
+    // Dictionary
     const map = {
         'Matrix': 'Grid',
         'Calendar': 'Time',
@@ -209,34 +261,33 @@ function txt(original) {
         'Student HUD': 'My Board'
     };
 
-    // Case-insensitive check or direct match
+    // Return translation or original if not found
     return map[original] || map[original.toUpperCase()] || original;
 }
 
-/* --- UPDATE SIDEBAR TEXT --- */
 function updateInterfaceText() {
     // 1. Sidebar Buttons
     const updates = [
         { id: 'nav-s-dashboard', text: 'Matrix' },
-        { id: 'nav-s-calendar', text: 'Calendar' },
+        { id: 'nav-s-calendar',  text: 'Calendar' },
         { id: 'nav-s-completed', text: 'History' },
-        { id: 'nav-s-profile', text: 'Classes' },
-        { id: 'nav-s-settings', text: 'Settings' }
+        { id: 'nav-s-profile',   text: 'Classes' },
+        { id: 'nav-s-settings',  text: 'Settings' }
     ];
 
     updates.forEach(u => {
         const btn = document.getElementById(u.id);
-        if(btn) {
-            // Keep the icon, change the text
+        if (btn) {
+            // Keep the icon, update the text label
             const icon = btn.querySelector('i').outerHTML; 
             btn.innerHTML = `${icon} ${txt(u.text)}`;
         }
     });
 
-    // 2. Titles
+    // 2. Section Titles
     const histTitle = document.querySelector('#s-view-completed h2');
-    if(histTitle) histTitle.innerText = txt('Task Archive');
+    if (histTitle) histTitle.innerText = txt('Task Archive');
 
     const hudTitle = document.querySelector('.tracking-tight');
-    if(hudTitle && hudTitle.innerText === 'Student HUD') hudTitle.innerText = txt('Student HUD');
+    if (hudTitle && hudTitle.innerText === 'Student HUD') hudTitle.innerText = txt('Student HUD');
 }

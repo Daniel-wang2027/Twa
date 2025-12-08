@@ -1,48 +1,60 @@
+<!-- ==========================================================================
+     ADMIN DASHBOARD LAYOUT
+     ========================================================================== -->
+
 <div id="admin-layout" class="flex w-full h-full fade-in text-text">
     
-    <!-- SIDEBAR -->
+    <!-- 1. SIDEBAR NAVIGATION -->
     <aside class="w-64 bg-surface border-r border-border flex flex-col z-20">
+        <!-- Logo / Identity -->
         <div class="p-6 flex items-center gap-3">
             <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">A</div>
             <span class="text-lg font-bold tracking-tight">SysAdmin</span>
         </div>
         
+        <!-- Navigation Links -->
         <div class="px-4 space-y-1">
             <button onclick="switchAdminTab('students')" id="tab-students" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium bg-primary/10 text-primary border border-primary/20 transition-all">
-                <i class="fa-solid fa-graduation-cap w-5"></i> Students
+                <i class="fa-solid fa-graduation-cap w-5" aria-hidden="true"></i> Students
             </button>
             <button onclick="switchAdminTab('teachers')" id="tab-teachers" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted hover:text-text hover:bg-base transition-all">
-                <i class="fa-solid fa-chalkboard-user w-5"></i> Teachers
+                <i class="fa-solid fa-chalkboard-user w-5" aria-hidden="true"></i> Teachers
             </button>
             <button onclick="switchAdminTab('catalog')" id="tab-catalog" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted hover:text-text hover:bg-base transition-all">
-                <i class="fa-solid fa-book-open w-5"></i> Course Catalog
+                <i class="fa-solid fa-book-open w-5" aria-hidden="true"></i> Course Catalog
             </button>
         </div>
 
+        <!-- Footer Actions -->
         <div class="p-6 mt-auto border-t border-border">
             <button onclick="doLogout()" class="text-xs text-red-500 hover:underline">Log Out</button>
         </div>
     </aside>
 
-    <!-- MAIN CONTENT -->
+    <!-- 2. MAIN CONTENT AREA -->
     <main class="flex-1 flex flex-col h-full overflow-hidden bg-base relative">
+        
+        <!-- Header -->
         <header class="h-20 flex items-center justify-between px-8 border-b border-border bg-surface">
             <h1 class="text-2xl font-bold" id="admin-header-title">Directory</h1>
+            
+            <!-- Contextual Actions -->
             <div id="admin-actions">
                 <button onclick="openCreateUserModal()" id="btn-create-user" class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:opacity-90 text-sm">
-                    <i class="fa-solid fa-user-plus mr-2"></i> Add User
+                    <i class="fa-solid fa-user-plus mr-2" aria-hidden="true"></i> Add User
                 </button>
                 <button onclick="openCreateCourseModal()" id="btn-create-course" class="hidden bg-purple-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:opacity-90 text-sm">
-                    <i class="fa-solid fa-plus mr-2"></i> Add Course
+                    <i class="fa-solid fa-plus mr-2" aria-hidden="true"></i> Add Course
                 </button>
             </div>
         </header>
 
+        <!-- Scrollable Content -->
         <div class="flex-1 overflow-auto p-8">
             
-            <!-- VIEW: STUDENTS (Refactored for Groups) -->
+            <!-- VIEW: STUDENTS (Grouped by Grade Level) -->
             <div id="view-students" class="admin-view space-y-8">
-                <!-- Content injected by manager.js -->
+                <!-- Content injected by JS (manager.js -> renderStudentList) -->
             </div>
 
             <!-- VIEW: TEACHERS -->
@@ -67,10 +79,15 @@
                 <input type="text" onkeyup="renderCatalogView(this.value)" placeholder="Search catalog..." class="w-full p-3 mb-4 rounded-xl bg-surface border border-border outline-none focus:border-primary">
                 <div id="admin-catalog-container" class="space-y-6"></div>
             </div>
+
         </div>
     </main>
 
-    <!-- MODAL: COURSE DETAILS (INSTANCES) -->
+    <!-- ==========================================================================
+         MODALS (Popups)
+         ========================================================================== -->
+
+    <!-- MODAL: COURSE DETAILS (Manage Sections/Instances) -->
     <div id="courseDetailsModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
         <div class="bg-surface p-8 rounded-3xl w-full max-w-lg border border-border shadow-2xl">
             <div class="flex justify-between items-start mb-6">
@@ -78,17 +95,23 @@
                     <h2 class="text-xl font-bold" id="cd-title">Course Name</h2>
                     <p class="text-primary font-mono text-sm" id="cd-id">ID</p>
                 </div>
-                <button onclick="document.getElementById('courseDetailsModal').classList.add('hidden')" class="text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="document.getElementById('courseDetailsModal').classList.add('hidden')" class="text-muted hover:text-text">
+                    <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+                </button>
             </div>
 
+            <!-- Active Sections List -->
             <div class="mb-6">
                 <label class="text-xs font-bold text-muted uppercase mb-2 block">Active Sections / Instances</label>
                 <div id="cd-instance-list" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar border border-border rounded-xl p-2 bg-base"></div>
             </div>
 
+            <!-- Add Section Input -->
             <div class="flex gap-2">
                 <input type="text" id="cd-new-inst" placeholder="New Section ID (e.g. 2, H, -1)" class="flex-1 p-3 rounded-xl bg-base border border-border outline-none focus:border-primary text-sm">
-                <button onclick="addInstanceAction()" class="bg-primary text-white px-4 rounded-xl font-bold hover:opacity-90"><i class="fa-solid fa-plus"></i></button>
+                <button onclick="addInstanceAction()" class="bg-primary text-white px-4 rounded-xl font-bold hover:opacity-90">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                </button>
             </div>
             
             <div class="mt-6 pt-6 border-t border-border flex justify-between items-center">
@@ -168,18 +191,24 @@
         </div>
     </div>
 
-    <!-- MODAL: ASSIGN CLASSES -->
+    <!-- MODAL: ASSIGN CLASSES (Enrollment Manager) -->
     <div id="enrollmentModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
         <div class="bg-surface p-8 rounded-3xl w-full max-w-2xl border border-border shadow-2xl flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">Schedule: <span id="em-username" class="text-primary">--</span></h2>
-                <button onclick="closeEnrollmentModal()" class="text-muted hover:text-text"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="closeEnrollmentModal()" class="text-muted hover:text-text">
+                    <i class="fa-solid fa-xmark text-xl" aria-hidden="true"></i>
+                </button>
             </div>
+            
             <div class="grid grid-cols-2 gap-6 flex-1 overflow-hidden">
+                <!-- Left: Search Catalog -->
                 <div class="flex flex-col h-full">
                     <input type="text" id="em-search" onkeyup="filterEnrollmentCatalog()" placeholder="Search Catalog..." class="w-full p-2 mb-2 rounded-lg bg-base border border-border text-sm">
                     <div id="em-catalog-list" class="flex-1 overflow-y-auto bg-base border border-border rounded-xl p-2 space-y-1 custom-scrollbar"></div>
                 </div>
+                
+                <!-- Right: Assigned Classes -->
                 <div class="flex flex-col h-full">
                     <label class="text-xs font-bold text-muted uppercase mb-2">Assigned</label>
                     <div id="em-assigned-list" class="flex-1 overflow-y-auto bg-base border border-border rounded-xl p-2 space-y-1 custom-scrollbar"></div>
@@ -187,4 +216,5 @@
             </div>
         </div>
     </div>
+
 </div>

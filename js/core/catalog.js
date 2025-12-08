@@ -1,11 +1,22 @@
-/* =========================================
+/* ==========================================================================
    COURSE CATALOG DATABASE
-   ========================================= */
+   ==========================================================================
+   PURPOSE: 
+   1. Defines the "Master List" of all available courses (DEFAULT_CATALOG).
+   2. Manages LocalStorage for Courses and specific Sections (Instances).
+
+   DATA STRUCTURE:
+   - Catalog: Array of objects { id, name, dept }
+   - Instances: Object where Key = CourseID, Value = Array of Section strings.
+     Example: { "1103": ["1", "2"}
+   ========================================================================== */
 
 const CATALOG_KEY = "operation_twa_catalog_v1";
 const INSTANCE_KEY = "operation_twa_instances_v1"; 
 
-// THE FULL COURSE LIST
+/* =========================================
+   1. THE MASTER COURSE LIST (Seed Data)
+   ========================================= */
 const DEFAULT_CATALOG = [
     // --- ENGLISH ---
     { id: "1103", name: "Introduction to Language and Literature", dept: "English" },
@@ -255,31 +266,53 @@ const DEFAULT_CATALOG = [
 ];
 
 /* =========================================
-   LOGIC
+   2. COURSE MANAGEMENT LOGIC
    ========================================= */
 
-// 1. GET CATALOG
+/**
+ * Loads the catalog from LocalStorage.
+ * If empty, it seeds it with DEFAULT_CATALOG.
+ */
 function getCatalog() {
     const raw = localStorage.getItem(CATALOG_KEY);
-    if(raw) return JSON.parse(raw);
+    if (raw) return JSON.parse(raw);
+
+    // First time setup:
     localStorage.setItem(CATALOG_KEY, JSON.stringify(DEFAULT_CATALOG));
     return DEFAULT_CATALOG;
 }
 
-// 2. GET COURSE DETAILS
+/**
+ * Returns course info based on a composite ID (e.g. "1103-1" -> "Introduction to Lit")
+ * @param {string} fullId - The string containing ID and optional section (e.g., "1103-2")
+ */
 function getCourseDetails(fullId) {
-    if(!fullId) return null;
+    if (!fullId) return null;
+
+    // Split "1103-1" into ["1103", "1"] and take the first part
     const baseId = fullId.split('-')[0];
+
     const catalog = getCatalog();
     let course = catalog.find(c => c.id === baseId);
-    if(!course) return { id: baseId, name: "Unknown (" + baseId + ")", dept: "N/A" };
+
+    if (!course) {
+        return { 
+            id: baseId, 
+            name: "Unknown Course (" + baseId + ")", 
+            dept: "N/A" 
+        };
+    }
     return course;
 }
 
-// 3. CATALOG CRUD
+/* --- ADD / REMOVE COURSES --- */
+
 function addNewCourseToCatalog(id, name, dept) {
     const catalog = getCatalog();
-    if(catalog.find(c => c.id === id)) return false;
+
+    // Prevent duplicate IDs
+    if (catalog.find(c => c.id === id)) return false;
+
     catalog.push({ id, name, dept });
     localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
     return true;
@@ -291,34 +324,50 @@ function removeCourseFromCatalog(id) {
     localStorage.setItem(CATALOG_KEY, JSON.stringify(catalog));
 }
 
-/* --- NEW: INSTANCE MANAGEMENT --- */
+/* =========================================
+   3. INSTANCE (SECTION) MANAGEMENT
+   ========================================= */
+/* 
+   An "Instance" is a specific section of a course.
+   Example: Course "1103" might have sections ["1", "2", "Honors"].
+   This data is stored separately from the main catalog.
+*/
 
-// Get all sections for a specific course (e.g. "1103" -> ["1", "2", "Honors"])
+/**
+ * Returns all active sections for a specific Course ID.
+ * Returns array: ["1", "2", "3"]
+ */
 function getCourseInstances(courseId) {
     const raw = localStorage.getItem(INSTANCE_KEY);
     const db = raw ? JSON.parse(raw) : {};
-    return db[courseId] || []; // Returns array of section IDs
+    return db[courseId] || []; 
 }
 
-// Add a section (e.g. course "1103", section "1")
+/**
+ * Adds a new section to a course.
+ */
 function addInstanceToCourse(courseId, sectionId) {
     const raw = localStorage.getItem(INSTANCE_KEY);
     const db = raw ? JSON.parse(raw) : {};
 
-    if(!db[courseId]) db[courseId] = [];
-    if(db[courseId].includes(sectionId)) return false; // Duplicate
+    if (!db[courseId]) db[courseId] = [];
+
+    // Prevent duplicate sections
+    if (db[courseId].includes(sectionId)) return false; 
 
     db[courseId].push(sectionId);
     localStorage.setItem(INSTANCE_KEY, JSON.stringify(db));
     return true;
 }
 
-// Remove a section
+/**
+ * Removes a section from a course.
+ */
 function removeInstanceFromCourse(courseId, sectionId) {
     const raw = localStorage.getItem(INSTANCE_KEY);
     const db = raw ? JSON.parse(raw) : {};
 
-    if(db[courseId]) {
+    if (db[courseId]) {
         db[courseId] = db[courseId].filter(s => s !== sectionId);
         localStorage.setItem(INSTANCE_KEY, JSON.stringify(db));
     }
