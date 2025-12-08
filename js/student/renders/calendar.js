@@ -1,5 +1,5 @@
 /* =========================================
-   STUDENT CALENDAR (Time Blocking)
+   STUDENT CALENDAR (Timestamp Fix)
    ========================================= */
 
 const CAL_START_HOUR = 6; 
@@ -14,16 +14,22 @@ function renderCalendar() {
 
     if(!gridCols) return;
 
+    // 1. Setup Dates
     const curr = new Date();
+    if(typeof calendarOffset === 'undefined') calendarOffset = 0;
     curr.setDate(curr.getDate() + (calendarOffset * 7));
-    const first = curr.getDate() - curr.getDay() + 1;
+
+    const first = curr.getDate() - curr.getDay() + 1; // Monday
     const weekStart = new Date(curr.setDate(first));
+    weekStart.setHours(0,0,0,0);
     const weekEnd = new Date(new Date(weekStart).setDate(weekStart.getDate() + 6));
+
     label.innerText = `${weekStart.toLocaleDateString()} - ${weekEnd.toLocaleDateString()}`;
 
-    // Render Gutter
+    // 2. Render Time Gutter
     const is24 = settings.timeFormat24 || false;
     timeGutter.innerHTML = '';
+
     for(let h = CAL_START_HOUR; h <= CAL_END_HOUR; h++) {
         let timeStr = is24 ? `${h}:00` : (h > 12 ? `${h-12} PM` : (h === 12 ? `12 PM` : (h === 24 ? `12 AM` : `${h} AM`)));
         timeGutter.innerHTML += `<div style="height:${PIXELS_PER_HOUR}px" class="flex items-start justify-center pt-1 border-b border-transparent">${timeStr}</div>`;
@@ -31,17 +37,20 @@ function renderCalendar() {
 
     renderUnscheduledSidebar();
 
-    // Render Grid
+    // 3. Render Columns
     let headersHtml = '<div class="w-16 border-r border-border shrink-0 bg-base/50"></div>';
     let columnsHtml = '';
 
     for(let i=0; i<7; i++) {
         const loopDate = new Date(weekStart);
         loopDate.setDate(weekStart.getDate() + i);
-        const dateStr = loopDate.toISOString().split('T')[0];
+
+        // --- FIX: USE TIMESTAMP (No Timezone Errors) ---
+        const columnTimestamp = loopDate.getTime(); 
 
         const isToday = new Date().toDateString() === loopDate.toDateString();
         const headClass = isToday ? "text-primary font-extrabold bg-primary/5" : "text-muted font-bold";
+
         headersHtml += `
         <div class="flex-1 text-center py-3 border-r border-border ${headClass}">
             <div class="text-xs uppercase tracking-widest">${loopDate.toLocaleDateString('en-US', { weekday: 'short' })}</div>
@@ -55,10 +64,11 @@ function renderCalendar() {
 
         const taskHtml = getTasksForCalendarColumn(loopDate);
 
+        // Pass NUMBER to handleCalendarDrop
         columnsHtml += `
         <div class="flex-1 border-r border-border relative bg-base/5 group transition-colors hover:bg-base/10"
              ondragover="allowDrop(event)"
-             ondrop="handleCalendarDrop(event, '${dateStr}')">
+             ondrop="handleCalendarDrop(event, ${columnTimestamp})">
             <div class="absolute inset-0 z-0 pointer-events-none">${bgLines}</div>
             ${taskHtml}
         </div>`;
@@ -100,8 +110,12 @@ function getTasksForCalendarColumn(dateObj) {
     let html = '';
     const tasks = globalTasks.filter(t => {
         if(t.completed || !t.plannedDate) return false;
+
+        // Robust Date Comparison
         const pDate = new Date(t.plannedDate);
-        return pDate.getDate() === dateObj.getDate() && pDate.getMonth() === dateObj.getMonth() && pDate.getFullYear() === dateObj.getFullYear();
+        return pDate.getDate() === dateObj.getDate() && 
+               pDate.getMonth() === dateObj.getMonth() && 
+               pDate.getFullYear() === dateObj.getFullYear();
     });
 
     tasks.forEach(t => {
@@ -123,7 +137,7 @@ function getTasksForCalendarColumn(dateObj) {
         html += `
         <div draggable="true" ondragstart="handleDragStart(event, ${t.id}, ${duration})"
              onclick="openTaskDetails(${t.id})" 
-             class="absolute inset-x-1 rounded-lg border-l-4 shadow-sm hover:brightness-110 cursor-pointer overflow-hidden text-[10px] p-1 flex flex-col justify-start transition-all hover:scale-[1.02] hover:z-20"
+             class="absolute inset-x-1 rounded-lg border-l-4 shadow-sm hover:brightness-110 cursor-pointer overflow-hidden text-[10px] p-1 flex flex-col justify-start transition-all hover:scale-[1.02] hover:z-20 bg-surface"
              style="top:${topPx}px; height:${heightPx}px; background-color:${color}20; border-left-color:${color}; border: 1px solid ${color}40; border-left-width: 4px;">
             <div class="font-bold truncate text-text leading-tight">${t.title}</div>
             <div class="opacity-70 truncate">${timeStr} (${t.est}m)</div>
@@ -134,7 +148,7 @@ function getTasksForCalendarColumn(dateObj) {
 
 function updateTimeLine() {
     const line = document.getElementById('cal-current-time');
-    if(calendarOffset !== 0 || !line) { if(line) line.classList.add('hidden'); return; }
+    if(typeof calendarOffset === 'undefined' || calendarOffset !== 0 || !line) { if(line) line.classList.add('hidden'); return; }
 
     const now = new Date();
     const h = now.getHours();
