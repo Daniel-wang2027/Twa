@@ -1,5 +1,5 @@
 /* ==========================================================================
-   INTERACTIVE ONBOARDING TOUR (Expanded & Fixed)
+   INTERACTIVE ONBOARDING TOUR (Fixed: Runs Once)
    ========================================================================== */
 
 let tourStep = 0;
@@ -21,7 +21,7 @@ const TOURS = {
             position: 'right'
         },
         {
-            target: '#btn-view-planner', // Targets the View Switcher
+            target: '#btn-view-planner', 
             title: "Brain-Friendly Views",
             text: "Not a list person? Switch between Matrix, Weekly Planner, Linear Stream, or Kanban Board here.",
             position: 'bottom'
@@ -33,10 +33,11 @@ const TOURS = {
             position: 'right'
         },
         {
-            target: 'button[onclick="openStudentModal()"]', // The FAB button
+            // Use querySelector logic for buttons without IDs
+            target: 'button[onclick="openStudentModal()"]', 
             title: "Quick Capture",
             text: "Click this + button anywhere to add a personal task or reminder immediately.",
-            position: 'left' // Put tooltip to the left so it stays on screen
+            position: 'left'
         },
         {
             target: '#timer-container',
@@ -77,13 +78,13 @@ const TOURS = {
             position: 'center' 
         },
         { 
-            target: 'button[onclick="setBulletin()"]', // Bulletin Button
+            target: 'button[onclick="setBulletin()"]', 
             title: "Sticky Notes",
             text: "Post a global announcement (like 'Bring Textbooks') to the top of every student's dashboard.",
             position: 'bottom'
         },
         { 
-            target: 'button[onclick="bulkShiftDates()"]', // Snow Day Button
+            target: 'button[onclick="bulkShiftDates()"]', 
             title: "Snow Day Protocol",
             text: "School cancelled? Click this to instantly shift all due dates forward by 1 day.",
             position: 'bottom'
@@ -106,8 +107,11 @@ const TOURS = {
 function startOnboarding(role) {
     if (!role || !TOURS[role]) return;
 
-    // Check if tour already done (Comment out for testing)
-    // if (localStorage.getItem(`twa_tour_done_${role}`)) return;
+    // --- FIX: CHECK IF DONE ---
+    // If this key exists in LocalStorage, stop immediately.
+    if (localStorage.getItem(`twa_tour_done_${role}`)) {
+        return;
+    }
 
     tourScenario = TOURS[role];
     tourStep = 0;
@@ -177,9 +181,8 @@ function positionTooltip(targetRect, position) {
 
     const spacing = 20;
     const tooltipWidth = 320;
-    const tooltipHeight = 200; // Approx height
+    const tooltipHeight = 200; 
 
-    // LOGIC: Check boundaries to prevent off-screen
     const winW = window.innerWidth;
     const winH = window.innerHeight;
 
@@ -188,7 +191,6 @@ function positionTooltip(targetRect, position) {
     if (position === 'right') {
         top = targetRect.top;
         left = targetRect.right + spacing;
-        // If goes off right edge, flip to left
         if (left + tooltipWidth > winW) left = targetRect.left - tooltipWidth - spacing;
     } 
     else if (position === 'left') {
@@ -198,7 +200,6 @@ function positionTooltip(targetRect, position) {
     else if (position === 'bottom') {
         top = targetRect.bottom + spacing;
         left = targetRect.left;
-        // If goes off bottom, flip to top
         if (top + tooltipHeight > winH) top = targetRect.top - tooltipHeight - spacing;
     }
     else if (position === 'top') {
@@ -206,7 +207,6 @@ function positionTooltip(targetRect, position) {
         left = targetRect.left;
     }
 
-    // Apply & Clamp (Keep onscreen)
     if (top !== undefined && left !== undefined) {
         // Clamp Horizontal
         if (left < 10) left = 10;
@@ -243,6 +243,8 @@ function endTour() {
     const container = document.getElementById('tour-container');
     if(container) container.classList.add('hidden');
 
+    // --- FIX: SAVE COMPLETION STATUS ---
+    // This prevents the tour from running again
     if(typeof userRole !== 'undefined') {
         localStorage.setItem(`twa_tour_done_${userRole}`, 'true');
     }
