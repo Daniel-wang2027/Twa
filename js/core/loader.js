@@ -103,6 +103,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (e) {
         console.error("Initialization Error during UI startup:", e);
     }
+
+        // 4. Start the Logic
+        try {
+            if (userRole === 'student') {
+                if(typeof initStudentUI === 'function') initStudentUI();
+            } else if (userRole === 'teacher') {
+                if(typeof initTeacherUI === 'function') initTeacherUI();
+            } else if (userRole === 'admin') {
+                if(typeof initAdminUI === 'function') initAdminUI();
+            }
+
+            // --- NEW: START TOUR ---
+            // Wait 1 second for UI to settle
+            setTimeout(() => {
+                if(typeof startOnboarding === 'function') {
+                    startOnboarding(userRole);
+                }
+            }, 1000);
+
+        } catch (e) {
+            console.error("Init Error:", e);
+        }
+    // ...
 });
 
 /* =========================================
