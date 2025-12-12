@@ -166,7 +166,7 @@ function createMatrixCard(t) {
         <div class="absolute top-0 left-0 right-0 h-1" style="background:${color}"></div>
         <div class="flex justify-between mb-1 mt-1">
             <span class="text-[9px] font-bold uppercase border border-border px-1.5 py-0.5 rounded text-muted bg-base">${typeLabel}</span>
-            <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="text-muted hover:text-green-500"><i class="fa-regular fa-square"></i></button>
+            <button onclick="event.stopPropagation(); toggleComplete('${t.id}')" class="text-muted hover:text-green-500"><i class="fa-regular fa-square"></i></button>
         </div>
         <div class="font-bold text-sm leading-tight mb-1 text-text ${t.completed ? 'line-through opacity-50' : ''}">${t.title}</div>
         <div class="text-xs ${timeClass} flex justify-between"><span class="flex items-center">${bufferIcon} ${timeStr}</span><span class="text-muted">${t.est}m</span></div>
@@ -270,7 +270,7 @@ function createPlannerTaskCard(t) {
         </div>
         <div class="font-bold text-sm leading-tight text-text mb-1">${t.title}</div>
         <div class="text-[10px] text-muted truncate">${t.course}</div>
-        <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="w-full mt-2 py-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-green-500 hover:border-green-500 transition-colors">Mark Done</button>
+        <button onclick="event.stopPropagation(); toggleComplete('${t.id}')" class="w-full mt-2 py-1 rounded bg-base border border-border text-xs font-bold text-muted hover:text-green-500 hover:border-green-500 transition-colors">Mark Done</button>
     </div>`;
 }
 
@@ -340,7 +340,7 @@ function renderStream() {
                 </div>
                 <div class="text-right">
                     <div class="font-mono text-sm font-bold">${t.est}m</div>
-                    <button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="mt-1 text-muted hover:text-green-500"><i class="fa-regular fa-square text-xl"></i></button>
+                    <button onclick="event.stopPropagation(); toggleComplete('${t.id}')" class="mt-1 text-muted hover:text-green-500"><i class="fa-regular fa-square text-xl"></i></button>
                 </div>
             </div>`;
         });
@@ -389,7 +389,7 @@ function renderKanban() {
         <div onclick="openTaskDetails(${t.id})" class="bg-base border border-border p-3 rounded-xl shadow-sm hover:border-primary/50 cursor-pointer group transition-all">
             <div class="flex justify-between items-start mb-2">
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-surface border border-border" style="color:${color}">${t.course}</span>
-                ${target !== 'done' ? `<button onclick="event.stopPropagation(); toggleComplete(${t.id})" class="text-muted hover:text-green-500"><i class="fa-regular fa-square"></i></button>` : '<i class="fa-solid fa-check text-green-500"></i>'}
+                ${target !== 'done' ? `<button onclick="event.stopPropagation(); toggleComplete('${t.id}')" class="text-muted hover:text-green-500"><i class="fa-regular fa-square"></i></button>` : '<i class="fa-solid fa-check text-green-500"></i>'}
             </div>
             <div class="font-bold text-sm leading-tight mb-2 ${t.completed ? 'line-through text-muted' : ''}">${t.title}</div>
             <div class="flex justify-between items-center text-xs text-muted"><span><i class="fa-regular fa-clock"></i> ${dateStr}</span><span>${t.est}m</span></div>

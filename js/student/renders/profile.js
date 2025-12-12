@@ -83,8 +83,9 @@ function renderClassDetailList(className) {
         const isLate = !t.completed && new Date(t.due) < new Date();
         const dateStr = new Date(t.due).toLocaleDateString() + ' ' + new Date(t.due).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
+        // FIX: Added quotes around '${t.id}' to prevent ID math errors
         container.innerHTML += `
-        <div onclick="openTaskDetails(${t.id})" class="flex items-center justify-between p-3 rounded-lg hover:bg-base cursor-pointer border border-transparent hover:border-border transition-colors group">
+        <div onclick="openTaskDetails('${t.id}')" class="flex items-center justify-between p-3 rounded-lg hover:bg-base cursor-pointer border border-transparent hover:border-border transition-colors group">
             <div class="flex items-center gap-3">
                 <!-- Status Icon -->
                 <div class="text-${t.completed ? 'green-500' : (isLate ? 'red-500' : 'muted')}">
@@ -127,8 +128,9 @@ function renderCompleted() {
     }
 
     doneTasks.forEach(t => { 
+        // FIX: Added onclick handler with quotes around '${t.id}' so you can click history items
         list.innerHTML += `
-        <div class="flex items-center gap-4 bg-surface p-4 rounded-xl border border-border opacity-60">
+        <div onclick="openTaskDetails('${t.id}')" class="flex items-center gap-4 bg-surface p-4 rounded-xl border border-border opacity-60 cursor-pointer hover:opacity-100 hover:border-primary/50 transition-all">
             <i class="fa-solid fa-check-circle text-accent text-xl"></i>
             <div>
                 <div class="font-bold line-through">${t.title}</div>

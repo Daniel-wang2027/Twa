@@ -42,7 +42,7 @@ function addTask() {
 
     // Create Task Object
     const newTask = {
-        id: Date.now(), 
+        id: Date.now(), // Number
         title, 
         course, 
         due: new Date(due).toISOString(),
@@ -65,7 +65,8 @@ function addTask() {
    ========================================= */
 
 function toggleComplete(id) {
-    const t = globalTasks.find(x => x.id === id);
+    // FIX: Use loose comparison (==) for String vs Number IDs
+    const t = globalTasks.find(x => x.id == id);
     if (!t) return;
 
     // Toggle OFF (Un-complete)
@@ -79,7 +80,7 @@ function toggleComplete(id) {
     }
 
     // Toggle ON (Open Completion Modal)
-    completingTaskId = id;
+    completingTaskId = t.id; 
     document.getElementById('cm-difficulty').value = 0;
     document.getElementById('cm-time').value = t.est || ""; 
 
@@ -110,23 +111,16 @@ function setDifficulty(val) {
     // Highlight Selected Button
     const selectedBtn = document.querySelector(`.diff-btn[data-val="${val}"]`);
     if (selectedBtn) {
-        // Define color map for selected state
-        const colors = {
-            1: 'green-500',
-            2: 'yellow-500',
-            3: 'orange-500',
-            4: 'red-500',
-            5: 'purple-600'
-        };
+        const colors = { 1: 'green-500', 2: 'yellow-500', 3: 'orange-500', 4: 'red-500', 5: 'purple-600' };
         const c = colors[val];
-
         selectedBtn.classList.remove('text-muted', 'border-border');
         selectedBtn.classList.add(`bg-${c}`, 'text-white', `border-${c}`, 'scale-110', 'shadow-lg');
     }
 }
 
 function confirmCompletion() {
-    const t = globalTasks.find(x => x.id === completingTaskId);
+    // FIX: Use loose comparison
+    const t = globalTasks.find(x => x.id == completingTaskId);
     if (t) {
         const diff = parseInt(document.getElementById('cm-difficulty').value);
         const time = parseInt(document.getElementById('cm-time').value);
@@ -135,7 +129,7 @@ function confirmCompletion() {
         t.difficulty = diff || 0; 
         t.actualTime = time || t.est; 
 
-        streak++; // Gamification!
+        streak++;
         playSound('complete');
 
         saveData();
@@ -147,32 +141,45 @@ function confirmCompletion() {
 }
 
 /* =========================================
-   3. EDIT & DELETE TASKS
+   3. EDIT & DELETE TASKS (DETAILS MODAL)
    ========================================= */
 
 function openTaskDetails(id) {
     activeTaskId = id;
-    const t = globalTasks.find(x => x.id === id);
-    if (!t) return;
+
+    // FIX: Use loose comparison (==) so clicks work for all ID types
+    const t = globalTasks.find(x => x.id == id);
+
+    if (!t) {
+        console.error("Task not found with ID:", id);
+        return;
+    }
 
     document.getElementById('d-title').value = t.title;
     document.getElementById('d-desc').value = t.desc || "";
 
     // Date Fix: Convert UTC to Local Time string for the input
-    const localDate = new Date(t.due);
-    localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
-    document.getElementById('d-due').value = localDate.toISOString().slice(0,16);
+    if (t.due) {
+        const localDate = new Date(t.due);
+        localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+        document.getElementById('d-due').value = localDate.toISOString().slice(0,16);
+    } else {
+        document.getElementById('d-due').value = "";
+    }
 
     renderChecklist(t);
     document.getElementById('detailModal').classList.remove('hidden');
 }
 
 function saveTaskDetails() {
-    const t = globalTasks.find(x => x.id === activeTaskId);
+    // FIX: Use loose comparison
+    const t = globalTasks.find(x => x.id == activeTaskId);
     if (t) {
         t.title = document.getElementById('d-title').value;
         t.desc = document.getElementById('d-desc').value;
-        t.due = new Date(document.getElementById('d-due').value).toISOString();
+
+        const dateVal = document.getElementById('d-due').value;
+        if(dateVal) t.due = new Date(dateVal).toISOString();
 
         saveData();
         refreshAllViews();
@@ -183,7 +190,8 @@ function saveTaskDetails() {
 
 function deleteTask() {
     if (confirm("Are you sure you want to delete this task?")) {
-        globalTasks = globalTasks.filter(t => t.id !== activeTaskId);
+        // FIX: Use loose comparison (filter out the matching ID)
+        globalTasks = globalTasks.filter(t => t.id != activeTaskId);
         saveData();
         refreshAllViews();
         closeDetailModal();
@@ -208,7 +216,6 @@ function renderChecklist(task) {
 
     if (!task.checklist) task.checklist = [];
 
-    // Update Progress Counter (e.g. "2/5")
     if (progress) {
         const done = task.checklist.filter(i => i.done).length;
         progress.innerText = `${done}/${task.checklist.length}`;
@@ -235,7 +242,8 @@ function addSubtask() {
     const text = input.value.trim();
     if (!text) return;
 
-    const t = globalTasks.find(x => x.id === activeTaskId);
+    // FIX: Use loose comparison
+    const t = globalTasks.find(x => x.id == activeTaskId);
     if (t) {
         if (!t.checklist) t.checklist = [];
         t.checklist.push({ text: text, done: false });
@@ -247,7 +255,8 @@ function addSubtask() {
 }
 
 function toggleSubtask(index) {
-    const t = globalTasks.find(x => x.id === activeTaskId);
+    // FIX: Use loose comparison
+    const t = globalTasks.find(x => x.id == activeTaskId);
     if (t && t.checklist[index]) {
         t.checklist[index].done = !t.checklist[index].done;
         saveData();
@@ -256,7 +265,8 @@ function toggleSubtask(index) {
 }
 
 function deleteSubtask(index) {
-    const t = globalTasks.find(x => x.id === activeTaskId);
+    // FIX: Use loose comparison
+    const t = globalTasks.find(x => x.id == activeTaskId);
     if (t && t.checklist[index]) {
         t.checklist.splice(index, 1);
         saveData();
@@ -268,12 +278,7 @@ function deleteSubtask(index) {
    5. VIEW REFRESHER
    ========================================= */
 
-/**
- * Triggers re-render for all currently active views.
- * Call this whenever data changes (Add/Edit/Delete/Complete).
- */
 function refreshAllViews() {
-    // Check if function exists before calling (prevents crashes if a script fails to load)
     if (typeof renderMatrix === 'function') renderMatrix();
     if (typeof renderWelcomeBanner === 'function') renderWelcomeBanner();
     if (typeof renderCalendar === 'function') renderCalendar();
@@ -281,7 +286,6 @@ function refreshAllViews() {
     if (typeof renderStream === 'function') renderStream();
     if (typeof renderKanban === 'function') renderKanban();
 
-    // Refresh Detail List if a class is open
     if (typeof viewClassTarget !== 'undefined' && viewClassTarget && typeof renderClassDetailList === 'function') {
         renderClassDetailList(viewClassTarget);
     }
